@@ -1,20 +1,15 @@
 package co.infinum.homework1;
 
 import android.graphics.Color;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
     private int counter;
     private TextView textView;
-    Button btnCount, btnReset;
-    Animation animBounce;
 
     private void initTextValue() {
         counter = 0;
@@ -26,13 +21,10 @@ public class MainActivity extends AppCompatActivity {
             textView.setTextColor(Color.BLACK);
         }
         else {
-            if (counter % 2 == 0)
-                textView.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorAccent));
-            else
-                textView.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary));
+            if (counter % 2 == 0) textView.setTextColor(Color.GREEN);
+            else textView.setTextColor(Color.BLUE);
         }
 
-        textView.startAnimation(animBounce);
         textView.setText(String.valueOf(counter));
     }
 
@@ -42,10 +34,9 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        btnCount = (Button) findViewById(R.id.btnCount);
-        btnReset = (Button) findViewById(R.id.btnReset);
+        Button btnCount = (Button) findViewById(R.id.btnCount);
+        Button btnReset = (Button) findViewById(R.id.btnReset);
         textView = (TextView) findViewById(R.id.textView);
-        animBounce = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.bounce);
 
         initTextValue();
 
