@@ -12,33 +12,33 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/textView"
+        android:id="@+id/tv_count"
         android:layout_centerInParent="true"
-        android:textSize="100sp"
+        android:textSize="@dimen/tv_text_size"
         android:gravity="center"
         />
 
     <Button
-        android:layout_width="128dp"
-        android:layout_height="64dp"
+        android:layout_width="@dimen/btn_width"
+        android:layout_height="@dimen/btn_height"
         android:text="@string/btnCount"
-        android:id="@+id/btnCount"
+        android:id="@+id/btn_count"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginStart="@dimen/rl_margin"
+        android:layout_marginTop="@dimen/rl_margin"
         android:background="@drawable/ripple"
         android:textColor="@color/white"
         />
 
     <Button
-        android:layout_width="128dp"
-        android:layout_height="64dp"
+        android:layout_width="@dimen/btn_width"
+        android:layout_height="@dimen/btn_height"
         android:text="@string/btnReset"
-        android:id="@+id/btnReset"
-        android:layout_alignBottom="@+id/btnCount"
+        android:id="@+id/btn_reset"
+        android:layout_alignBottom="@+id/btn_count"
         android:layout_alignParentEnd="true"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="@dimen/rl_margin"
         android:background="@drawable/ripple"
         android:textColor="@color/white"
         />
