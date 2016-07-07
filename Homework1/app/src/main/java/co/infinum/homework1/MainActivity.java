@@ -27,9 +27,9 @@ public class MainActivity extends AppCompatActivity {
         }
         else {
             if (counter % 2 == 0)
-                textView.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorAccent));
+                textView.setTextColor(ContextCompat.getColor(this, R.color.colorAccent));
             else
-                textView.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary));
+                textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
         }
 
         textView.startAnimation(animBounce);
