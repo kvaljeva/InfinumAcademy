@@ -42,9 +42,9 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        btnCount = (Button) findViewById(R.id.btnCount);
-        btnReset = (Button) findViewById(R.id.btnReset);
-        textView = (TextView) findViewById(R.id.textView);
+        btnCount = (Button) findViewById(R.id.btn_count);
+        btnReset = (Button) findViewById(R.id.btn_reset);
+        textView = (TextView) findViewById(R.id.tv_count);
         animBounce = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.bounce);
 
         initTextValue();
