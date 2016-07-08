@@ -2,26 +2,49 @@ package valjevac.kresimir.homework2;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Patterns;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.URLUtil;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
 
+import java.util.regex.Pattern;
+
 public class BrowserActivity extends AppCompatActivity {
     public static final String SEARCH_URL = "SEARCH URL";
+    private static final String FALLBACK_URL = "http://google.com";
     WebView webView;
     Button btnGo;
     EditText editTextSearch;
 
-    private void loadValidatedUrl(String url) {
-        if (!url.contains("http") || !url.contains("https"))
-            url = "http://" + url;
+    private String validateUrl(String url) {
+        Pattern URL_PATTERN = Patterns.WEB_URL;
+        boolean isUrl = URL_PATTERN.matcher(url).matches();
 
+        if (!isUrl) {
+            String stringUrl = url + "";
+
+            if (!URLUtil.isNetworkUrl(stringUrl)) {
+                url = FALLBACK_URL + "/search?q=" + stringUrl;
+            }
+        }
+
+        if (!url.contains("http") && !url.contains("https"))
+            url = "http://" + url;
+        else if(url.equals("http://") || url.equals("https://"))
+            url = FALLBACK_URL;
+
+        return url;
+    }
+
+    private void loadValidatedUrl(String url) {
+        url = validateUrl(url);
         webView.loadUrl(url);
     }
 
@@ -62,6 +85,8 @@ public class BrowserActivity extends AppCompatActivity {
                     inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 
                 loadValidatedUrl(url);
+
+                editTextSearch.setText("");
             }
         });
     }
