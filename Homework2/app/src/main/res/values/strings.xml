@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Web Browser</string>
+    <string name="et_search_text">Search or enter address</string>
+    <string name="btn_open_webview">OPEN WEBVIEW</string>
+    <string name="btn_open_browser">OPEN BROWSER</string>
+    <string name="btn_go">GO</string>
 </resources>
