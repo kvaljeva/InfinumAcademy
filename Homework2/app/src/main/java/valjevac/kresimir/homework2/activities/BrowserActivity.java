@@ -7,10 +7,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.WebChromeClient;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 
 import valjevac.kresimir.homework2.R;
 import valjevac.kresimir.homework2.helpers.UrlHelper;
@@ -19,6 +23,7 @@ public class BrowserActivity extends AppCompatActivity {
     public static final String SEARCH_URL = "SEARCH URL";
     private WebView webView;
     private EditText editTextSearch;
+    private ProgressBar progressBar;
     Button btnGo;
 
     private void loadValidatedUrl(String url) {
@@ -39,7 +44,22 @@ public class BrowserActivity extends AppCompatActivity {
         webView = (WebView) findViewById(R.id.webview);
         btnGo = (Button) findViewById(R.id.btn_go);
         editTextSearch = (EditText) findViewById(R.id.et_address);
+        progressBar = (ProgressBar) findViewById(R.id.pb_page_load);
 
+        webView.setWebChromeClient(new WebChromeClient(){
+            @Override
+            public void onProgressChanged(WebView view, int newProgress) {
+                if (newProgress < 100 && progressBar.getVisibility() == ProgressBar.GONE) {
+                    progressBar.setVisibility(ProgressBar.VISIBLE);
+                }
+
+                progressBar.setProgress(newProgress);
+
+                if (newProgress >= 100) {
+                    progressBar.setVisibility(ProgressBar.GONE);
+                }
+            }
+        });
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
@@ -52,6 +72,11 @@ public class BrowserActivity extends AppCompatActivity {
                 }
             }
         });
+        webView.clearCache(true);
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setLoadsImagesAutomatically(true);
+        webView.getSettings().setBuiltInZoomControls(true);
+        webView.getSettings().setDisplayZoomControls(false);
         webView.requestFocus();
 
         if (savedInstanceState != null) {
@@ -105,6 +130,8 @@ public class BrowserActivity extends AppCompatActivity {
             case R.id.action_forward:
                 webView.goForward();
                 return true;
+            case R.id.action_refresh:
+                webView.loadUrl("javascript:window.location.reload(true)");
             default:
                 return super.onOptionsItemSelected(item);
         }

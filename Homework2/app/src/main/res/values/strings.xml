@@ -4,4 +4,6 @@
     <string name="btn_open_webview">OPEN WEBVIEW</string>
     <string name="btn_open_browser">OPEN BROWSER</string>
     <string name="btn_go">GO</string>
+    <string name="action_back">Back</string>
+    <string name="action_forward">Forward</string>
 </resources>

@@ -5,6 +5,14 @@
     android:layout_height="match_parent"
     tools:context=".activities.BrowserActivity">
 
+    <ProgressBar
+        android:id="@+id/pb_page_load"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/pb_height"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="-3dp"
+        style="?android:progressBarStyleHorizontal" />
+
     <RelativeLayout
         android:id="@+id/layout_container"
         android:layout_width="match_parent"

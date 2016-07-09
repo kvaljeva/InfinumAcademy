@@ -7,4 +7,5 @@
     <dimen name="et_address_right_margin">90dp</dimen>
     <dimen name="et_address_top_margin">5dp</dimen>
     <dimen name="rl_search_padding">5dp</dimen>
+    <dimen name="pb_height">7dp</dimen>
 </resources>
