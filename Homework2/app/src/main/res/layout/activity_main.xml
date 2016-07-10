@@ -11,7 +11,7 @@
     android:orientation="vertical">
     
     <EditText
-        android:id="@+id/et_search"
+        android:id="@+id/et_web_search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/et_search_text"
@@ -35,4 +35,63 @@
             android:text="@string/btn_open_browser"
             android:layout_alignParentRight="true"/>
     </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl_container_no_history"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="20dp"
+        android:animateLayoutChanges="true">
+        
+        <View
+            android:id="@+id/anchor"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_centerInParent="true"/>
+        
+        <ImageView
+            android:id="@+id/ic_no_history"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/anchor"
+            android:layout_centerInParent="true"
+            android:layout_marginBottom="@dimen/iv_margin_bottom"
+            android:src="@mipmap/ic_history" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/anchor"
+            android:text="@string/no_history_to_show"
+            android:textSize="@dimen/tv_no_history_text_size"
+            android:layout_centerHorizontal="true" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="1">
+
+        <EditText
+            android:id="@+id/et_search_history"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:hint="@string/et_search_history"
+            android:layout_marginTop="@dimen/et_history_search_margin_top" />
+
+        <Button
+            android:id="@+id/btn_clear_history"
+            android:layout_width="@dimen/btn_main_width"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="20dp"
+            android:text="@string/btn_clear_history"/>
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/lv_history"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 </LinearLayout>

@@ -6,4 +6,7 @@
     <string name="btn_go">GO</string>
     <string name="action_back">Back</string>
     <string name="action_forward">Forward</string>
+    <string name="no_history_to_show">No history to show</string>
+    <string name="btn_clear_history">CLEAR HISTORY</string>
+    <string name="et_search_history">Search history</string>
 </resources>

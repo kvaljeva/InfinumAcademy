@@ -24,6 +24,8 @@ public class UrlHelper {
             url = "http://" + url;
         else if(url.equals("http://") || url.equals("https://"))
             url = FALLBACK_URL;
+        else if (url.isEmpty())
+            url = FALLBACK_URL;
 
         return url;
     }

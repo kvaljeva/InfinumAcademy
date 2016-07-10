@@ -8,4 +8,7 @@
     <dimen name="et_address_top_margin">5dp</dimen>
     <dimen name="rl_search_padding">5dp</dimen>
     <dimen name="pb_height">7dp</dimen>
+    <dimen name="tv_no_history_text_size">25sp</dimen>
+    <dimen name="et_history_search_margin_top">25dp</dimen>
+    <dimen name="iv_margin_bottom">10dp</dimen>
 </resources>

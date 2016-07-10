@@ -8,8 +8,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebChromeClient;
-import android.webkit.WebResourceRequest;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
@@ -17,14 +15,17 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 
 import valjevac.kresimir.homework2.R;
+import valjevac.kresimir.homework2.helpers.HistoryHelper;
 import valjevac.kresimir.homework2.helpers.UrlHelper;
 
+@SuppressWarnings("setJavascriptEnabled")
 public class BrowserActivity extends AppCompatActivity {
     public static final String SEARCH_URL = "SEARCH URL";
     private WebView webView;
     private EditText editTextSearch;
     private ProgressBar progressBar;
     Button btnGo;
+    String lastUrl;
 
     private void loadValidatedUrl(String url) {
         url = UrlHelper.validateUrl(url);
@@ -37,8 +38,9 @@ public class BrowserActivity extends AppCompatActivity {
         setContentView(R.layout.activity_browser);
 
         String url = getIntent().getStringExtra(SEARCH_URL);
+        lastUrl = "";
 
-        // If there's nothing passed through the explicit intent, try loading data from the implicit
+        // If there's nothing passed through the explicit intent, try loading data from the implicit intent
         if (url == null) url = getIntent().getDataString();
 
         webView = (WebView) findViewById(R.id.webview);
@@ -67,9 +69,13 @@ public class BrowserActivity extends AppCompatActivity {
 
                 BrowserActivity.this.setTitle(view.getTitle());
 
-                if (view.canGoBack() || view.canGoForward()) {
+                if (view.canGoBack() || view.canGoForward())
                     invalidateOptionsMenu();
-                }
+
+                if (!lastUrl.equals(url))
+                    HistoryHelper.writeToHistory(url);
+
+                lastUrl = url;
             }
         });
         webView.clearCache(true);
@@ -138,9 +144,17 @@ public class BrowserActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        lastUrl = savedInstanceState.getString("LAST_URL");
+
+        super.onRestoreInstanceState(savedInstanceState);
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
         webView.saveState(outState);
+        outState.putString("LAST_URL", lastUrl);
     }
 }
