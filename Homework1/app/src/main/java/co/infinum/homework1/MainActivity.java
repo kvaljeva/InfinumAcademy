@@ -27,9 +27,9 @@ public class MainActivity extends AppCompatActivity {
         }
         else {
             if (counter % 2 == 0)
-                textView.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorAccent));
+                textView.setTextColor(ContextCompat.getColor(this, R.color.colorAccent));
             else
-                textView.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary));
+                textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
         }
 
         textView.startAnimation(animBounce);
@@ -42,9 +42,9 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        btnCount = (Button) findViewById(R.id.btnCount);
-        btnReset = (Button) findViewById(R.id.btnReset);
-        textView = (TextView) findViewById(R.id.textView);
+        btnCount = (Button) findViewById(R.id.btn_count);
+        btnReset = (Button) findViewById(R.id.btn_reset);
+        textView = (TextView) findViewById(R.id.tv_count);
         animBounce = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.bounce);
 
         initTextValue();
