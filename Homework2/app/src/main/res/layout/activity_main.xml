@@ -41,7 +41,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="20dp"
-        android:animateLayoutChanges="true">
+        android:animateLayoutChanges="true"
+        android:visibility="gone">
         
         <View
             android:id="@+id/anchor"
@@ -90,8 +91,10 @@
             android:text="@string/btn_clear_history"/>
     </LinearLayout>
 
-    <ListView
+    <android.support.v7.widget.RecyclerView
         android:id="@+id/lv_history"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:scrollbars="vertical"/>
 </LinearLayout>

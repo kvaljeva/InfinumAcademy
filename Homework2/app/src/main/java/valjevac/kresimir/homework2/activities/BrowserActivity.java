@@ -17,37 +17,24 @@ import android.widget.ProgressBar;
 import valjevac.kresimir.homework2.R;
 import valjevac.kresimir.homework2.helpers.HistoryHelper;
 import valjevac.kresimir.homework2.helpers.UrlHelper;
+import valjevac.kresimir.homework2.models.UrlModel;
 
 @SuppressWarnings("setJavascriptEnabled")
 public class BrowserActivity extends AppCompatActivity {
     public static final String SEARCH_URL = "SEARCH URL";
+    public static final String LAST_URL = "LAST URL";
     private WebView webView;
     private EditText editTextSearch;
     private ProgressBar progressBar;
     Button btnGo;
-    String lastUrl;
+    String previousUrl;
 
     private void loadValidatedUrl(String url) {
         url = UrlHelper.validateUrl(url);
         webView.loadUrl(url);
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_browser);
-
-        String url = getIntent().getStringExtra(SEARCH_URL);
-        lastUrl = "";
-
-        // If there's nothing passed through the explicit intent, try loading data from the implicit intent
-        if (url == null) url = getIntent().getDataString();
-
-        webView = (WebView) findViewById(R.id.webview);
-        btnGo = (Button) findViewById(R.id.btn_go);
-        editTextSearch = (EditText) findViewById(R.id.et_address);
-        progressBar = (ProgressBar) findViewById(R.id.pb_page_load);
-
+    private void initWebview() {
         webView.setWebChromeClient(new WebChromeClient(){
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
@@ -72,10 +59,12 @@ public class BrowserActivity extends AppCompatActivity {
                 if (view.canGoBack() || view.canGoForward())
                     invalidateOptionsMenu();
 
-                if (!lastUrl.equals(url))
-                    HistoryHelper.writeToHistory(url);
+                if (!previousUrl.equals(url)) {
+                    UrlModel urlModel = new UrlModel(view.getTitle(), url);
+                    HistoryHelper.writeToHistory(urlModel);
+                }
 
-                lastUrl = url;
+                previousUrl = url;
             }
         });
         webView.clearCache(true);
@@ -84,6 +73,25 @@ public class BrowserActivity extends AppCompatActivity {
         webView.getSettings().setBuiltInZoomControls(true);
         webView.getSettings().setDisplayZoomControls(false);
         webView.requestFocus();
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_browser);
+
+        String url = getIntent().getStringExtra(SEARCH_URL);
+        previousUrl = "";
+
+        // If there's nothing passed through the explicit intent, try loading data from the implicit intent
+        if (url == null) url = getIntent().getDataString();
+
+        webView = (WebView) findViewById(R.id.webview);
+        btnGo = (Button) findViewById(R.id.btn_go);
+        editTextSearch = (EditText) findViewById(R.id.et_address);
+        progressBar = (ProgressBar) findViewById(R.id.pb_page_load);
+
+        initWebview();
 
         if (savedInstanceState != null) {
             webView.restoreState(savedInstanceState);
@@ -145,7 +153,7 @@ public class BrowserActivity extends AppCompatActivity {
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        lastUrl = savedInstanceState.getString("LAST_URL");
+        previousUrl = savedInstanceState.getString(LAST_URL);
 
         super.onRestoreInstanceState(savedInstanceState);
     }
@@ -155,6 +163,12 @@ public class BrowserActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
 
         webView.saveState(outState);
-        outState.putString("LAST_URL", lastUrl);
+        outState.putString(LAST_URL, previousUrl);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
     }
 }
