@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">Homework3</string>
+    <string name="action_add_text">+</string>
+    <string name="tv_no_pokemons">No Pokemons</string>
+    <string name="tv_no_pokemons_desc">To add some pokemons,\npress + icon</string>
+    <string name="et_pokemon_desc_hint">Description</string>
+    <string name="btn_save_pokemon">Save</string>
+    <string name="et_pokemon_name">Name</string>
+    <string name="iv_pokemon_name_icon">Pokemon name icon</string>
+    <string name="iv_pokemon_description_icon">Pokemon description icon</string>
 </resources>

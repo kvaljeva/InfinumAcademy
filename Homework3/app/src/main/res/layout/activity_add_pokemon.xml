@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.AddPokemonActivity">
+
+    <LinearLayout
+        android:id="@+id/ll_name_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="15"
+        android:paddingTop="20dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp">
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:src="@mipmap/ic_person"
+            android:layout_gravity="center_vertical"
+            android:contentDescription="@string/iv_pokemon_name_icon"/>
+
+        <EditText
+            android:id="@+id/et_pokemon_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="15"
+            android:textColor="@color/colorPrimary"
+            android:layout_marginLeft="@dimen/et_add_pokemon_left_margin"
+            android:hint="@string/et_pokemon_name"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_desc_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="15"
+        android:layout_below="@id/ll_name_container"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp">
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:src="@mipmap/ic_description"
+            android:layout_gravity="center_vertical"
+            android:contentDescription="@string/iv_pokemon_description_icon"/>
+
+        <EditText
+            android:id="@+id/et_pokemon_desc"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="15"
+            android:textColor="@color/colorPrimary"
+            android:layout_marginLeft="@dimen/et_add_pokemon_left_margin"
+            android:hint="@string/et_pokemon_desc_hint"/>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_save_pokemon"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/colorPrimary"
+        android:text="@string/btn_save_pokemon"
+        android:textColor="@color/text_icons"/>
+</RelativeLayout>
