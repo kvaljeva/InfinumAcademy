@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
@@ -27,15 +28,17 @@ public class MainActivity extends AppCompatActivity {
     private EditText etWebSearch, ethistorySearch;
     private ArrayList<UrlModel> history;
     private HistoryAdapter historyAdapter;
-    RecyclerView recyclerViewHistory;
+    private RecyclerView recyclerViewHistory;
+    private RelativeLayout rlHistoryContainer;
+    private LinearLayout llHistoryOptionsContainer;
     Button btnWebview, btnBrowser, btnClearHistory;
-    RelativeLayout rlHistoryContainer;
 
     private void loadHistory() {
         history = HistoryHelper.readHistory(true);
 
         if (history != null && (history.size() > 0)) {
             rlHistoryContainer.setVisibility(View.GONE);
+            llHistoryOptionsContainer.setVisibility(View.VISIBLE);
             recyclerViewHistory.setVisibility(View.VISIBLE);
 
             if (historyAdapter == null) {
@@ -67,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
         etWebSearch = (EditText) findViewById(R.id.et_web_search);
         recyclerViewHistory = (RecyclerView) findViewById(R.id.lv_history);
         rlHistoryContainer = (RelativeLayout) findViewById(R.id.rl_container_no_history);
+        llHistoryOptionsContainer = (LinearLayout) findViewById(R.id.ll_history_options_container);
 
         btnWebview.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
 
                 rlHistoryContainer.setVisibility(View.VISIBLE);
                 recyclerViewHistory.setVisibility(View.GONE);
+                llHistoryOptionsContainer.setVisibility(View.GONE);
             }
         });
 

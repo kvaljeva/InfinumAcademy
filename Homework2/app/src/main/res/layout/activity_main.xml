@@ -69,10 +69,12 @@
     </RelativeLayout>
 
     <LinearLayout
+        android:id="@+id/ll_history_options_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:weightSum="1">
+        android:weightSum="1"
+        android:visibility="gone">
 
         <EditText
             android:id="@+id/et_search_history"
