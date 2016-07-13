@@ -16,7 +16,7 @@ import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
 
-import valjevac.kresimir.homework2.HistoryAdapter;
+import valjevac.kresimir.homework2.adapters.HistoryAdapter;
 import valjevac.kresimir.homework2.R;
 import valjevac.kresimir.homework2.listeners.RecyclerViewClickListener;
 import valjevac.kresimir.homework2.models.UrlModel;

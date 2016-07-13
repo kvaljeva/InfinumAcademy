@@ -40,9 +40,8 @@
         android:id="@+id/rl_container_no_history"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="20dp"
-        android:animateLayoutChanges="true"
-        android:visibility="gone">
+        android:layout_marginTop="@dimen/top_margin_20dp"
+        android:animateLayoutChanges="true">
         
         <View
             android:id="@+id/anchor"
@@ -60,6 +59,7 @@
             android:src="@mipmap/ic_history" />
 
         <TextView
+            android:id="@+id/tv_no_history_desc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/anchor"
@@ -87,7 +87,7 @@
             android:layout_width="@dimen/btn_main_width"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="@dimen/top_margin_20dp"
             android:text="@string/btn_clear_history"/>
     </LinearLayout>
 

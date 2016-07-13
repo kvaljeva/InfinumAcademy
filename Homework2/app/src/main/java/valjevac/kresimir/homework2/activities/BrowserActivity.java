@@ -25,7 +25,7 @@ public class BrowserActivity extends AppCompatActivity {
     public static final String LAST_URL = "LAST URL";
     private WebView webView;
     private EditText editTextSearch;
-    private ProgressBar progressBar;
+    private ProgressBar progressBarPageLoad;
     Button btnGo;
     String previousUrl;
 
@@ -38,14 +38,14 @@ public class BrowserActivity extends AppCompatActivity {
         webView.setWebChromeClient(new WebChromeClient(){
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
-                if (newProgress < 100 && progressBar.getVisibility() == ProgressBar.GONE) {
-                    progressBar.setVisibility(ProgressBar.VISIBLE);
+                if (newProgress < 100 && progressBarPageLoad.getVisibility() == ProgressBar.GONE) {
+                    progressBarPageLoad.setVisibility(ProgressBar.VISIBLE);
                 }
 
-                progressBar.setProgress(newProgress);
+                progressBarPageLoad.setProgress(newProgress);
 
                 if (newProgress >= 100) {
-                    progressBar.setVisibility(ProgressBar.GONE);
+                    progressBarPageLoad.setVisibility(ProgressBar.GONE);
                 }
             }
         });
@@ -89,7 +89,7 @@ public class BrowserActivity extends AppCompatActivity {
         webView = (WebView) findViewById(R.id.webview);
         btnGo = (Button) findViewById(R.id.btn_go);
         editTextSearch = (EditText) findViewById(R.id.et_address);
-        progressBar = (ProgressBar) findViewById(R.id.pb_page_load);
+        progressBarPageLoad = (ProgressBar) findViewById(R.id.pb_page_load);
 
         initWebview();
 

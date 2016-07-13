@@ -21,7 +21,7 @@ public class HistoryHelper {
     static File path, historyFile;
     static Context appContext;
     static Gson gson;
-    static ArrayList<UrlModel> urlsList;
+    static ArrayList<UrlModel> urlList;
 
     public static void init() {
         if (appContext == null)
@@ -32,10 +32,10 @@ public class HistoryHelper {
 
         if (gson == null) gson = new Gson();
 
-        urlsList = readHistory(false);
+        urlList = readHistory(false);
 
         // In case that there is no current history, initialize the list
-        if (urlsList == null) urlsList = new ArrayList<>();
+        if (urlList == null) urlList = new ArrayList<>();
     }
 
     public static ArrayList<UrlModel> clearHistory() {
@@ -50,20 +50,20 @@ public class HistoryHelper {
             if (writer != null) writer.close();
         }
 
-        urlsList.clear();
+        urlList.clear();
 
-        return urlsList;
+        return urlList;
     }
 
     public static boolean writeToHistory(UrlModel url) {
         FileWriter writer = null;
 
         // In case that we came here from an intent and that no init was called beforehand
-        if (urlsList == null) init();
+        if (urlList == null) init();
 
-        urlsList.add(url);
+        urlList.add(url);
 
-        UrlModel[] content = urlsList.toArray(new UrlModel[urlsList.size()]);
+        UrlModel[] content = urlList.toArray(new UrlModel[urlList.size()]);
 
         try {
             writer = new FileWriter(historyFile);

@@ -1,8 +1,7 @@
-package valjevac.kresimir.homework2;
+package valjevac.kresimir.homework2.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +9,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import valjevac.kresimir.homework2.R;
 import valjevac.kresimir.homework2.listeners.RecyclerViewClickListener;
 import valjevac.kresimir.homework2.models.UrlModel;
 
@@ -17,7 +17,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     private ArrayList<UrlModel> urlList;
     private ArrayList<UrlModel> originalUrlList;
     private Context context;
-    private RecyclerViewClickListener clickListener;
+    private RecyclerViewClickListener<UrlModel> clickListener;
 
     public HistoryAdapter(Context context, ArrayList<UrlModel> urls,
                           RecyclerViewClickListener<UrlModel> clickListener) {
