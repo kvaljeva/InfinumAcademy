@@ -10,7 +10,7 @@
     tools:context=".activities.PokemonListActivity">
 
     <LinearLayout
-        android:id="@+id/rl_empty_state_container"
+        android:id="@+id/ll_empty_state_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -42,6 +42,7 @@
     </LinearLayout>
 
     <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_view_pokemon_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone">

@@ -3,6 +3,8 @@ package valjevac.kresimir.homework3.activities;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.ActionMenuView;
+import android.support.v7.widget.Toolbar;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -55,12 +57,5 @@ public class AddPokemonActivity extends AppCompatActivity {
     @OnTextChanged(R.id.et_pokemon_name)
     public void notifyNameChange() {
         this.changesMade = true;
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (changesMade) {
-            // show dialog
-        }
     }
 }

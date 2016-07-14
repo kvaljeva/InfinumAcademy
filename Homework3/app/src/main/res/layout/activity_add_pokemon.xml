@@ -26,8 +26,9 @@
             android:id="@+id/et_pokemon_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="15"
+            android:layout_weight="14"
             android:textColor="@color/colorPrimary"
+            android:theme="@style/EditTextTheme"
             android:layout_marginLeft="@dimen/et_add_pokemon_left_margin"
             android:hint="@string/et_pokemon_name"/>
     </LinearLayout>
@@ -53,8 +54,9 @@
             android:id="@+id/et_pokemon_desc"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="15"
+            android:layout_weight="14"
             android:textColor="@color/colorPrimary"
+            android:theme="@style/EditTextTheme"
             android:layout_marginLeft="@dimen/et_add_pokemon_left_margin"
             android:hint="@string/et_pokemon_desc_hint"/>
     </LinearLayout>

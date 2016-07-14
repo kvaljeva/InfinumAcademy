@@ -9,4 +9,8 @@
         <item name="android:actionMenuTextColor">@color/text_icons</item>
     </style>
 
+    <style name="EditTextTheme">
+        <item name="colorControlActivated">@color/colorPrimary</item>
+    </style>
+    
 </resources>

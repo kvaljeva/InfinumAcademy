@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Homework3</string>
+    <string name="app_name">Pokemon</string>
     <string name="action_add_text">+</string>
     <string name="tv_no_pokemons">No Pokemons</string>
     <string name="tv_no_pokemons_desc">To add some pokemons,\npress + icon</string>
