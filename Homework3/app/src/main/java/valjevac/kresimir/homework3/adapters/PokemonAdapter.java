@@ -44,7 +44,13 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHold
         return pokemonList.size();
     }
 
-    public void update() {
+    public void update(ArrayList<PokemonModel> updateList) {
+        if (pokemonList != null) {
+            pokemonList.clear();
+            pokemonList.addAll(updateList);
+        }
+        else pokemonList = updateList;
+
         notifyDataSetChanged();
     }
 
