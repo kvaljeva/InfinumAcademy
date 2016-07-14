@@ -39,49 +39,65 @@ public class HistoryHelper {
     }
 
     public static ArrayList<UrlModel> clearHistory() {
-        PrintWriter writer = null;
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
 
-        try {
-            writer = new PrintWriter(historyFile);
-            writer.write("");
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (writer != null) writer.close();
-        }
+                PrintWriter writer = null;
+
+                try {
+                    writer = new PrintWriter(historyFile);
+                    writer.write("");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    if (writer != null) writer.close();
+                }
+            }
+        };
+
+        Thread thread = new Thread(r);
+        thread.start();
 
         urlList.clear();
 
         return urlList;
     }
 
-    public static boolean writeToHistory(UrlModel url) {
-        FileWriter writer = null;
+    public static void writeToHistory(UrlModel url) {
+        final UrlModel urlToWrite = url;
 
-        // In case that we came here from an intent and that no init was called beforehand
-        if (urlList == null) init();
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                FileWriter writer = null;
 
-        urlList.add(url);
+                // In case that we came here from an intent and that no init was called beforehand
+                if (urlList == null) init();
 
-        UrlModel[] content = urlList.toArray(new UrlModel[urlList.size()]);
+                urlList.add(urlToWrite);
 
-        try {
-            writer = new FileWriter(historyFile);
-            writer.write(gson.toJson(content));
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        } finally {
-            if (writer != null) {
+                UrlModel[] content = urlList.toArray(new UrlModel[urlList.size()]);
+
                 try {
-                    writer.close();
-                } catch (Exception e) {
+                    writer = new FileWriter(historyFile);
+                    writer.write(gson.toJson(content));
+                } catch (IOException e) {
                     e.printStackTrace();
+                } finally {
+                    if (writer != null) {
+                        try {
+                            writer.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
-        }
+        };
 
-        return true;
+        Thread thread = new Thread(r);
+        thread.start();
     }
 
     public static ArrayList<UrlModel> readHistory (boolean isViewCall) {
