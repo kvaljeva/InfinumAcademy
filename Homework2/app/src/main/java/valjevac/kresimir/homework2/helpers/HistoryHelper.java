@@ -101,8 +101,9 @@ public class HistoryHelper {
     }
 
     public static ArrayList<UrlModel> readHistory (boolean isViewCall) {
-        if (historyFile == null)
+        if (historyFile == null) {
             return null;
+        }
 
         UrlModel[] content = null;
 
@@ -118,8 +119,9 @@ public class HistoryHelper {
         if (content != null) {
             urlList = new ArrayList<>(Arrays.asList(content));
 
-            if (isViewCall)
+            if (isViewCall) {
                 Collections.reverse(urlList);
+            }
         }
 
         return urlList;

@@ -2,6 +2,7 @@ package valjevac.kresimir.homework2.activities;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -23,11 +24,14 @@ import valjevac.kresimir.homework2.models.UrlModel;
 public class BrowserActivity extends AppCompatActivity {
     public static final String SEARCH_URL = "SEARCH URL";
     public static final String LAST_URL = "LAST URL";
+    public static final int PROGRESS_BAR_MAX = 100;
     private WebView webView;
     private EditText editTextSearch;
     private ProgressBar progressBarPageLoad;
     Button btnGo;
     String previousUrl;
+    MenuItem menuActionBack;
+    MenuItem menuActionForward;
 
     private void loadValidatedUrl(String url) {
         url = UrlHelper.validateUrl(url);
@@ -38,7 +42,7 @@ public class BrowserActivity extends AppCompatActivity {
         webView.setWebChromeClient(new WebChromeClient(){
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
-                if (newProgress < 100 && progressBarPageLoad.getVisibility() == ProgressBar.GONE) {
+                if (newProgress < PROGRESS_BAR_MAX && progressBarPageLoad.getVisibility() == ProgressBar.GONE) {
                     progressBarPageLoad.setVisibility(ProgressBar.VISIBLE);
                 }
 
@@ -56,8 +60,9 @@ public class BrowserActivity extends AppCompatActivity {
 
                 BrowserActivity.this.setTitle(view.getTitle());
 
-                if (view.canGoBack() || view.canGoForward())
-                    invalidateOptionsMenu();
+                if (view.canGoBack() || view.canGoForward()) {
+                    updateMenuItems(view.canGoForward(), view.canGoBack());
+                }
 
                 if (!previousUrl.equals(url)) {
                     UrlModel urlModel = new UrlModel(view.getTitle(), url);
@@ -84,7 +89,9 @@ public class BrowserActivity extends AppCompatActivity {
         previousUrl = "";
 
         // If there's nothing passed through the explicit intent, try loading data from the implicit intent
-        if (url == null) url = getIntent().getDataString();
+        if (TextUtils.isEmpty(url)) {
+            url = getIntent().getDataString();
+        }
 
         webView = (WebView) findViewById(R.id.webview);
         btnGo = (Button) findViewById(R.id.btn_go);
@@ -106,8 +113,9 @@ public class BrowserActivity extends AppCompatActivity {
                 String url = editTextSearch.getText().toString();
 
                 InputMethodManager inputManager = (InputMethodManager) getSystemService(MainActivity.INPUT_METHOD_SERVICE);
-                if (getCurrentFocus() != null)
+                if (getCurrentFocus() != null) {
                     inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                }
 
                 loadValidatedUrl(url);
 
@@ -121,18 +129,17 @@ public class BrowserActivity extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_buttons, menu);
 
-        menu.findItem(R.id.action_forward).setEnabled(false);
-        menu.findItem(R.id.action_back).setEnabled(false);
+        menuActionBack = menu.findItem(R.id.action_back);
+        menuActionForward = menu.findItem(R.id.action_forward);
 
-        return super.onCreateOptionsMenu(menu);
+        updateMenuItems(false, false);
+
+        return true;
     }
 
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        menu.findItem(R.id.action_back).setEnabled(webView.canGoBack());
-        menu.findItem(R.id.action_forward).setEnabled(webView.canGoForward());
-
-        return super.onPrepareOptionsMenu(menu);
+    private void updateMenuItems(boolean forwardState, boolean backState) {
+        menuActionForward.setEnabled(forwardState);
+        menuActionBack.setEnabled(backState);
     }
 
     @Override

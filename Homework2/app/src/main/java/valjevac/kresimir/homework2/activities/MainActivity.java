@@ -52,7 +52,9 @@ public class MainActivity extends AppCompatActivity {
                 recyclerViewHistory.setAdapter(historyAdapter);
                 recyclerViewHistory.setLayoutManager(new LinearLayoutManager(this));
             }
-            else historyAdapter.update(history);
+            else {
+                historyAdapter.update(history);
+            }
         }
     }
 
@@ -79,8 +81,9 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra(BrowserActivity.SEARCH_URL, etWebSearch.getText().toString());
 
                 InputMethodManager inputManager = (InputMethodManager) getSystemService(MainActivity.INPUT_METHOD_SERVICE);
-                if (getCurrentFocus() != null)
+                if (getCurrentFocus() != null) {
                     inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                }
 
                 startActivity(intent);
             }
@@ -104,8 +107,9 @@ public class MainActivity extends AppCompatActivity {
         btnClearHistory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (history != null)
+                if (history != null) {
                     history = HistoryHelper.clearHistory();
+                }
 
                 rlHistoryContainer.setVisibility(View.VISIBLE);
                 recyclerViewHistory.setVisibility(View.GONE);

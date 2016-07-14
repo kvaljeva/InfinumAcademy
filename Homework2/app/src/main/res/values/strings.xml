@@ -9,4 +9,5 @@
     <string name="no_history_to_show">No history to show</string>
     <string name="btn_clear_history">CLEAR HISTORY</string>
     <string name="et_search_history">Search history</string>
+    <string name="action_refresh">Refresh</string>
 </resources>

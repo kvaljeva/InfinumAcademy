@@ -5,6 +5,7 @@
         android:id="@+id/action_refresh"
         app:showAsAction="ifRoom"
         android:icon="@mipmap/ic_refresh_white"
+        android:title="@string/action_refresh"
         />
     <item
         android:id="@+id/action_back"

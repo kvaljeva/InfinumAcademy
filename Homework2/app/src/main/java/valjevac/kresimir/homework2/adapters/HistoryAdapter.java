@@ -8,18 +8,19 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import valjevac.kresimir.homework2.R;
 import valjevac.kresimir.homework2.listeners.RecyclerViewClickListener;
 import valjevac.kresimir.homework2.models.UrlModel;
 
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHolder> {
-    private ArrayList<UrlModel> urlList;
-    private ArrayList<UrlModel> originalUrlList;
+    private List<UrlModel> urlList;
+    private List<UrlModel> originalUrlList;
     private Context context;
     private RecyclerViewClickListener<UrlModel> clickListener;
 
-    public HistoryAdapter(Context context, ArrayList<UrlModel> urls,
+    public HistoryAdapter(Context context, List<UrlModel> urls,
                           RecyclerViewClickListener<UrlModel> clickListener) {
 
         this.context = context;
@@ -56,8 +57,9 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     }
 
     public void filter(String query) {
-        if (query.contains("\n"))
+        if (query.contains("\n")) {
             query = query.replace("\n", "");
+        }
 
         if (query.isEmpty()) {
             urlList.clear();
@@ -69,7 +71,6 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
             for (UrlModel urlModel : originalUrlList) {
                 if (urlModel.getPageName().toLowerCase().contains(query)) {
-
                     filteredList.add(urlModel);
                 }
             }

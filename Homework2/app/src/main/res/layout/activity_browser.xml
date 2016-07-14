@@ -19,14 +19,13 @@
         android:layout_height="wrap_content"
         android:paddingLeft="@dimen/rl_search_padding"
         android:paddingRight="@dimen/rl_search_padding"
-        android:paddingTop="@dimen/rl_search_padding"
-        android:weightSum="2">
+        android:paddingTop="@dimen/rl_search_padding">
 
         <EditText
             android:id="@+id/et_address"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
+            android:layout_weight="1"
             android:hint="@string/et_search_text"
             android:layout_marginTop="@dimen/et_address_top_margin"
             android:singleLine="true"
