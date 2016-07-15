@@ -1,72 +1,161 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.AddPokemonActivity">
+    tools:context=".activities.AddPokemonActivity"
+    android:background="@color/text_icons">
 
-    <LinearLayout
-        android:id="@+id/ll_name_container"
+    <RelativeLayout
         android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/ll_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="40dp"
+            android:background="@color/colorLightBackground">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="120dp"
+                android:src="@mipmap/ic_person_details"
+                android:layout_gravity="center_horizontal"/>
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_body"
+            android:layout_below="@id/ll_header"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/iv_pokemon_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_person"
+                android:layout_marginTop="45dp"
+                android:layout_marginStart="15dp"
+                android:layout_marginLeft="15dp"
+                android:contentDescription="@string/iv_pokemon_name_icon"/>
+
+            <EditText
+                android:id="@+id/et_pokemon_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:theme="@style/EditTextTheme"
+                android:hint="@string/et_pokemon_name"
+                android:layout_marginTop="25dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_alignLeft="@id/iv_pokemon_name"
+                android:layout_alignStart="@id/iv_pokemon_name"
+                android:layout_marginStart="40dp"
+                android:layout_marginLeft="40dp"/>
+
+            <EditText
+                android:id="@+id/et_pokemon_height"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/et_pokemon_name"
+                android:theme="@style/EditTextTheme"
+                android:hint="Height"
+                android:layout_alignStart="@id/et_pokemon_name"
+                android:layout_alignLeft="@id/et_pokemon_name"
+                android:layout_alignEnd="@id/et_pokemon_name"
+                android:layout_alignRight="@id/et_pokemon_name"
+                android:paddingTop="10dp"/>
+
+            <EditText
+                android:id="@+id/et_pokemon_weight"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/et_pokemon_height"
+                android:theme="@style/EditTextTheme"
+                android:hint="Weight"
+                android:layout_alignStart="@id/et_pokemon_name"
+                android:layout_alignLeft="@id/et_pokemon_name"
+                android:layout_alignEnd="@id/et_pokemon_name"
+                android:layout_alignRight="@id/et_pokemon_name"
+                android:paddingTop="10dp"/>
+
+            <EditText
+                android:id="@+id/et_pokemon_category"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/et_pokemon_weight"
+                android:theme="@style/EditTextTheme"
+                android:hint="Category"
+                android:layout_alignStart="@id/et_pokemon_name"
+                android:layout_alignLeft="@id/et_pokemon_name"
+                android:layout_alignEnd="@id/et_pokemon_name"
+                android:layout_alignRight="@id/et_pokemon_name"
+                android:paddingTop="10dp"/>
+
+            <EditText
+                android:id="@+id/et_pokemon_abilities"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/et_pokemon_category"
+                android:theme="@style/EditTextTheme"
+                android:hint="@string/et_pokemon_abilities"
+                android:layout_alignStart="@id/et_pokemon_name"
+                android:layout_alignLeft="@id/et_pokemon_name"
+                android:layout_alignEnd="@id/et_pokemon_name"
+                android:layout_alignRight="@id/et_pokemon_name"
+                android:paddingTop="10dp"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_description"
+                android:layout_marginTop="15dp"
+                android:layout_below="@id/et_pokemon_abilities"
+                android:layout_alignStart="@id/iv_pokemon_name"
+                android:layout_alignLeft="@id/iv_pokemon_name"
+                android:contentDescription="@string/iv_pokemon_description_icon"/>
+
+            <EditText
+                android:id="@+id/et_pokemon_desc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:theme="@style/EditTextTheme"
+                android:layout_below="@id/et_pokemon_abilities"
+                android:layout_alignStart="@id/et_pokemon_name"
+                android:layout_alignLeft="@id/et_pokemon_name"
+                android:layout_alignEnd="@id/et_pokemon_name"
+                android:layout_alignRight="@id/et_pokemon_name"
+                android:hint="@string/et_pokemon_desc_hint"
+                android:paddingTop="10dp"/>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:background="@color/colorPrimary">
+
+                <Button
+                    android:id="@+id/btn_save_pokemon"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:text="@string/btn_save_pokemon"
+                    android:textColor="@color/text_icons"/>
+            </FrameLayout>
+        </RelativeLayout>
+    </RelativeLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:weightSum="15"
-        android:paddingTop="20dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp">
-
-        <ImageView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:src="@mipmap/ic_person"
-            android:layout_gravity="center_vertical"
-            android:contentDescription="@string/iv_pokemon_name_icon"/>
-
-        <EditText
-            android:id="@+id/et_pokemon_name"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="14"
-            android:textColor="@color/colorPrimary"
-            android:theme="@style/EditTextTheme"
-            android:layout_marginLeft="@dimen/et_add_pokemon_left_margin"
-            android:hint="@string/et_pokemon_name"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/ll_desc_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:weightSum="15"
-        android:layout_below="@id/ll_name_container"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp">
-
-        <ImageView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:src="@mipmap/ic_description"
-            android:layout_gravity="center_vertical"
-            android:contentDescription="@string/iv_pokemon_description_icon"/>
-
-        <EditText
-            android:id="@+id/et_pokemon_desc"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="14"
-            android:textColor="@color/colorPrimary"
-            android:theme="@style/EditTextTheme"
-            android:layout_marginLeft="@dimen/et_add_pokemon_left_margin"
-            android:hint="@string/et_pokemon_desc_hint"/>
-    </LinearLayout>
-
-    <Button
-        android:id="@+id/btn_save_pokemon"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:background="@color/colorPrimary"
-        android:text="@string/btn_save_pokemon"
-        android:textColor="@color/text_icons"/>
-</RelativeLayout>
+        android:clickable="true"
+        android:layout_margin="15dp"
+        android:src="@mipmap/ic_add_pokemon"
+        app:layout_anchor="@id/ll_header"
+        app:layout_anchorGravity="bottom|right|end"
+        app:backgroundTint="@color/colorPrimary"/>
+</android.support.design.widget.CoordinatorLayout>

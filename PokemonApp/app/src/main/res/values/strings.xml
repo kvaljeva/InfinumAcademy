@@ -8,4 +8,5 @@
     <string name="et_pokemon_name">Name</string>
     <string name="iv_pokemon_name_icon">Pokemon name icon</string>
     <string name="iv_pokemon_description_icon">Pokemon description icon</string>
+    <string name="et_pokemon_abilities">Abilities</string>
 </resources>

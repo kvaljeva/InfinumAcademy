@@ -5,7 +5,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -16,7 +15,6 @@ import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import valjevac.kresimir.homework3.PokemonDetailsActivity;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.adapters.PokemonAdapter;
 import valjevac.kresimir.homework3.listeners.RecyclerViewClickListener;
@@ -25,6 +23,8 @@ import valjevac.kresimir.homework3.models.PokemonModel;
 public class PokemonListActivity extends AppCompatActivity {
     public static final int REQUEST_CODE = 420;
     public static final String POKEMON = "Pokemon";
+    public static final String POKEMON_LIST_SATE = "Pokemon List State";
+    public static final String EMPTY_STATE = "Empty State";
     private ArrayList<PokemonModel> pokemonList;
     private PokemonAdapter pokemonAdapter;
 
@@ -40,8 +40,20 @@ public class PokemonListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_pokemon_list);
 
         ButterKnife.bind(this);
+        boolean isEmptyState = true;
 
-        pokemonList = new ArrayList<>();
+        if (savedInstanceState == null) {
+            pokemonList = new ArrayList<>();
+
+            PokemonModel model = new PokemonModel("Bulbasaur", "Bulbasaur can be seen napping in the bright sunlight. There is a seed on its back. By soaking up the sun's rays, the seed grows progressively larger.",
+                    2.04, 15.2, "Seed", "Overgrow");
+
+            pokemonList.add(model);
+        }
+        else {
+            pokemonList = savedInstanceState.getParcelableArrayList(POKEMON_LIST_SATE);
+            isEmptyState = savedInstanceState.getBoolean(EMPTY_STATE);
+        }
 
         pokemonAdapter = new PokemonAdapter(this, pokemonList, new RecyclerViewClickListener<PokemonModel>() {
             @Override
@@ -55,6 +67,8 @@ public class PokemonListActivity extends AppCompatActivity {
 
         rvPokemonList.setAdapter(pokemonAdapter);
         rvPokemonList.setLayoutManager(new LinearLayoutManager(this));
+
+        updatePokemonListOverview(isEmptyState);
     }
 
     @Override
@@ -77,21 +91,45 @@ public class PokemonListActivity extends AppCompatActivity {
         }
     }
 
+    private void updatePokemonListOverview(boolean isEmptyState) {
+        if (isEmptyState) {
+            llEmptyStateContainer.setVisibility(View.VISIBLE);
+            rvPokemonList.setVisibility(View.GONE);
+        }
+        else {
+            llEmptyStateContainer.setVisibility(View.GONE);
+            rvPokemonList.setVisibility(View.VISIBLE);
+
+            pokemonAdapter.update(pokemonList);
+        }
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == REQUEST_CODE) {
-            if (data.getExtras() != null) {
-                PokemonModel pokemon = (PokemonModel) data.getExtras().getSerializable(POKEMON);
+            if (data != null) {
+                PokemonModel pokemon = data.getExtras().getParcelable(POKEMON);
 
                 pokemonList.add(pokemon);
 
-                llEmptyStateContainer.setVisibility(View.GONE);
-                rvPokemonList.setVisibility(View.VISIBLE);
-
-                pokemonAdapter.update();
+                updatePokemonListOverview(false);
             }
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putParcelableArrayList(POKEMON_LIST_SATE, pokemonList);
+
+        if (pokemonList != null && pokemonList.size() > 0) {
+            outState.putBoolean(EMPTY_STATE, false);
+        }
+        else {
+            outState.putBoolean(EMPTY_STATE, true);
         }
     }
 }

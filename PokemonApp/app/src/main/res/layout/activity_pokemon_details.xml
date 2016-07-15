@@ -6,21 +6,164 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="valjevac.kresimir.homework3.PokemonDetailsActivity"
+    tools:context=".activities.PokemonDetailsActivity"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/tv_details_pokemon_name"
+    <ImageView
+        android:id="@+id/iv_pokemon_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/pokemonDetailsName"
-        android:textSize="25sp"/>
+        android:src="@mipmap/ic_person_details"
+        android:layout_marginTop="10dp"
+        android:layout_gravity="center_horizontal"/>
 
-    <TextView
-        android:id="@+id/tv_details_pokemon_desc"
+    <RelativeLayout
+        android:id="@+id/rl_name_and_desc"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:textSize="15sp" />
+        android:layout_marginTop="40dp">
+
+        <TextView
+            android:id="@+id/tv_details_pokemon_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/pokemonDetails"
+            android:layout_marginLeft="20dp"
+            android:textSize="25sp"
+            android:textStyle="bold"
+            tools:text="Name"/>
+
+        <TextView
+            android:id="@+id/tv_details_pokemon_desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_details_pokemon_name"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="20dp"
+            android:textSize="15sp"
+            tools:text="Description"/>
+
+        <View
+            android:id="@+id/view_vertical_line"
+            android:layout_width="6dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"
+            android:background="@color/pokemonDetails"
+            android:layout_alignBottom="@id/tv_details_pokemon_desc"/>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="40dp"
+        android:weightSum="3">
+
+        <TextView
+            android:id="@+id/tv_pokemon_height"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="15sp"
+            android:textColor="@color/pokemonDetails"
+            android:text="Height"/>
+
+        <TextView
+            android:id="@+id/tv_pokemon_weight"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="15sp"
+            android:textColor="@color/pokemonDetails"
+            android:text="Weight"/>
+
+        <TextView
+            android:id="@+id/tv_pokemon_category"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="15sp"
+            android:textColor="@color/pokemonDetails"
+            android:text="Category"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="3">
+
+        <TextView
+            android:id="@+id/tv_pokemon_height_value"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="15sp"
+            tools:text="Value"/>
+
+        <TextView
+            android:id="@+id/tv_pokemon_weight_value"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="15sp"
+            tools:text="Value"/>
+
+        <TextView
+            android:id="@+id/tv_pokemon_category_value"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="15sp"
+            tools:text="Value"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="40dp"
+        android:weightSum="3">
+
+        <TextView
+            android:id="@+id/tv_pokemon_abilities"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="15sp"
+            android:textColor="@color/pokemonDetails"
+            android:text="Abilities"/>
+
+        <TextView
+            android:id="@+id/tv_pokemon_gender"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="15sp"
+            android:textColor="@color/pokemonDetails"
+            android:text="Gender"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="3">
+
+        <TextView
+            android:id="@+id/tv_pokemon_abilities_value"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="15sp"
+            tools:text="Value"/>
+
+        <TextView
+            android:id="@+id/tv_pokemon_gender_value"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="15sp"
+            tools:text="Value"/>
+    </LinearLayout>
 </LinearLayout>

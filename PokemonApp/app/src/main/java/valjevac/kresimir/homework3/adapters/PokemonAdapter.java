@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -16,15 +17,15 @@ import valjevac.kresimir.homework3.listeners.RecyclerViewClickListener;
 import valjevac.kresimir.homework3.models.PokemonModel;
 
 public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHolder> {
-    private ArrayList<PokemonModel> pokemonList;
+    private List<PokemonModel> pokemonList;
     private Context context;
     private RecyclerViewClickListener<PokemonModel> clickListener;
 
-    public PokemonAdapter(Context context, ArrayList<PokemonModel> pokemonList,
+    public PokemonAdapter(Context context, List<PokemonModel> pokemonList,
                           RecyclerViewClickListener<PokemonModel> clickListener) {
 
         this.context = context;
-        this.pokemonList = pokemonList;
+        this.pokemonList = new ArrayList<>(pokemonList);
         this.clickListener = clickListener;
     }
 
@@ -49,7 +50,9 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHold
             pokemonList.clear();
             pokemonList.addAll(updateList);
         }
-        else pokemonList = updateList;
+        else {
+            pokemonList = updateList;
+        }
 
         notifyDataSetChanged();
     }

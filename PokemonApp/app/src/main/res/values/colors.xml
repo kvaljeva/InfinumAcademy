@@ -7,5 +7,6 @@
     <color name="secondaryText">#727272</color>
     <color name="dividerColor">#B6B6B6</color>
     <color name="text_icons">#FFFFFF</color>
-    <color name="pokemonDetailsName">#7CB342</color>
+    <color name="colorLightBackground">#f5f5f5</color>
+    <color name="pokemonDetails">#7CB342</color>
 </resources>

@@ -8,7 +8,9 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activities.PokemonListActivity">
+        <activity
+            android:name=".activities.PokemonListActivity"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -16,9 +18,15 @@
             </intent-filter>
         </activity>
         <activity
+            android:parentActivityName=".activities.PokemonListActivity"
             android:name=".activities.AddPokemonActivity"
-            android:label="Add new Pokemon"></activity>
-        <activity android:name=".PokemonDetailsActivity"></activity>
+            android:label="Add new Pokemon">
+        </activity>
+        <activity
+            android:parentActivityName=".activities.PokemonListActivity"
+            android:name=".activities.PokemonDetailsActivity"
+            android:label="Details">
+        </activity>
     </application>
 
 </manifest>
