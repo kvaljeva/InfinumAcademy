@@ -1,5 +1,6 @@
 package valjevac.kresimir.homework3.models;
 
+import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -10,9 +11,11 @@ public class PokemonModel implements Parcelable {
     double weight;
     String category;
     String abilities;
+    Bitmap image;
+    String gender;
 
     public PokemonModel(String name, String description, double height, double weight,
-                        String category, String abilities) {
+                        String category, String abilities, Bitmap image, String gender) {
 
         this.name = name;
         this.description = description;
@@ -20,6 +23,8 @@ public class PokemonModel implements Parcelable {
         this.weight = weight;
         this.category = category;
         this.abilities = abilities;
+        this.image = image;
+        this.gender = gender;
     }
 
     private PokemonModel(Parcel parcel) {
@@ -29,6 +34,8 @@ public class PokemonModel implements Parcelable {
         this.weight = parcel.readDouble();
         this.category = parcel.readString();
         this.abilities = parcel.readString();
+        this.image = parcel.readParcelable(Bitmap.class.getClassLoader());
+        this.gender = parcel.readString();
     }
 
     public String getName() {
@@ -79,6 +86,22 @@ public class PokemonModel implements Parcelable {
         this.abilities = abilities;
     }
 
+    public Bitmap getImage() {
+        return image;
+    }
+
+    public void setImage(Bitmap image) {
+        this.image = image;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -92,6 +115,8 @@ public class PokemonModel implements Parcelable {
         parcel.writeDouble(weight);
         parcel.writeString(category);
         parcel.writeString(abilities);
+        parcel.writeParcelable(image, i);
+        parcel.writeString(gender);
     }
 
     public static final Parcelable.Creator<PokemonModel> CREATOR = new Parcelable.Creator<PokemonModel>() {

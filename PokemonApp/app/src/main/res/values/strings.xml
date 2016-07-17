@@ -9,4 +9,17 @@
     <string name="iv_pokemon_name_icon">Pokemon name icon</string>
     <string name="iv_pokemon_description_icon">Pokemon description icon</string>
     <string name="et_pokemon_abilities">Abilities</string>
+    <string name="empty_fields_warning">Please fill out the given fields</string>
+    <string name="non_numeric_value_warning">Please enter numerical values for weight and height</string>
+    <string name="alert_dialog_message">Are you sure that you want to abandon your data?</string>
+    <string name="alert_dialog_title">Warning</string>
+    <string name="iv_pokemon_empty_state">iv_pokemon_empty_state</string>
+    <string name="et_pokemon_category">Category</string>
+    <string name="et_pokemon_weight">Weight</string>
+    <string name="et_pokemon_height">Height</string>
+    <string name="rb_male_text">Male</string>
+    <string name="rb_female_text">Female</string>
+    <string name="iv_pokemon_details_image">iv_pokemon_details_image</string>
+    <string name="tv_abilities_heading">Abilities</string>
+    <string name="tv_gender_heading">Gender</string>
 </resources>

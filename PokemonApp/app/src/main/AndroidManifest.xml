@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="valjevac.kresimir.homework3">
 
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -9,8 +11,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".activities.PokemonListActivity"
-            android:launchMode="singleTop">
+            android:name=".activities.PokemonListActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -25,7 +26,8 @@
         <activity
             android:parentActivityName=".activities.PokemonListActivity"
             android:name=".activities.PokemonDetailsActivity"
-            android:label="Details">
+            android:label="Details"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         </activity>
     </application>
 

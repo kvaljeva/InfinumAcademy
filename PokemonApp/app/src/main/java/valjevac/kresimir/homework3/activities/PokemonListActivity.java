@@ -34,6 +34,19 @@ public class PokemonListActivity extends AppCompatActivity {
     @BindView(R.id.ll_empty_state_container)
     LinearLayout llEmptyStateContainer;
 
+    private void updatePokemonListOverview(boolean isEmptyState) {
+        if (isEmptyState) {
+            llEmptyStateContainer.setVisibility(View.VISIBLE);
+            rvPokemonList.setVisibility(View.GONE);
+        }
+        else {
+            llEmptyStateContainer.setVisibility(View.GONE);
+            rvPokemonList.setVisibility(View.VISIBLE);
+
+            pokemonAdapter.update(pokemonList);
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,11 +57,6 @@ public class PokemonListActivity extends AppCompatActivity {
 
         if (savedInstanceState == null) {
             pokemonList = new ArrayList<>();
-
-            PokemonModel model = new PokemonModel("Bulbasaur", "Bulbasaur can be seen napping in the bright sunlight. There is a seed on its back. By soaking up the sun's rays, the seed grows progressively larger.",
-                    2.04, 15.2, "Seed", "Overgrow");
-
-            pokemonList.add(model);
         }
         else {
             pokemonList = savedInstanceState.getParcelableArrayList(POKEMON_LIST_SATE);
@@ -88,19 +96,6 @@ public class PokemonListActivity extends AppCompatActivity {
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
-        }
-    }
-
-    private void updatePokemonListOverview(boolean isEmptyState) {
-        if (isEmptyState) {
-            llEmptyStateContainer.setVisibility(View.VISIBLE);
-            rvPokemonList.setVisibility(View.GONE);
-        }
-        else {
-            llEmptyStateContainer.setVisibility(View.GONE);
-            rvPokemonList.setVisibility(View.VISIBLE);
-
-            pokemonAdapter.update(pokemonList);
         }
     }
 

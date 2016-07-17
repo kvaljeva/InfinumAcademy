@@ -1,15 +1,17 @@
 package valjevac.kresimir.homework3.activities;
 
-import android.support.annotation.StringDef;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.StringBuilderPrinter;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import valjevac.kresimir.homework3.R;
-import valjevac.kresimir.homework3.activities.PokemonListActivity;
 import valjevac.kresimir.homework3.models.PokemonModel;
 
 public class PokemonDetailsActivity extends AppCompatActivity {
@@ -34,6 +36,12 @@ public class PokemonDetailsActivity extends AppCompatActivity {
     @BindView(R.id.tv_pokemon_gender_value)
     TextView tvGender;
 
+    @BindView(R.id.iv_pokemon_image)
+    ImageView ivImage;
+
+    @BindView(R.id.tb_pokemon_details)
+    Toolbar toolbar;
+
     private String transformHeightString(String height) {
         height = height.replace(".", "´ ");
         height += "˝";
@@ -48,6 +56,17 @@ public class PokemonDetailsActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+
+            if (getSupportActionBar() != null) {
+
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
+                getSupportActionBar().setDisplayShowTitleEnabled(false);
+            }
+        }
+
         PokemonModel pokemon = getIntent().getParcelableExtra(PokemonListActivity.POKEMON);
 
         String height = transformHeightString(String.valueOf(pokemon.getHeight()));
@@ -59,5 +78,28 @@ public class PokemonDetailsActivity extends AppCompatActivity {
         tvWeight.setText(weight);
         tvCategory.setText(pokemon.getCategory());
         tvAbilities.setText(pokemon.getAbilites());
+        ivImage.setImageBitmap(pokemon.getImage());
+        tvGender.setText(pokemon.getGender());
+    }
+
+    @OnClick(R.id.tb_pokemon_details)
+    public void setNavigationClickListener(View v) {
+        onBackPressed();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+        }
+
+        return false;
     }
 }

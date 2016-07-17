@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHold
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.tvPokemonName.setText(pokemonList.get(position).getName());
+        holder.civPokemonImage.setImageBitmap(pokemonList.get(position).getImage());
     }
 
     @Override
@@ -60,6 +62,9 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHold
     protected class ViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.tv_pokemon_name)
         TextView tvPokemonName;
+
+        @BindView(R.id.civ_pokemon_image)
+        ImageView civPokemonImage;
 
         public ViewHolder(View view) {
             super(view);
