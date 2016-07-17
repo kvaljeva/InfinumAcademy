@@ -1,6 +1,7 @@
 package valjevac.kresimir.homework3.models;
 
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -11,11 +12,11 @@ public class PokemonModel implements Parcelable {
     double weight;
     String category;
     String abilities;
-    Bitmap image;
+    Uri image;
     String gender;
 
     public PokemonModel(String name, String description, double height, double weight,
-                        String category, String abilities, Bitmap image, String gender) {
+                        String category, String abilities, Uri image, String gender) {
 
         this.name = name;
         this.description = description;
@@ -34,7 +35,7 @@ public class PokemonModel implements Parcelable {
         this.weight = parcel.readDouble();
         this.category = parcel.readString();
         this.abilities = parcel.readString();
-        this.image = parcel.readParcelable(Bitmap.class.getClassLoader());
+        this.image = parcel.readParcelable(Uri.class.getClassLoader());
         this.gender = parcel.readString();
     }
 
@@ -86,11 +87,11 @@ public class PokemonModel implements Parcelable {
         this.abilities = abilities;
     }
 
-    public Bitmap getImage() {
+    public Uri getImage() {
         return image;
     }
 
-    public void setImage(Bitmap image) {
+    public void setImage(Uri image) {
         this.image = image;
     }
 

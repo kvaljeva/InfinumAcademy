@@ -1,5 +1,12 @@
 package valjevac.kresimir.homework3.activities;
 
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -12,6 +19,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import valjevac.kresimir.homework3.R;
+import valjevac.kresimir.homework3.helpers.BitmapHelper;
 import valjevac.kresimir.homework3.models.PokemonModel;
 
 public class PokemonDetailsActivity extends AppCompatActivity {
@@ -42,11 +50,25 @@ public class PokemonDetailsActivity extends AppCompatActivity {
     @BindView(R.id.tb_pokemon_details)
     Toolbar toolbar;
 
+    @BindView(R.id.abl_header_pokemon_details)
+    AppBarLayout ablPokemonDetails;
+
+    @BindView(R.id.ctl_header_pokemon_details)
+    CollapsingToolbarLayout ctlHeaderPokemonDetails;
+
     private String transformHeightString(String height) {
         height = height.replace(".", "´ ");
         height += "˝";
 
         return height;
+    }
+
+    private void setToolbarTitle() {
+        if (ctlHeaderPokemonDetails != null) {
+            ctlHeaderPokemonDetails.setTitle(this.getTitle());
+            ctlHeaderPokemonDetails.setExpandedTitleColor(ContextCompat.getColor(this,
+                    android.R.color.transparent));
+        }
     }
 
     @Override
@@ -55,6 +77,10 @@ public class PokemonDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_pokemon_details);
 
         ButterKnife.bind(this);
+
+        setToolbarTitle();
+
+        isColorChanged = false;
 
         if (toolbar != null) {
             setSupportActionBar(toolbar);
@@ -78,7 +104,7 @@ public class PokemonDetailsActivity extends AppCompatActivity {
         tvWeight.setText(weight);
         tvCategory.setText(pokemon.getCategory());
         tvAbilities.setText(pokemon.getAbilites());
-        ivImage.setImageBitmap(pokemon.getImage());
+        ivImage.setImageBitmap(BitmapHelper.loadBitmap(this, pokemon.getImage()));
         tvGender.setText(pokemon.getGender());
     }
 

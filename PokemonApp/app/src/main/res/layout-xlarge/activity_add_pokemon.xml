@@ -20,7 +20,7 @@
             android:id="@+id/iv_add_image"
             android:layout_width="wrap_content"
             android:layout_height="170dp"
-            android:src="@mipmap/ic_person_details"
+            android:src="@drawable/ic_person_details"
             android:layout_gravity="center_horizontal"
             android:contentDescription="@string/iv_pokemon_empty_state"/>
     </LinearLayout>
@@ -35,7 +35,7 @@
             android:id="@+id/iv_pokemon_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@mipmap/ic_person"
+            android:src="@drawable/ic_person"
             android:layout_marginTop="44dp"
             android:layout_marginStart="15dp"
             android:layout_marginLeft="15dp"
@@ -120,7 +120,7 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@mipmap/ic_description"
+            android:src="@drawable/ic_description"
             android:layout_marginTop="15dp"
             android:layout_below="@id/et_pokemon_abilities"
             android:layout_alignStart="@id/iv_pokemon_name"
@@ -205,7 +205,7 @@
         android:clickable="true"
         android:layout_marginRight="15dp"
         android:layout_marginEnd="15dp"
-        android:src="@mipmap/ic_add_pokemon"
+        android:src="@drawable/ic_add_pokemon"
         android:layout_alignEnd="@id/ll_header"
         android:layout_alignRight="@id/ll_header"
         android:layout_alignTop="@id/rl_body"

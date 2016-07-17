@@ -21,7 +21,8 @@
         <activity
             android:parentActivityName=".activities.PokemonListActivity"
             android:name=".activities.AddPokemonActivity"
-            android:label="Add new Pokemon">
+            android:label="Add new Pokemon"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         </activity>
         <activity
             android:parentActivityName=".activities.PokemonListActivity"
@@ -30,5 +31,4 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         </activity>
     </application>
-
 </manifest>

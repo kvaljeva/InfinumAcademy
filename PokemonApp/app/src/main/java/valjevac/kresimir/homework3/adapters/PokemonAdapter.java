@@ -14,6 +14,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import valjevac.kresimir.homework3.R;
+import valjevac.kresimir.homework3.helpers.BitmapHelper;
 import valjevac.kresimir.homework3.listeners.RecyclerViewClickListener;
 import valjevac.kresimir.homework3.models.PokemonModel;
 
@@ -39,7 +40,8 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHold
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.tvPokemonName.setText(pokemonList.get(position).getName());
-        holder.civPokemonImage.setImageBitmap(pokemonList.get(position).getImage());
+        holder.civPokemonImage.setImageBitmap(BitmapHelper.loadBitmap(context.getApplicationContext(),
+                pokemonList.get(position).getImage()));
     }
 
     @Override
