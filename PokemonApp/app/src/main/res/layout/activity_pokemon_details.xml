@@ -18,19 +18,19 @@
             android:id="@+id/ctl_header_pokemon_details"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/header_gradient_selector"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
             app:contentScrim="@color/colorPrimary"
             app:statusBarScrim="@color/colorPrimaryDark">
 
             <ImageView
                 android:id="@+id/iv_pokemon_image"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="@dimen/iv_image_container_height"
                 android:src="@drawable/ic_person_details"
-                android:layout_marginTop="@dimen/margin_10dp"
+                android:paddingTop="@dimen/padding_10dp"
                 android:contentDescription="@string/iv_pokemon_details_image"
                 android:layout_gravity="center_horizontal"
+                android:background="@drawable/header_gradient_selector"
                 app:layout_collapseMode="parallax"/>
 
             <android.support.v7.widget.Toolbar
