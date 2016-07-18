@@ -22,4 +22,5 @@
     <string name="tv_abilities_heading">Abilities</string>
     <string name="tv_gender_heading">Gender</string>
     <string name="tv_gender_add_pokemon">Gender:</string>
+    <string name="empty_list_state_image">Empty list state image</string>
 </resources>

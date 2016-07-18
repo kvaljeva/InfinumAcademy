@@ -1,9 +1,5 @@
 package valjevac.kresimir.homework3.activities;
 
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.content.ContextCompat;
@@ -80,8 +76,6 @@ public class PokemonDetailsActivity extends AppCompatActivity {
 
         setToolbarTitle();
 
-        isColorChanged = false;
-
         if (toolbar != null) {
             setSupportActionBar(toolbar);
 
@@ -104,7 +98,7 @@ public class PokemonDetailsActivity extends AppCompatActivity {
         tvWeight.setText(weight);
         tvCategory.setText(pokemon.getCategory());
         tvAbilities.setText(pokemon.getAbilites());
-        ivImage.setImageBitmap(BitmapHelper.loadBitmap(this, pokemon.getImage()));
+        ivImage.setImageBitmap(BitmapHelper.loadBitmap(this, pokemon.getImage(), false));
         tvGender.setText(pokemon.getGender());
     }
 

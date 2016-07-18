@@ -13,26 +13,23 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        android:background="@color/colorLightBackground"
-        android:fitsSystemWindows="true">
+        android:background="@color/colorLightBackground">
 
         <android.support.design.widget.CollapsingToolbarLayout
             android:id="@+id/ctl_header_add_pokemon"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:contentScrim="@color/colorPrimary"
-            android:fitsSystemWindows="true">
+            app:contentScrim="@color/colorPrimary">
 
             <ImageView
                 android:id="@+id/iv_add_image"
                 android:layout_width="wrap_content"
-                android:layout_height="170dp"
-                android:layout_marginTop="25dp"
+                android:layout_height="@dimen/iv_image_container_height"
+                android:layout_marginTop="@dimen/iv_add_pokemon_margin_top"
                 android:src="@drawable/ic_person_details"
                 android:layout_gravity="center_horizontal"
                 android:contentDescription="@string/iv_pokemon_empty_state"
-                android:fitsSystemWindows="true"
                 app:layout_collapseMode="parallax"/>
 
             <android.support.v7.widget.Toolbar
@@ -49,7 +46,7 @@
         android:id="@+id/sv_body_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true"
+        android:paddingBottom="?attr/actionBarSize"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <RelativeLayout
@@ -62,9 +59,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_person"
-                android:layout_marginTop="33dp"
-                android:layout_marginStart="15dp"
-                android:layout_marginLeft="15dp"
+                android:layout_marginTop="@dimen/iv_name_icon_margin_top"
+                android:layout_marginStart="@dimen/margin_15dp"
+                android:layout_marginLeft="@dimen/margin_15dp"
                 android:contentDescription="@string/iv_pokemon_name_icon"/>
 
             <EditText
@@ -73,13 +70,13 @@
                 android:layout_height="wrap_content"
                 android:theme="@style/EditTextTheme"
                 android:hint="@string/et_pokemon_name"
-                android:layout_marginTop="15dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginEnd="10dp"
+                android:layout_marginTop="@dimen/margin_15dp"
+                android:layout_marginRight="@dimen/margin_10dp"
+                android:layout_marginEnd="@dimen/margin_10dp"
                 android:layout_alignLeft="@id/iv_pokemon_name"
                 android:layout_alignStart="@id/iv_pokemon_name"
-                android:layout_marginStart="40dp"
-                android:layout_marginLeft="40dp"
+                android:layout_marginStart="@dimen/margin_40dp"
+                android:layout_marginLeft="@dimen/margin_40dp"
                 android:imeOptions="actionNext"
                 android:singleLine="true"/>
 
@@ -94,7 +91,7 @@
                 android:layout_alignLeft="@id/et_pokemon_name"
                 android:layout_alignEnd="@id/et_pokemon_name"
                 android:layout_alignRight="@id/et_pokemon_name"
-                android:paddingTop="10dp"
+                android:paddingTop="@dimen/padding_10dp"
                 android:inputType="numberDecimal"
                 android:imeOptions="actionNext"/>
 
@@ -109,7 +106,7 @@
                 android:layout_alignLeft="@id/et_pokemon_name"
                 android:layout_alignEnd="@id/et_pokemon_name"
                 android:layout_alignRight="@id/et_pokemon_name"
-                android:paddingTop="10dp"
+                android:paddingTop="@dimen/padding_10dp"
                 android:inputType="numberDecimal"
                 android:imeOptions="actionNext"/>
 
@@ -124,7 +121,7 @@
                 android:layout_alignLeft="@id/et_pokemon_name"
                 android:layout_alignEnd="@id/et_pokemon_name"
                 android:layout_alignRight="@id/et_pokemon_name"
-                android:paddingTop="10dp"
+                android:paddingTop="@dimen/padding_10dp"
                 android:imeOptions="actionNext"
                 android:singleLine="true"/>
 
@@ -139,7 +136,7 @@
                 android:layout_alignLeft="@id/et_pokemon_name"
                 android:layout_alignEnd="@id/et_pokemon_name"
                 android:layout_alignRight="@id/et_pokemon_name"
-                android:paddingTop="10dp"
+                android:paddingTop="@dimen/padding_10dp"
                 android:imeOptions="actionNext"
                 android:singleLine="true"/>
 
@@ -147,7 +144,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_description"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="@dimen/margin_15dp"
                 android:layout_below="@id/et_pokemon_abilities"
                 android:layout_alignStart="@id/iv_pokemon_name"
                 android:layout_alignLeft="@id/iv_pokemon_name"
@@ -164,7 +161,7 @@
                 android:layout_alignEnd="@id/et_pokemon_name"
                 android:layout_alignRight="@id/et_pokemon_name"
                 android:hint="@string/et_pokemon_desc_hint"
-                android:paddingTop="10dp"
+                android:paddingTop="@dimen/padding_10dp"
                 android:imeOptions="actionDone"
                 android:singleLine="true"/>
 
@@ -175,7 +172,7 @@
                 android:layout_below="@id/et_pokemon_desc"
                 android:layout_alignStart="@id/et_pokemon_name"
                 android:layout_alignLeft="@id/et_pokemon_name"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="@dimen/margin_10dp"
                 android:text="@string/tv_gender_add_pokemon"
                 android:textSize="18sp" />
 
@@ -186,9 +183,7 @@
                 android:layout_toRightOf="@id/tv_gender_desc"
                 android:layout_toEndOf="@id/tv_gender_desc"
                 android:layout_below="@id/et_pokemon_desc"
-                android:layout_marginTop="10dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginStart="10dp"
+                android:layout_margin="@dimen/margin_10dp"
                 android:orientation="horizontal">
 
                 <android.support.v7.widget.AppCompatRadioButton
@@ -198,8 +193,8 @@
                     android:text="@string/rb_male_text"
                     android:textColor="@color/secondaryText"
                     app:buttonTint="@color/colorPrimary"
-                    android:layout_marginRight="20dp"
-                    android:layout_marginEnd="20dp"/>
+                    android:layout_marginRight="@dimen/margin_20dp"
+                    android:layout_marginEnd="@dimen/margin_20dp"/>
 
                 <android.support.v7.widget.AppCompatRadioButton
                     android:id="@+id/rb_female"
@@ -209,30 +204,32 @@
                     android:textColor="@color/secondaryText"
                     app:buttonTint="@color/colorPrimary"/>
             </RadioGroup>
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/colorPrimary"
-                android:layout_alignParentBottom="true">
-
-                <Button
-                    android:id="@+id/btn_save_pokemon"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="?android:attr/selectableItemBackground"
-                    android:text="@string/btn_save_pokemon"
-                    android:textColor="@color/text_icons"/>
-            </FrameLayout>
         </RelativeLayout>
     </android.support.v4.widget.NestedScrollView>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:layout_alignParentBottom="true"
+        app:layout_anchor="@id/sv_body_container"
+        app:layout_anchorGravity="bottom">
+
+        <Button
+            android:id="@+id/btn_save_pokemon"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:text="@string/btn_save_pokemon"
+            android:textColor="@color/text_icons"/>
+    </FrameLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_add_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:clickable="true"
-        android:layout_margin="15dp"
+        android:layout_margin="@dimen/fab_margin"
         android:src="@drawable/ic_add_pokemon"
         app:layout_anchor="@id/abl_header_add_pokemon"
         app:layout_anchorGravity="bottom|right|end"

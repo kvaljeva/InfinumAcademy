@@ -27,9 +27,9 @@
             <ImageView
                 android:id="@+id/iv_pokemon_image"
                 android:layout_width="wrap_content"
-                android:layout_height="170dp"
+                android:layout_height="@dimen/iv_image_container_height"
                 android:src="@drawable/ic_person_details"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="@dimen/margin_10dp"
                 android:contentDescription="@string/iv_pokemon_details_image"
                 android:layout_gravity="center_horizontal"
                 android:fitsSystemWindows="true"
@@ -49,24 +49,24 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
+        android:layout_marginLeft="@dimen/margin_15dp"
+        android:layout_marginRight="@dimen/margin_15dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <RelativeLayout
             android:id="@+id/rl_name_and_desc"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp">
+            android:layout_marginTop="@dimen/margin_10dp">
 
             <TextView
                 android:id="@+id/tv_details_pokemon_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/pokemonDetails"
-                android:layout_marginLeft="20dp"
-                android:layout_marginStart="20dp"
-                android:textSize="25sp"
+                android:layout_marginLeft="@dimen/margin_20dp"
+                android:layout_marginStart="@dimen/margin_20dp"
+                android:textSize="@dimen/tv_details_pokemon_name_text_size"
                 android:textStyle="bold"
                 tools:text="Name"/>
 
@@ -75,15 +75,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/tv_details_pokemon_name"
-                android:layout_marginTop="10dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginStart="20dp"
-                android:textSize="15sp"
+                android:layout_marginTop="@dimen/margin_10dp"
+                android:layout_marginLeft="@dimen/margin_20dp"
+                android:layout_marginStart="@dimen/margin_20dp"
+                android:textSize="@dimen/tv_details_text_size"
                 tools:text="Description"/>
 
             <View
                 android:id="@+id/view_vertical_line"
-                android:layout_width="6dp"
+                android:layout_width="@dimen/details_vertical_line_width"
                 android:layout_height="match_parent"
                 android:layout_alignParentTop="true"
                 android:background="@color/pokemonDetails"
@@ -95,7 +95,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_below="@id/view_vertical_line"
-                android:layout_marginTop="40dp"
+                android:layout_marginTop="@dimen/margin_40dp"
                 android:weightSum="3">
 
                 <TextView
@@ -103,7 +103,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textSize="15sp"
+                    android:textSize="@dimen/tv_details_text_size"
                     android:textColor="@color/pokemonDetails"
                     android:text="@string/et_pokemon_height"/>
 
@@ -112,7 +112,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textSize="15sp"
+                    android:textSize="@dimen/tv_details_text_size"
                     android:textColor="@color/pokemonDetails"
                     android:text="@string/et_pokemon_weight"/>
 
@@ -121,7 +121,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textSize="15sp"
+                    android:textSize="@dimen/tv_details_text_size"
                     android:textColor="@color/pokemonDetails"
                     android:text="@string/et_pokemon_category"/>
             </LinearLayout>
@@ -139,7 +139,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textSize="15sp"
+                    android:textSize="@dimen/tv_details_text_size"
                     tools:text="Value"/>
 
                 <TextView
@@ -147,7 +147,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textSize="15sp"
+                    android:textSize="@dimen/tv_details_text_size"
                     tools:text="Value"/>
 
                 <TextView
@@ -155,7 +155,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textSize="15sp"
+                    android:textSize="@dimen/tv_details_text_size"
                     tools:text="Value"/>
             </LinearLayout>
 
@@ -164,7 +164,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="@dimen/margin_30dp"
                 android:layout_below="@id/ll_general_info_values"
                 android:weightSum="3">
 
@@ -173,7 +173,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textSize="15sp"
+                    android:textSize="@dimen/tv_details_text_size"
                     android:textColor="@color/pokemonDetails"
                     android:text="@string/tv_abilities_heading"/>
 
@@ -182,7 +182,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textSize="15sp"
+                    android:textSize="@dimen/tv_details_text_size"
                     android:textColor="@color/pokemonDetails"
                     android:text="@string/tv_gender_heading"/>
             </LinearLayout>
@@ -199,7 +199,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textSize="15sp"
+                    android:textSize="@dimen/tv_details_text_size"
                     tools:text="Value"/>
 
                 <TextView
@@ -207,7 +207,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textSize="15sp"
+                    android:textSize="@dimen/tv_details_text_size"
                     tools:text="Value"/>
             </LinearLayout>
         </RelativeLayout>
