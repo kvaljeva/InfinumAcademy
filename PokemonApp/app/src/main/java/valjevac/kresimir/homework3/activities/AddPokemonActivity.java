@@ -1,16 +1,22 @@
 package valjevac.kresimir.homework3.activities;
 
+import android.Manifest;
 import android.app.DialogFragment;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -35,9 +41,11 @@ import valjevac.kresimir.homework3.models.PokemonModel;
 
 public class AddPokemonActivity extends AppCompatActivity implements ConfirmationDialog.OnCompleteListener {
     private static final int SELECT_IMAGE = 420;
+    private static final int REQUEST_CODE_PERMISSION = 42;
     private static final String POKEMON_IMAGE = "Pokemon avatar image";
     private static final String CHANGES_MADE = "Changes made";
     private static final String DIALOG_SHOW = "Dialog show";
+    private static final String IMAGE_LOCATION = "Image location";
     private boolean changesMade;
     private Uri imageUri;
     private boolean isColorChanged;
@@ -157,6 +165,32 @@ public class AddPokemonActivity extends AppCompatActivity implements Confirmatio
         return drawable.getBitmap();
     }
 
+    private boolean isStoragePermissionGranted() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED) {
+
+                return true;
+            }
+            else {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        REQUEST_CODE_PERMISSION);
+
+                return false;
+            }
+        }
+        else {
+            return true;
+        }
+    }
+
+    private void startImagePicker() {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+
+        startActivityForResult(intent, SELECT_IMAGE);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -178,25 +212,39 @@ public class AddPokemonActivity extends AppCompatActivity implements Confirmatio
             }
         }
 
+        ViewCompat.setTransitionName(ablHeaderAddPokemon, "EXTRA_IMAGE");
+        supportPostponeEnterTransition();
+
+        ctlHeaderAddPokemon.setStatusBarScrimColor(ContextCompat.getColor(AddPokemonActivity.this,
+                R.color.primaryText));
+
         ablHeaderAddPokemon.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
             @Override
             public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
                 if (Math.abs(verticalOffset) >= (appBarLayout.getTotalScrollRange() / 2) && !isColorChanged) {
                     setBackArrowColor(true);
                 }
-                else if (verticalOffset == 0) {
+                else if (Math.abs(verticalOffset) <= (appBarLayout.getTotalScrollRange() / 2)) {
                     setBackArrowColor(false);
                 }
             }
         });
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            startImagePicker();
+        }
+    }
+
     @OnClick(R.id.fab_add_image)
     public void openImage() {
-        Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setType("image/*");
-
-        startActivityForResult(intent, SELECT_IMAGE);
+        if (isStoragePermissionGranted()) {
+            startImagePicker();
+        }
     }
 
     @OnClick(R.id.btn_save_pokemon)
@@ -231,7 +279,7 @@ public class AddPokemonActivity extends AppCompatActivity implements Confirmatio
             Intent intent = new Intent();
             intent.putExtra(PokemonListActivity.POKEMON, pokemon);
 
-            setResult(PokemonListActivity.REQUEST_CODE, intent);
+            setResult(PokemonListActivity.REQUEST_CODE_ADD_POKEMON, intent);
 
             finish();
         }
@@ -293,6 +341,7 @@ public class AddPokemonActivity extends AppCompatActivity implements Confirmatio
 
         outState.putByteArray(POKEMON_IMAGE, BitmapHelper.compressBitmap(getImageFromImageview()));
         outState.putBoolean(CHANGES_MADE, changesMade);
+        outState.putParcelable(IMAGE_LOCATION, imageUri);
     }
 
     @Override
@@ -303,5 +352,6 @@ public class AddPokemonActivity extends AppCompatActivity implements Confirmatio
         ivPokemonImage.setImageBitmap(image);
 
         changesMade = savedInstanceState.getBoolean(CHANGES_MADE);
+        imageUri = savedInstanceState.getParcelable(IMAGE_LOCATION);
     }
 }

@@ -7,7 +7,6 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:actionMenuTextColor">@color/text_icons</item>
-        <item name="editTextStyle">@style/EditTextTheme</item>
     </style>
 
     <style name="EditTextTheme" parent="android:Widget.EditText">
@@ -17,5 +16,10 @@
 
     <style name="RadioButtonTHeme" parent="android:Widget.CompoundButton.RadioButton">
         <item name="android:button">@color/colorPrimary</item>
+    </style>
+
+    <style name="Theme.CustomStatusBarTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
     </style>
 </resources>

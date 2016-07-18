@@ -14,7 +14,6 @@
     <dimen name="margin_20dp">20dp</dimen>
     <dimen name="iv_image_container_height">170dp</dimen>
     <dimen name="fab_margin">15dp</dimen>
-    <dimen name="iv_add_pokemon_margin_top">25dp</dimen>
     <dimen name="margin_40dp">40dp</dimen>
     <dimen name="margin_15dp">15dp</dimen>
     <dimen name="iv_name_icon_margin_top">33dp</dimen>

@@ -21,7 +21,7 @@ import valjevac.kresimir.homework3.listeners.RecyclerViewClickListener;
 import valjevac.kresimir.homework3.models.PokemonModel;
 
 public class PokemonListActivity extends AppCompatActivity {
-    public static final int REQUEST_CODE = 420;
+    public static final int REQUEST_CODE_ADD_POKEMON = 420;
     public static final String POKEMON = "Pokemon";
     public static final String POKEMON_LIST_SATE = "Pokemon List State";
     public static final String EMPTY_STATE = "Empty State";
@@ -92,7 +92,7 @@ public class PokemonListActivity extends AppCompatActivity {
         switch(item.getItemId()) {
             case R.id.action_add:
                 Intent intent = new Intent(PokemonListActivity.this, AddPokemonActivity.class);
-                startActivityForResult(intent, REQUEST_CODE);
+                startActivityForResult(intent, REQUEST_CODE_ADD_POKEMON);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -103,7 +103,7 @@ public class PokemonListActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == REQUEST_CODE) {
+        if (requestCode == REQUEST_CODE_ADD_POKEMON) {
             if (data != null) {
                 PokemonModel pokemon = data.getExtras().getParcelable(POKEMON);
 
