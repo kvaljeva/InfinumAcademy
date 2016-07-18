@@ -330,7 +330,9 @@ public class AddPokemonActivity extends AppCompatActivity implements Confirmatio
                 Uri selectedImage = data.getData();
 
                 ivPokemonImage.setImageBitmap(BitmapHelper.loadBitmap(this, selectedImage, false));
-                this.imageUri = data.getData();
+                imageUri = data.getData();
+
+                changesMade = true;
             }
         }
     }
