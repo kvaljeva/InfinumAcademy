@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Web Browser</string>
+    <string name="et_search_text">Search or enter address</string>
+    <string name="btn_open_webview">OPEN WEBVIEW</string>
+    <string name="btn_open_browser">OPEN BROWSER</string>
+    <string name="btn_go">GO</string>
+    <string name="action_back">Back</string>
+    <string name="action_forward">Forward</string>
+    <string name="no_history_to_show">No history to show</string>
+    <string name="btn_clear_history">CLEAR HISTORY</string>
+    <string name="et_search_history">Search history</string>
+    <string name="action_refresh">Refresh</string>
+</resources>
