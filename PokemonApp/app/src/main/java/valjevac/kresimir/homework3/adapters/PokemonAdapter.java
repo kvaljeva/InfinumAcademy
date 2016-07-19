@@ -40,8 +40,7 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHold
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.tvPokemonName.setText(pokemonList.get(position).getName());
-        holder.civPokemonImage.setImageBitmap(BitmapHelper.loadBitmap(context.getApplicationContext(),
-                pokemonList.get(position).getImage(), true));
+        BitmapHelper.loadBitmap(holder.civPokemonImage, pokemonList.get(position).getImage(), true);
     }
 
     @Override

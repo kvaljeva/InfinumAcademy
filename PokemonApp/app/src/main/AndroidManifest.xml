@@ -22,13 +22,14 @@
             android:parentActivityName=".activities.PokemonListActivity"
             android:name=".activities.AddPokemonActivity"
             android:label="Add new Pokemon"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            android:windowSoftInputMode="adjustPan"
+            android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
             android:parentActivityName=".activities.PokemonListActivity"
             android:name=".activities.PokemonDetailsActivity"
             android:label="Details"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar">
         </activity>
     </application>
 </manifest>

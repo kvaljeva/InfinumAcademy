@@ -1,6 +1,7 @@
 package valjevac.kresimir.homework3.activities;
 
 import android.content.Intent;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -9,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
@@ -23,10 +25,11 @@ import valjevac.kresimir.homework3.models.PokemonModel;
 public class PokemonListActivity extends AppCompatActivity {
     public static final int REQUEST_CODE_ADD_POKEMON = 420;
     public static final String POKEMON = "Pokemon";
-    public static final String POKEMON_LIST_SATE = "Pokemon List State";
-    public static final String EMPTY_STATE = "Empty State";
+    public static final String POKEMON_LIST_SATE = "PokemonListState";
+    public static final String EMPTY_STATE = "EmptyState";
     private ArrayList<PokemonModel> pokemonList;
     private PokemonAdapter pokemonAdapter;
+    private boolean isEmptyState;
 
     @BindView(R.id.recycler_view_pokemon_list)
     RecyclerView rvPokemonList;
@@ -34,18 +37,8 @@ public class PokemonListActivity extends AppCompatActivity {
     @BindView(R.id.ll_empty_state_container)
     LinearLayout llEmptyStateContainer;
 
-    private void updatePokemonListOverview(boolean isEmptyState) {
-        if (isEmptyState) {
-            llEmptyStateContainer.setVisibility(View.VISIBLE);
-            rvPokemonList.setVisibility(View.GONE);
-        }
-        else {
-            llEmptyStateContainer.setVisibility(View.GONE);
-            rvPokemonList.setVisibility(View.VISIBLE);
-
-            pokemonAdapter.update(pokemonList);
-        }
-    }
+    @BindView(R.id.ll_list_items_container)
+    LinearLayout llItemsContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +46,7 @@ public class PokemonListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_pokemon_list);
 
         ButterKnife.bind(this);
-        boolean isEmptyState = true;
+        isEmptyState = true;
 
         if (savedInstanceState == null) {
             pokemonList = new ArrayList<>();
@@ -125,6 +118,22 @@ public class PokemonListActivity extends AppCompatActivity {
         }
         else {
             outState.putBoolean(EMPTY_STATE, true);
+        }
+    }
+
+
+    private void updatePokemonListOverview(boolean isEmptyState) {
+        if (isEmptyState) {
+            llEmptyStateContainer.setVisibility(View.VISIBLE);
+            llItemsContainer.setVisibility(View.GONE);
+            rvPokemonList.setVisibility(View.INVISIBLE);
+        }
+        else {
+            llEmptyStateContainer.setVisibility(View.GONE);
+            llItemsContainer.setVisibility(View.VISIBLE);
+            rvPokemonList.setVisibility(View.VISIBLE);
+
+            pokemonAdapter.update(pokemonList);
         }
     }
 }

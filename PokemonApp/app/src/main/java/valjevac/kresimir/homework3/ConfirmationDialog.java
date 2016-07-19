@@ -3,7 +3,6 @@ package valjevac.kresimir.homework3;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
@@ -33,23 +32,27 @@ public class ConfirmationDialog extends DialogFragment {
         dialogBuilder.setTitle(title);
         dialogBuilder.setMessage(message);
 
-        dialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+        dialogBuilder.setPositiveButton(R.string.dialog_button_positive, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                listener = (OnCompleteListener) getActivity();
-                listener.onComplete(RESULT_CLOSE);
+                if (getActivity() instanceof  OnCompleteListener) {
+                    listener = (OnCompleteListener) getActivity();
+                    listener.onComplete(RESULT_CLOSE);
 
-                dismiss();
+                    dismiss();
+                }
             }
         });
 
-        dialogBuilder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+        dialogBuilder.setNegativeButton(R.string.dialog_button_negative, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                listener = (OnCompleteListener) getActivity();
-                listener.onComplete(RESULT_KEEP_OPEN);
+                if (getActivity() instanceof OnCompleteListener) {
+                    listener = (OnCompleteListener) getActivity();
+                    listener.onComplete(RESULT_KEEP_OPEN);
 
-                dismiss();
+                    dismiss();
+                }
             }
         });
 

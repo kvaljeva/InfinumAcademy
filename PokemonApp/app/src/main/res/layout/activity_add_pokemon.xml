@@ -20,14 +20,13 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:contentScrim="@color/colorPrimary"
-            app:statusBarScrim="@color/colorPrimaryDark">
+            app:contentScrim="@color/colorPrimary">
 
             <ImageView
                 android:id="@+id/iv_add_image"
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/iv_image_container_height"
-                android:layout_marginTop="80dp"
+                android:layout_marginTop="@dimen/margin_25dp"
                 android:src="@drawable/ic_person_details"
                 android:layout_gravity="center_horizontal"
                 android:contentDescription="@string/iv_pokemon_empty_state"
@@ -46,6 +45,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingBottom="?attr/actionBarSize"
+        android:clipToPadding="false"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <RelativeLayout

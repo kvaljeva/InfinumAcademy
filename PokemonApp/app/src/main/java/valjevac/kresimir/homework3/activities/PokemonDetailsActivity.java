@@ -59,14 +59,6 @@ public class PokemonDetailsActivity extends AppCompatActivity {
         return height;
     }
 
-    private void setToolbarTitle() {
-        if (ctlHeaderPokemonDetails != null) {
-            ctlHeaderPokemonDetails.setTitle(this.getTitle());
-            ctlHeaderPokemonDetails.setExpandedTitleColor(ContextCompat.getColor(this,
-                    android.R.color.transparent));
-        }
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,7 +82,7 @@ public class PokemonDetailsActivity extends AppCompatActivity {
         PokemonModel pokemon = getIntent().getParcelableExtra(PokemonListActivity.POKEMON);
 
         String height = transformHeightString(String.valueOf(pokemon.getHeight()));
-        String weight = String.valueOf(pokemon.getWeight()) + " lbs";
+        String weight = String.valueOf(pokemon.getWeight()) + getString(R.string.weight_unit);
 
         tvName.setText(pokemon.getName());
         tvDescription.setText(pokemon.getDescription());
@@ -98,8 +90,9 @@ public class PokemonDetailsActivity extends AppCompatActivity {
         tvWeight.setText(weight);
         tvCategory.setText(pokemon.getCategory());
         tvAbilities.setText(pokemon.getAbilites());
-        ivImage.setImageBitmap(BitmapHelper.loadBitmap(this, pokemon.getImage(), false));
         tvGender.setText(pokemon.getGender());
+
+        BitmapHelper.loadBitmap(ivImage, pokemon.getImage(), false);
     }
 
     @OnClick(R.id.tb_pokemon_details)
@@ -121,5 +114,13 @@ public class PokemonDetailsActivity extends AppCompatActivity {
         }
 
         return false;
+    }
+
+    private void setToolbarTitle() {
+        if (ctlHeaderPokemonDetails != null) {
+            ctlHeaderPokemonDetails.setTitle(this.getTitle());
+            ctlHeaderPokemonDetails.setExpandedTitleColor(ContextCompat.getColor(this,
+                    android.R.color.transparent));
+        }
     }
 }

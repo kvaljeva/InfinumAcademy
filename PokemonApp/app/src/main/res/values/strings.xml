@@ -23,4 +23,10 @@
     <string name="tv_gender_heading">Gender</string>
     <string name="tv_gender_add_pokemon">Gender:</string>
     <string name="empty_list_state_image">Empty list state image</string>
+    <string name="weight_unit">" lbs"</string>
+    <string name="dialog_button_positive">Yes</string>
+    <string name="dialog_button_negative">No</string>
+    <string name="menu_action_add_pokemon">Menu action add pokemon</string>
+    <string name="gender_female">F</string>
+    <string name="gender_male">M</string>
 </resources>
