@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.BrowserActivity">
+
+    <ProgressBar
+        android:id="@+id/pb_page_load"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/pb_height"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="-3dp"
+        style="?android:progressBarStyleHorizontal" />
+
+    <LinearLayout
+        android:id="@+id/layout_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/rl_search_padding"
+        android:paddingRight="@dimen/rl_search_padding"
+        android:paddingTop="@dimen/rl_search_padding">
+
+        <EditText
+            android:id="@+id/et_address"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/et_search_text"
+            android:layout_marginTop="@dimen/et_address_top_margin"
+            android:singleLine="true"
+            android:inputType="textUri"/>
+
+        <Button
+            android:id="@+id/btn_go"
+            android:layout_width="@dimen/btn_go_width"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_go" />
+    </LinearLayout>
+
+    <WebView
+        android:id="@+id/webview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/layout_container"
+        android:layout_marginTop="5dp"/>
+</RelativeLayout>
