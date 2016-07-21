@@ -146,8 +146,6 @@ public class PokemonListFragment extends Fragment {
                         case R.id.action_add:
                             listener.onAddPokemonClick();
                             return true;
-                        case android.R.id.home:
-                            Log.e("ANDROID", "LE ARROW PRESSED");
                         default:
                             return false;
                     }

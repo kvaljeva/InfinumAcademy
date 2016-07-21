@@ -26,6 +26,7 @@ public class PokemonListActivity extends AppCompatActivity implements
     private static final String POKEMON_LIST_FRAGMENT_TAG = "PokemonListFragment";
     public static final String ADD_POKEMON_FRAGMENT_TAG = "AddPokemonFragment";
     private static final String POKEMON_DETAILS_FRAGMENT_TAG = "PokemonDetailsFragment";
+    private boolean isInitialFragment;
 
     @Nullable
     @BindView(R.id.fragmentContainer)
@@ -40,6 +41,8 @@ public class PokemonListActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_pokemon_list);
 
         ButterKnife.bind(this);
+
+        isInitialFragment = true;
 
         loadFragment(PokemonListFragment.newInstance(), POKEMON_LIST_FRAGMENT_TAG, null);
     }
@@ -70,7 +73,7 @@ public class PokemonListActivity extends AppCompatActivity implements
 
             if (fragment instanceof AddPokemonFragment) {
                 if (((AddPokemonFragment) fragment).allowBackPressed()) {
-                    super.onBackPressed();
+                    removeFragmentFromStack(fragment.getTag());
                 }
             }
         }
@@ -84,6 +87,10 @@ public class PokemonListActivity extends AppCompatActivity implements
             fragment.getArguments().putAll(args);
         }
 
+        if (!isInitialFragment) {
+            transaction.setCustomAnimations(R.anim.enter_right, R.anim.exit_left, R.anim.enter_left, R.anim.exit_right);
+        }
+
         transaction.replace(R.id.fl_container_main, fragment, tag);
 
         if (manager.findFragmentByTag(tag) == null) {
@@ -91,19 +98,21 @@ public class PokemonListActivity extends AppCompatActivity implements
         }
 
         transaction.commit();
+        isInitialFragment = false;
     }
 
     private void removeFragmentFromStack(String tag) {
         FragmentManager manager = getSupportFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction();
 
-        manager.popBackStack(tag,
-                FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        transaction.remove(manager.findFragmentByTag(tag));
+        transaction.commit();
+        manager.popBackStack();
     }
 
     @Override
     public void onAddPokemonClick() {
         loadFragment(AddPokemonFragment.newInstance(), ADD_POKEMON_FRAGMENT_TAG, null);
-        Log.e("OPENING ADD POKEMON", "Add pokemon");
     }
 
     @Override
@@ -129,9 +138,7 @@ public class PokemonListActivity extends AppCompatActivity implements
 
     @Override
     public void onHomePressed(Fragment fragment) {
-        if (fragment instanceof AddPokemonFragment) {
-            removeFragmentFromStack(ADD_POKEMON_FRAGMENT_TAG);
-        }
+
     }
 
     @Override

@@ -216,18 +216,13 @@ public class AddPokemonFragment extends Fragment {
             setToolbarTitle();
             setBackArrowColor(true, pokemonListActivity);
 
-            toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
                 @Override
-                public boolean onMenuItemClick(MenuItem item) {
-                    Log.e("On back arrow", "Back arrow pressed");
-                    switch (item.getItemId()) {
-                        case android.R.id.home:
-                            listener.onHomePressed(AddPokemonFragment.this);
-                            return true;
-                    }
-                    return false;
+                public void onClick(View view) {
+                    getActivity().onBackPressed();
                 }
             });
+
         }
     }
 
