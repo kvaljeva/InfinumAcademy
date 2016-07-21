@@ -1,26 +1,29 @@
-package valjevac.kresimir.homework3.activities;
+package valjevac.kresimir.homework3.fragments;
 
 import android.Manifest;
-import android.app.DialogFragment;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioButton;
@@ -33,16 +36,21 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
+import butterknife.Unbinder;
 import valjevac.kresimir.homework3.ConfirmationDialog;
 import valjevac.kresimir.homework3.R;
-import valjevac.kresimir.homework3.fragments.PokemonListFragment;
+import valjevac.kresimir.homework3.activities.PokemonListActivity;
 import valjevac.kresimir.homework3.helpers.BitmapHelper;
 import valjevac.kresimir.homework3.models.PokemonModel;
 
-public class AddPokemonActivity extends AppCompatActivity implements ConfirmationDialog.OnCompleteListener {
+public class AddPokemonFragment extends Fragment {
+    private Unbinder unbinder;
+    private OnFragmentInteractionListener listener;
 
+    private static final String TOOLBAR_TITLE = "Add Pokemon";
     private static final int SELECT_IMAGE = 420;
     private static final int REQUEST_CODE_PERMISSION = 42;
+    private static final int DIALOG_RESULT = 4;
     private static final String CHANGES_MADE = "ChangesMade";
     private static final String DIALOG_SHOW = "DialogShow";
     private static final String IMAGE_LOCATION = "ImageLocation";
@@ -94,39 +102,130 @@ public class AddPokemonActivity extends AppCompatActivity implements Confirmatio
     @BindView(R.id.abl_header_add_pokemon)
     AppBarLayout ablHeaderAddPokemon;
 
+    public AddPokemonFragment() {
+
+    }
+
+    public interface OnFragmentInteractionListener {
+
+        void onPokemonAdded(int requestCode, PokemonModel pokemon);
+
+        void onHomePressed(Fragment fragment);
+    }
+
+    public static AddPokemonFragment newInstance() {
+        return new AddPokemonFragment();
+    }
+
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+        View view = inflater.inflate(R.layout.fragment_add_pokemon, container, false);
+        unbinder = ButterKnife.bind(this, view);
+
+        return view;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_pokemon);
+    }
 
-        ButterKnife.bind(this);
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
-        isColorChanged = false;
+        setHasOptionsMenu(true);
+        createToolbar();
 
-        setToolbarTitle();
-        setBackArrowColor(true);
-
-        if (toolbar != null) {
-            setSupportActionBar(toolbar);
-
-            if (getSupportActionBar() != null) {
-                getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
-                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            }
-        }
-
-        supportPostponeEnterTransition();
+        changesMade = false;
 
         if (ablHeaderAddPokemon != null) {
             ablHeaderAddPokemon.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
                 @Override
                 public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
                     if ((Math.abs(verticalOffset) + 10) >= (appBarLayout.getTotalScrollRange() / 1.5) && !isColorChanged) {
-                        setBackArrowColor(true);
+                        setBackArrowColor(true, (PokemonListActivity) getActivity());
                     }
                     else if (Math.abs(verticalOffset) <= (appBarLayout.getTotalScrollRange() / 1.5)) {
-                        setBackArrowColor(false);
+                        setBackArrowColor(false, (PokemonListActivity) getActivity());
                     }
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        if (context instanceof OnFragmentInteractionListener) {
+            listener = (OnFragmentInteractionListener) context;
+        }
+        else {
+            throw new RuntimeException(context.toString() + " must implement OnFragmentInteractionListener.");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        if (listener != null) {
+            listener = null;
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        if (unbinder != null) {
+            unbinder.unbind();
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == SELECT_IMAGE) {
+            if (resultCode == PokemonListActivity.RESULT_OK) {
+                Uri selectedImage = data.getData();
+
+                BitmapHelper.loadBitmap(ivPokemonImage, selectedImage, false);
+                imageUri = selectedImage;
+
+                changesMade = true;
+            }
+        }
+    }
+
+    private void createToolbar() {
+        if (toolbar != null) {
+            PokemonListActivity pokemonListActivity = (PokemonListActivity) getActivity();
+
+            pokemonListActivity.setSupportActionBar(toolbar);
+
+            if (pokemonListActivity.getSupportActionBar() != null) {
+                pokemonListActivity.getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
+                pokemonListActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            }
+
+            setToolbarTitle();
+            setBackArrowColor(true, pokemonListActivity);
+
+            toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    Log.e("On back arrow", "Back arrow pressed");
+                    switch (item.getItemId()) {
+                        case android.R.id.home:
+                            listener.onHomePressed(AddPokemonFragment.this);
+                            return true;
+                    }
+                    return false;
                 }
             });
         }
@@ -134,43 +233,44 @@ public class AddPokemonActivity extends AppCompatActivity implements Confirmatio
 
     private void setToolbarTitle() {
         if (ctlHeaderAddPokemon != null) {
-            ctlHeaderAddPokemon.setTitle(this.getTitle());
-            ctlHeaderAddPokemon.setExpandedTitleColor(ContextCompat.getColor(this,
+            ctlHeaderAddPokemon.setTitle(TOOLBAR_TITLE);
+            ctlHeaderAddPokemon.setExpandedTitleColor(ContextCompat.getColor(getActivity(),
                     android.R.color.transparent));
         }
     }
 
-    private void setBackArrowColor(boolean isDefaultState) {
-        Drawable upArrow = ContextCompat.getDrawable(AddPokemonActivity.this,
+    private void setBackArrowColor(boolean isDefaultState, PokemonListActivity activity) {
+        Drawable upArrow = ContextCompat.getDrawable(getActivity(),
                 R.drawable.ic_arrow_back);
 
         if (isDefaultState) {
-            upArrow.setColorFilter(ContextCompat.getColor(AddPokemonActivity.this, R.color.text_icons),
+            upArrow.setColorFilter(ContextCompat.getColor(activity, R.color.text_icons),
                     PorterDuff.Mode.SRC_ATOP);
 
             isColorChanged = true;
         }
         else {
-            upArrow.setColorFilter(ContextCompat.getColor(AddPokemonActivity.this, R.color.primaryText),
+            upArrow.setColorFilter(ContextCompat.getColor(activity, R.color.primaryText),
                     PorterDuff.Mode.SRC_ATOP);
 
             isColorChanged = false;
         }
 
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setHomeAsUpIndicator(upArrow);
+        if (activity.getSupportActionBar() != null) {
+            activity.getSupportActionBar().setHomeAsUpIndicator(upArrow);
         }
     }
 
     private void showDialog() {
-        android.support.v4.app.DialogFragment dialog = new ConfirmationDialog();
+        DialogFragment dialog = new ConfirmationDialog();
         Bundle args = new Bundle();
 
         args.putString(ConfirmationDialog.TITLE, getString(R.string.alert_dialog_title));
         args.putString(ConfirmationDialog.MESSAGE, getString(R.string.alert_dialog_message));
 
         dialog.setArguments(args);
-        dialog.show(getSupportFragmentManager(), DIALOG_SHOW);
+        dialog.setTargetFragment(this, DIALOG_RESULT);
+        dialog.show(getActivity().getSupportFragmentManager(), DIALOG_SHOW);
     }
 
     private boolean checkForEmptyViews() {
@@ -201,13 +301,13 @@ public class AddPokemonActivity extends AppCompatActivity implements Confirmatio
 
     private boolean isStoragePermissionGranted() {
         if (Build.VERSION.SDK_INT >= 23) {
-            if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+            if (getActivity().checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
                     == PackageManager.PERMISSION_GRANTED) {
 
                 return true;
             }
             else {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                         REQUEST_CODE_PERMISSION);
 
                 return false;
@@ -249,10 +349,10 @@ public class AddPokemonActivity extends AppCompatActivity implements Confirmatio
             Toast toast;
 
             if (emptyViewsExist) {
-                toast = Toast.makeText(this, R.string.empty_fields_warning, Toast.LENGTH_SHORT);
+                toast = Toast.makeText(getActivity(), R.string.empty_fields_warning, Toast.LENGTH_SHORT);
             }
             else {
-                toast = Toast.makeText(this, R.string.non_numeric_value_warning, Toast.LENGTH_SHORT);
+                toast = Toast.makeText(getActivity(), R.string.non_numeric_value_warning, Toast.LENGTH_SHORT);
             }
 
             toast.show();
@@ -271,12 +371,7 @@ public class AddPokemonActivity extends AppCompatActivity implements Confirmatio
             PokemonModel pokemon = new PokemonModel(pokemonName, pokemonDesc, pokemonHeight,
                     pokemonWeight, category, abilities, image, gender);
 
-            Intent intent = new Intent();
-            intent.putExtra(PokemonListFragment.POKEMON, pokemon);
-
-            setResult(PokemonListFragment.REQUEST_CODE_ADD_POKEMON, intent);
-
-            finish();
+            listener.onPokemonAdded(PokemonListFragment.REQUEST_CODE_ADD_POKEMON, pokemon);
         }
     }
 
@@ -290,63 +385,12 @@ public class AddPokemonActivity extends AppCompatActivity implements Confirmatio
         changesMade = !TextUtils.isEmpty(charSequence);
     }
 
-    @Override
-    public void onBackPressed() {
+    public boolean allowBackPressed() {
         if (changesMade) {
             showDialog();
+            return false;
         }
-        else {
-            super.onBackPressed();
-        }
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-        }
-        return false;
-    }
-
-    public void onComplete(boolean confirmExit, Fragment fragment) {
-        if (confirmExit) {
-            finish();
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == SELECT_IMAGE) {
-            if (resultCode == RESULT_OK) {
-                Uri selectedImage = data.getData();
-
-                BitmapHelper.loadBitmap(ivPokemonImage, selectedImage, false);
-                imageUri = selectedImage;
-
-                changesMade = true;
-            }
-        }
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        outState.putBoolean(CHANGES_MADE, changesMade);
-        outState.putParcelable(IMAGE_LOCATION, imageUri);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-
-        changesMade = savedInstanceState.getBoolean(CHANGES_MADE);
-        imageUri = savedInstanceState.getParcelable(IMAGE_LOCATION);
-
-        BitmapHelper.loadBitmap(ivPokemonImage, imageUri, false);
+        return true;
     }
 }

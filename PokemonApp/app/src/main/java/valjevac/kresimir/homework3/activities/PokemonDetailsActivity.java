@@ -15,6 +15,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import valjevac.kresimir.homework3.R;
+import valjevac.kresimir.homework3.fragments.PokemonListFragment;
 import valjevac.kresimir.homework3.helpers.BitmapHelper;
 import valjevac.kresimir.homework3.models.PokemonModel;
 
@@ -79,7 +80,7 @@ public class PokemonDetailsActivity extends AppCompatActivity {
             }
         }
 
-        PokemonModel pokemon = getIntent().getParcelableExtra(PokemonListActivity.POKEMON);
+        PokemonModel pokemon = getIntent().getParcelableExtra(PokemonListFragment.POKEMON);
 
         String height = transformHeightString(String.valueOf(pokemon.getHeight()));
         String weight = String.valueOf(pokemon.getWeight()) + getString(R.string.weight_unit);

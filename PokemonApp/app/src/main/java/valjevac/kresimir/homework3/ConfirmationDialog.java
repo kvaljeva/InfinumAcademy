@@ -2,9 +2,10 @@ package valjevac.kresimir.homework3;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
+import android.support.v4.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 
 public class ConfirmationDialog extends DialogFragment {
     public static final String TITLE = "Title";
@@ -15,7 +16,7 @@ public class ConfirmationDialog extends DialogFragment {
     public ConfirmationDialog() { }
 
     public interface OnCompleteListener {
-        void onComplete(boolean confirmation);
+        void onComplete(boolean confirmation, Fragment fragment);
     }
 
     private OnCompleteListener listener;
@@ -37,7 +38,7 @@ public class ConfirmationDialog extends DialogFragment {
             public void onClick(DialogInterface dialogInterface, int i) {
                 if (getActivity() instanceof  OnCompleteListener) {
                     listener = (OnCompleteListener) getActivity();
-                    listener.onComplete(RESULT_CLOSE);
+                    listener.onComplete(RESULT_CLOSE, getTargetFragment());
 
                     dismiss();
                 }
@@ -49,7 +50,7 @@ public class ConfirmationDialog extends DialogFragment {
             public void onClick(DialogInterface dialogInterface, int i) {
                 if (getActivity() instanceof OnCompleteListener) {
                     listener = (OnCompleteListener) getActivity();
-                    listener.onComplete(RESULT_KEEP_OPEN);
+                    listener.onComplete(RESULT_KEEP_OPEN, getTargetFragment());
 
                     dismiss();
                 }
