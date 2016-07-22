@@ -42,8 +42,8 @@ public class PokemonListFragment extends Fragment {
     private ArrayList<PokemonModel> pokemonList;
     private PokemonAdapter pokemonAdapter;
     private boolean isFragmentView;
-    private boolean isEmptyState;
     private static boolean animate;
+    boolean isEmptyState;
 
     @BindView(R.id.recycler_view_pokemon_list)
     RecyclerView rvPokemonList;
@@ -70,7 +70,9 @@ public class PokemonListFragment extends Fragment {
 
         if (instance == null) {
             instance = new PokemonListFragment();
+            instance.setArguments(new Bundle());
             animate = loadAnimation;
+
             return instance;
         }
 
@@ -84,11 +86,15 @@ public class PokemonListFragment extends Fragment {
 
         if (instance == null) {
             instance = new PokemonListFragment();
-            instance.setArguments(bundle);
+            instance.getArguments().putAll(bundle);
+
             return instance;
         }
 
-        instance.setArguments(bundle);
+        instance.getArguments().putAll(bundle);
+
+        updateListState();
+
         return instance;
     }
 
@@ -103,20 +109,14 @@ public class PokemonListFragment extends Fragment {
         isFragmentView = false;
 
         if (savedInstanceState == null) {
-            pokemonList = new ArrayList<>();
+
+            if (pokemonList == null) {
+                pokemonList = new ArrayList<>();
+            }
         }
         else {
             pokemonList = savedInstanceState.getParcelableArrayList(POKEMON_LIST_SATE);
             isEmptyState = savedInstanceState.getBoolean(EMPTY_STATE);
-        }
-
-        Bundle arguments = getArguments();
-        if (arguments != null) {
-            PokemonModel pokemon = arguments.getParcelable(POKEMON);
-
-            if (pokemon != null) {
-                pokemonList.add(pokemon);
-            }
         }
 
         pokemonAdapter = new PokemonAdapter(getActivity(), pokemonList, new RecyclerViewClickListener<PokemonModel>() {
@@ -133,7 +133,7 @@ public class PokemonListFragment extends Fragment {
             isEmptyState = false;
         }
 
-        updatePokemonListOverview(isEmptyState);
+        updatePokemonListOverview();
 
         return view;
     }
@@ -233,8 +233,8 @@ public class PokemonListFragment extends Fragment {
         return new Animation() { };
     }
 
-    private void updatePokemonListOverview(boolean isListEmpty) {
-        if (isListEmpty) {
+    private void updatePokemonListOverview() {
+        if (isEmptyState) {
             llEmptyStateContainer.setVisibility(View.VISIBLE);
 
             if(isFragmentView) {
@@ -255,13 +255,15 @@ public class PokemonListFragment extends Fragment {
         }
     }
 
-    public void updateListState(PokemonModel pokemon) {
-        if (pokemonList != null && pokemon != null) {
-            pokemonList.add(pokemon);
+    private static void updateListState() {
+        Bundle arguments = instance.getArguments();
+
+        if (arguments != null) {
+            PokemonModel pokemon = arguments.getParcelable(POKEMON);
+
+            if (pokemon != null) {
+                instance.pokemonList.add(pokemon);
+            }
         }
-
-        isEmptyState = false;
-
-        updatePokemonListOverview(isEmptyState);
     }
 }

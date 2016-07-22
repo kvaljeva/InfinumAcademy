@@ -110,14 +110,7 @@ public class PokemonListActivity extends AppCompatActivity implements
     @Override
     public void onPokemonAdded(int requestCode, PokemonModel pokemon) {
         removeFragmentFromStack(ADD_POKEMON_FRAGMENT_TAG);
-        loadFragment(PokemonListFragment.newInstance(true), POKEMON_LIST_FRAGMENT_TAG);
-
-        FragmentManager manager = getSupportFragmentManager();
-
-        Fragment fragment = manager.findFragmentByTag(POKEMON_LIST_FRAGMENT_TAG);
-        if (fragment instanceof  PokemonListFragment) {
-            ((PokemonListFragment) fragment).updateListState(pokemon);
-        }
+        loadFragment(PokemonListFragment.newInstance(pokemon), POKEMON_LIST_FRAGMENT_TAG);
     }
 
     @Override
