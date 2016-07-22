@@ -1,13 +1,11 @@
 package valjevac.kresimir.homework3.activities;
 
 import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.FrameLayout;
 
 import butterknife.BindView;
@@ -21,7 +19,7 @@ import valjevac.kresimir.homework3.models.PokemonModel;
 
 public class PokemonListActivity extends AppCompatActivity implements
         PokemonListFragment.OnFragmentInteractionListener, AddPokemonFragment.OnFragmentInteractionListener,
-        ConfirmationDialog.OnCompleteListener {
+        ConfirmationDialog.OnCompleteListener, PokemonDetailsFragment.OnFragmentInteractionListener {
 
     private static final String POKEMON_LIST_FRAGMENT_TAG = "PokemonListFragment";
     public static final String ADD_POKEMON_FRAGMENT_TAG = "AddPokemonFragment";
@@ -44,23 +42,15 @@ public class PokemonListActivity extends AppCompatActivity implements
 
         isInitialFragment = true;
 
-        loadFragment(PokemonListFragment.newInstance(), POKEMON_LIST_FRAGMENT_TAG, null);
+        if (checkIfFragmentExists(POKEMON_LIST_FRAGMENT_TAG)) {
+            loadFragment(PokemonListFragment.newInstance(), POKEMON_LIST_FRAGMENT_TAG, null);
+        }
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        /*
-        outState.putParcelableArrayList(POKEMON_LIST_SATE, pokemonList);
-
-        if (pokemonList != null && pokemonList.size() > 0) {
-            outState.putBoolean(EMPTY_STATE, false);
-        }
-        else {
-            outState.putBoolean(EMPTY_STATE, true);
-        }
-        */
     }
 
     @Override
@@ -76,7 +66,16 @@ public class PokemonListActivity extends AppCompatActivity implements
                     removeFragmentFromStack(fragment.getTag());
                 }
             }
+            else {
+                removeFragmentFromStack(POKEMON_DETAILS_FRAGMENT_TAG);
+            }
         }
+    }
+
+    private boolean checkIfFragmentExists(String tag) {
+        FragmentManager manager = getSupportFragmentManager();
+
+        return (manager.findFragmentByTag(tag) == null);
     }
 
     private void loadFragment(Fragment fragment, String tag, Bundle args) {
@@ -85,6 +84,9 @@ public class PokemonListActivity extends AppCompatActivity implements
 
         if (args != null) {
             fragment.getArguments().putAll(args);
+        }
+        else {
+            fragment.setArguments(new Bundle());
         }
 
         if (!isInitialFragment) {
@@ -131,14 +133,19 @@ public class PokemonListActivity extends AppCompatActivity implements
         FragmentManager manager = getSupportFragmentManager();
         Fragment fragment = manager.findFragmentByTag(POKEMON_LIST_FRAGMENT_TAG);
 
-        manager.popBackStack(ADD_POKEMON_FRAGMENT_TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        removeFragmentFromStack(fragment.getTag());
 
         loadFragment(fragment, POKEMON_LIST_FRAGMENT_TAG, bundle);
     }
 
     @Override
-    public void onHomePressed(Fragment fragment) {
+    public void onDetailsHomePressed() {
+        removeFragmentFromStack(POKEMON_DETAILS_FRAGMENT_TAG);
+    }
 
+    @Override
+    public void onAddHomePressed() {
+        onBackPressed();
     }
 
     @Override

@@ -19,9 +19,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -110,7 +108,7 @@ public class AddPokemonFragment extends Fragment {
 
         void onPokemonAdded(int requestCode, PokemonModel pokemon);
 
-        void onHomePressed(Fragment fragment);
+        void onAddHomePressed();
     }
 
     public static AddPokemonFragment newInstance() {
@@ -123,6 +121,17 @@ public class AddPokemonFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_add_pokemon, container, false);
         unbinder = ButterKnife.bind(this, view);
+
+        isColorChanged = false;
+
+        if (savedInstanceState != null) {
+            changesMade = savedInstanceState.getBoolean(CHANGES_MADE);
+            imageUri = savedInstanceState.getParcelable(IMAGE_LOCATION);
+
+            if (imageUri != null && !imageUri.toString().isEmpty()) {
+                BitmapHelper.loadBitmap(ivPokemonImage, imageUri, false);
+            }
+        }
 
         return view;
     }
@@ -202,11 +211,21 @@ public class AddPokemonFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putBoolean(CHANGES_MADE, changesMade);
+        outState.putParcelable(IMAGE_LOCATION, imageUri);
+    }
+
     private void createToolbar() {
         if (toolbar != null) {
             PokemonListActivity pokemonListActivity = (PokemonListActivity) getActivity();
 
             pokemonListActivity.setSupportActionBar(toolbar);
+
+            toolbar.setTitle(TOOLBAR_TITLE);
 
             if (pokemonListActivity.getSupportActionBar() != null) {
                 pokemonListActivity.getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
@@ -219,10 +238,9 @@ public class AddPokemonFragment extends Fragment {
             toolbar.setNavigationOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    getActivity().onBackPressed();
+                    listener.onAddHomePressed();
                 }
             });
-
         }
     }
 

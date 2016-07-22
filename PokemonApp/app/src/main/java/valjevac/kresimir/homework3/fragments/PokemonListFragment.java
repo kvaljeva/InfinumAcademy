@@ -37,7 +37,6 @@ public class PokemonListFragment extends Fragment {
     public static final String EMPTY_STATE = "EmptyState";
     private ArrayList<PokemonModel> pokemonList;
     private PokemonAdapter pokemonAdapter;
-    private boolean isEmptyState;
     private boolean isFragmentView;
 
     @BindView(R.id.recycler_view_pokemon_list)
@@ -74,15 +73,23 @@ public class PokemonListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_pokemon_list, container, false);
         unbinder = ButterKnife.bind(this, view);
 
-        isEmptyState = true;
+        boolean isEmptyState = true;
         isFragmentView = false;
 
         if (savedInstanceState == null) {
-            pokemonList = new ArrayList<>();
+
+            if (pokemonList == null) {
+                pokemonList = new ArrayList<>();
+            }
         }
         else {
             pokemonList = savedInstanceState.getParcelableArrayList(POKEMON_LIST_SATE);
             isEmptyState = savedInstanceState.getBoolean(EMPTY_STATE);
+
+            // If it happens that the list is in the saveState but equals null, initialize it here
+            if (pokemonList == null) {
+                pokemonList = new ArrayList<>();
+            }
         }
 
         Bundle arguments = getArguments();
@@ -92,7 +99,9 @@ public class PokemonListFragment extends Fragment {
             if (pokemon != null) {
                 isEmptyState = false;
 
-                pokemonList.add(pokemon);
+                if (!pokemonList.contains(pokemon)) {
+                    pokemonList.add(pokemon);
+                }
             }
         }
 
@@ -178,8 +187,22 @@ public class PokemonListFragment extends Fragment {
         inflater.inflate(R.menu.menu_item_add, menu);
     }
 
-    private void updatePokemonListOverview(boolean isEmptyState) {
-        if (isEmptyState) {
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putParcelableArrayList(POKEMON_LIST_SATE, pokemonList);
+
+        if (pokemonList != null && pokemonList.size() > 0) {
+            outState.putBoolean(EMPTY_STATE, false);
+        }
+        else {
+            outState.putBoolean(EMPTY_STATE, true);
+        }
+    }
+
+    private void updatePokemonListOverview(boolean isListEmpty) {
+        if (isListEmpty) {
             llEmptyStateContainer.setVisibility(View.VISIBLE);
 
             if(isFragmentView) {
