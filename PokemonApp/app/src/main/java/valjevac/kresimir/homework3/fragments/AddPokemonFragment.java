@@ -22,6 +22,8 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioButton;
@@ -344,6 +346,16 @@ public class AddPokemonFragment extends Fragment {
 
         if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             startImagePicker();
+        }
+    }
+
+    @Override
+    public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
+        if (enter) {
+            return AnimationUtils.loadAnimation(getActivity(), R.anim.enter_right);
+        }
+        else {
+            return AnimationUtils.loadAnimation(getActivity(), R.anim.exit_right);
         }
     }
 

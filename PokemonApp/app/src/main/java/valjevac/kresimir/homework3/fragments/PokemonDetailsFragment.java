@@ -12,6 +12,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -160,6 +162,16 @@ public class PokemonDetailsFragment extends Fragment {
 
         if (unbinder != null) {
             unbinder.unbind();
+        }
+    }
+
+    @Override
+    public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
+        if (enter) {
+            return AnimationUtils.loadAnimation(getActivity(), R.anim.enter_right);
+        }
+        else {
+            return AnimationUtils.loadAnimation(getActivity(), R.anim.exit_right);
         }
     }
 
