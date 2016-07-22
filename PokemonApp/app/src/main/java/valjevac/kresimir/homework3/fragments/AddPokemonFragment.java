@@ -47,7 +47,6 @@ public class AddPokemonFragment extends Fragment {
     private Unbinder unbinder;
     private OnFragmentInteractionListener listener;
 
-    private static final String TOOLBAR_TITLE = "Add Pokemon";
     private static final int SELECT_IMAGE = 420;
     private static final int REQUEST_CODE_PERMISSION = 42;
     private static final int DIALOG_RESULT = 4;
@@ -102,9 +101,7 @@ public class AddPokemonFragment extends Fragment {
     @BindView(R.id.abl_header_add_pokemon)
     AppBarLayout ablHeaderAddPokemon;
 
-    public AddPokemonFragment() {
-
-    }
+    public AddPokemonFragment() { }
 
     public interface OnFragmentInteractionListener {
 
@@ -227,7 +224,7 @@ public class AddPokemonFragment extends Fragment {
 
             pokemonListActivity.setSupportActionBar(toolbar);
 
-            toolbar.setTitle(TOOLBAR_TITLE);
+            toolbar.setTitle(R.string.add_pokemon_toolbar_title);
 
             if (pokemonListActivity.getSupportActionBar() != null) {
                 pokemonListActivity.getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
@@ -248,7 +245,7 @@ public class AddPokemonFragment extends Fragment {
 
     private void setToolbarTitle() {
         if (ctlHeaderAddPokemon != null) {
-            ctlHeaderAddPokemon.setTitle(TOOLBAR_TITLE);
+            ctlHeaderAddPokemon.setTitle(getString(R.string.add_pokemon_toolbar_title));
             ctlHeaderAddPokemon.setExpandedTitleColor(ContextCompat.getColor(getActivity(),
                     android.R.color.transparent));
         }

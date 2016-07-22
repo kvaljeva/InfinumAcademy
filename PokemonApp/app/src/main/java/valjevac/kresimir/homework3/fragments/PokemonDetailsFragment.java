@@ -29,7 +29,8 @@ public class PokemonDetailsFragment extends Fragment {
     private Unbinder unbinder;
     private OnFragmentInteractionListener listener;
 
-    private static final String TOOLBAR_TITLE = "Pokemon Details";
+    private static PokemonDetailsFragment instance;
+    private static final String POKEMON_DETAILS = "PokemonDetails";
 
     @BindView(R.id.tv_details_pokemon_name)
     TextView tvName;
@@ -64,12 +65,30 @@ public class PokemonDetailsFragment extends Fragment {
     @BindView(R.id.ctl_header_pokemon_details)
     CollapsingToolbarLayout ctlHeaderPokemonDetails;
 
-    public PokemonDetailsFragment() {
-        this.setArguments(new Bundle());
-    }
+    public PokemonDetailsFragment() { }
 
     public static PokemonDetailsFragment newInstance() {
-        return new PokemonDetailsFragment();
+
+        if (instance == null) {
+            instance = new PokemonDetailsFragment();
+            return instance;
+        }
+
+        return instance;
+    }
+
+    public static PokemonDetailsFragment newInstance(PokemonModel pokemon) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(POKEMON_DETAILS, pokemon);
+
+        if (instance == null) {
+            instance = new PokemonDetailsFragment();
+            instance.setArguments(bundle);
+            return instance;
+        }
+
+        instance.setArguments(bundle);
+        return instance;
     }
 
     public interface OnFragmentInteractionListener {
@@ -91,7 +110,7 @@ public class PokemonDetailsFragment extends Fragment {
 
             activity.setSupportActionBar(toolbar);
 
-            toolbar.setTitle(TOOLBAR_TITLE);
+            toolbar.setTitle(R.string.pokemon_details_toolbar_title);
 
             if (activity.getSupportActionBar() != null) {
 
@@ -110,7 +129,7 @@ public class PokemonDetailsFragment extends Fragment {
 
         Bundle arguments = getArguments();
         if (arguments != null) {
-            PokemonModel pokemon = arguments.getParcelable(PokemonListFragment.POKEMON);
+            PokemonModel pokemon = arguments.getParcelable(POKEMON_DETAILS);
 
             if (pokemon != null) {
                 String height = transformHeightString(String.valueOf(pokemon.getHeight()));
@@ -177,7 +196,7 @@ public class PokemonDetailsFragment extends Fragment {
 
     private void setToolbarTitle() {
         if (ctlHeaderPokemonDetails != null) {
-            ctlHeaderPokemonDetails.setTitle(getActivity().getTitle());
+            ctlHeaderPokemonDetails.setTitle(getString(R.string.pokemon_details_toolbar_title));
             ctlHeaderPokemonDetails.setExpandedTitleColor(ContextCompat.getColor(getActivity(),
                     android.R.color.transparent));
         }

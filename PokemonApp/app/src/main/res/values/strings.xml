@@ -29,4 +29,6 @@
     <string name="menu_action_add_pokemon">Menu action add pokemon</string>
     <string name="gender_female">F</string>
     <string name="gender_male">M</string>
+    <string name="pokemon_details_toolbar_title">Pokemon Details</string>
+    <string name="add_pokemon_toolbar_title">Add Pokemon</string>
 </resources>

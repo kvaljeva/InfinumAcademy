@@ -18,18 +18,5 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:parentActivityName=".activities.PokemonListActivity"
-            android:name=".activities.AddPokemonActivity"
-            android:label="Add new Pokemon"
-            android:windowSoftInputMode="adjustPan"
-            android:theme="@style/AppTheme.NoActionBar">
-        </activity>
-        <activity
-            android:parentActivityName=".activities.PokemonListActivity"
-            android:name=".activities.PokemonDetailsActivity"
-            android:label="Details"
-            android:theme="@style/AppTheme.NoActionBar">
-        </activity>
     </application>
 </manifest>

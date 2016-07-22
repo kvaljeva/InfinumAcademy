@@ -24,7 +24,6 @@ public class PokemonListActivity extends AppCompatActivity implements
     private static final String POKEMON_LIST_FRAGMENT_TAG = "PokemonListFragment";
     public static final String ADD_POKEMON_FRAGMENT_TAG = "AddPokemonFragment";
     private static final String POKEMON_DETAILS_FRAGMENT_TAG = "PokemonDetailsFragment";
-    private boolean isInitialFragment;
 
     @Nullable
     @BindView(R.id.fragmentContainer)
@@ -40,17 +39,14 @@ public class PokemonListActivity extends AppCompatActivity implements
 
         ButterKnife.bind(this);
 
-        isInitialFragment = true;
-
-        if (checkIfFragmentExists(POKEMON_LIST_FRAGMENT_TAG)) {
-            loadFragment(PokemonListFragment.newInstance(), POKEMON_LIST_FRAGMENT_TAG, null);
+        if (!checkIfFragmentExists(POKEMON_LIST_FRAGMENT_TAG)) {
+            loadFragment(PokemonListFragment.newInstance(false), POKEMON_LIST_FRAGMENT_TAG);
         }
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-
     }
 
     @Override
@@ -75,23 +71,12 @@ public class PokemonListActivity extends AppCompatActivity implements
     private boolean checkIfFragmentExists(String tag) {
         FragmentManager manager = getSupportFragmentManager();
 
-        return (manager.findFragmentByTag(tag) == null);
+        return !(manager.findFragmentByTag(tag) == null);
     }
 
-    private void loadFragment(Fragment fragment, String tag, Bundle args) {
+    private void loadFragment(Fragment fragment, String tag) {
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
-
-        if (args != null) {
-            fragment.getArguments().putAll(args);
-        }
-        else {
-            fragment.setArguments(new Bundle());
-        }
-
-        if (!isInitialFragment) {
-            transaction.setCustomAnimations(R.anim.enter_right, R.anim.exit_left, R.anim.enter_left, R.anim.exit_right);
-        }
 
         transaction.replace(R.id.fl_container_main, fragment, tag);
 
@@ -100,7 +85,6 @@ public class PokemonListActivity extends AppCompatActivity implements
         }
 
         transaction.commit();
-        isInitialFragment = false;
     }
 
     private void removeFragmentFromStack(String tag) {
@@ -109,33 +93,31 @@ public class PokemonListActivity extends AppCompatActivity implements
 
         transaction.remove(manager.findFragmentByTag(tag));
         transaction.commit();
+
         manager.popBackStack();
     }
 
     @Override
     public void onAddPokemonClick() {
-        loadFragment(AddPokemonFragment.newInstance(), ADD_POKEMON_FRAGMENT_TAG, null);
+        loadFragment(AddPokemonFragment.newInstance(), ADD_POKEMON_FRAGMENT_TAG);
     }
 
     @Override
     public void onShowPokemonDetailsClick(PokemonModel pokemon) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable(PokemonListFragment.POKEMON, pokemon);
-
-        loadFragment(PokemonDetailsFragment.newInstance(), POKEMON_DETAILS_FRAGMENT_TAG, bundle);
+        loadFragment(PokemonDetailsFragment.newInstance(pokemon), POKEMON_DETAILS_FRAGMENT_TAG);
     }
 
     @Override
     public void onPokemonAdded(int requestCode, PokemonModel pokemon) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable(PokemonListFragment.POKEMON, pokemon);
+        removeFragmentFromStack(ADD_POKEMON_FRAGMENT_TAG);
+        loadFragment(PokemonListFragment.newInstance(true), POKEMON_LIST_FRAGMENT_TAG);
 
         FragmentManager manager = getSupportFragmentManager();
+
         Fragment fragment = manager.findFragmentByTag(POKEMON_LIST_FRAGMENT_TAG);
-
-        removeFragmentFromStack(fragment.getTag());
-
-        loadFragment(fragment, POKEMON_LIST_FRAGMENT_TAG, bundle);
+        if (fragment instanceof  PokemonListFragment) {
+            ((PokemonListFragment) fragment).updateListState(pokemon);
+        }
     }
 
     @Override

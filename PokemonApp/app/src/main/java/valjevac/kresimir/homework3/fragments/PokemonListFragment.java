@@ -14,6 +14,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
@@ -31,6 +33,8 @@ public class PokemonListFragment extends Fragment {
     private Unbinder unbinder;
     private OnFragmentInteractionListener listener;
 
+    private static PokemonListFragment instance;
+
     public static final int REQUEST_CODE_ADD_POKEMON = 420;
     public static final String POKEMON = "Pokemon";
     public static final String POKEMON_LIST_SATE = "PokemonListState";
@@ -38,6 +42,8 @@ public class PokemonListFragment extends Fragment {
     private ArrayList<PokemonModel> pokemonList;
     private PokemonAdapter pokemonAdapter;
     private boolean isFragmentView;
+    private boolean isEmptyState;
+    private static boolean animate;
 
     @BindView(R.id.recycler_view_pokemon_list)
     RecyclerView rvPokemonList;
@@ -51,9 +57,7 @@ public class PokemonListFragment extends Fragment {
     @BindView(R.id.tb_pokemon_list)
     Toolbar toolbar;
 
-    public PokemonListFragment() {
-        this.setArguments(new Bundle());
-    }
+    public PokemonListFragment() { }
 
     public interface OnFragmentInteractionListener {
 
@@ -62,8 +66,30 @@ public class PokemonListFragment extends Fragment {
         void onShowPokemonDetailsClick(PokemonModel pokemon);
     }
 
-    public static PokemonListFragment newInstance() {
-        return new PokemonListFragment();
+    public static PokemonListFragment newInstance(boolean loadAnimation) {
+
+        if (instance == null) {
+            instance = new PokemonListFragment();
+            animate = loadAnimation;
+            return instance;
+        }
+
+        animate = loadAnimation;
+        return instance;
+    }
+
+    public static PokemonListFragment newInstance(PokemonModel pokemon) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(POKEMON, pokemon);
+
+        if (instance == null) {
+            instance = new PokemonListFragment();
+            instance.setArguments(bundle);
+            return instance;
+        }
+
+        instance.setArguments(bundle);
+        return instance;
     }
 
     @Nullable
@@ -73,23 +99,15 @@ public class PokemonListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_pokemon_list, container, false);
         unbinder = ButterKnife.bind(this, view);
 
-        boolean isEmptyState = true;
+        isEmptyState = true;
         isFragmentView = false;
 
         if (savedInstanceState == null) {
-
-            if (pokemonList == null) {
-                pokemonList = new ArrayList<>();
-            }
+            pokemonList = new ArrayList<>();
         }
         else {
             pokemonList = savedInstanceState.getParcelableArrayList(POKEMON_LIST_SATE);
             isEmptyState = savedInstanceState.getBoolean(EMPTY_STATE);
-
-            // If it happens that the list is in the saveState but equals null, initialize it here
-            if (pokemonList == null) {
-                pokemonList = new ArrayList<>();
-            }
         }
 
         Bundle arguments = getArguments();
@@ -97,11 +115,7 @@ public class PokemonListFragment extends Fragment {
             PokemonModel pokemon = arguments.getParcelable(POKEMON);
 
             if (pokemon != null) {
-                isEmptyState = false;
-
-                if (!pokemonList.contains(pokemon)) {
-                    pokemonList.add(pokemon);
-                }
+                pokemonList.add(pokemon);
             }
         }
 
@@ -114,6 +128,10 @@ public class PokemonListFragment extends Fragment {
 
         rvPokemonList.setAdapter(pokemonAdapter);
         rvPokemonList.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        if (pokemonList != null && pokemonList.size() > 0 && isEmptyState) {
+            isEmptyState = false;
+        }
 
         updatePokemonListOverview(isEmptyState);
 
@@ -201,6 +219,20 @@ public class PokemonListFragment extends Fragment {
         }
     }
 
+    @Override
+    public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
+        if (animate) {
+            if (enter) {
+                return AnimationUtils.loadAnimation(getActivity(), R.anim.enter_left);
+            }
+            else {
+                return AnimationUtils.loadAnimation(getActivity(), R.anim.exit_left);
+            }
+        }
+
+        return new Animation() { };
+    }
+
     private void updatePokemonListOverview(boolean isListEmpty) {
         if (isListEmpty) {
             llEmptyStateContainer.setVisibility(View.VISIBLE);
@@ -221,5 +253,15 @@ public class PokemonListFragment extends Fragment {
 
             pokemonAdapter.update(pokemonList);
         }
+    }
+
+    public void updateListState(PokemonModel pokemon) {
+        if (pokemonList != null && pokemon != null) {
+            pokemonList.add(pokemon);
+        }
+
+        isEmptyState = false;
+
+        updatePokemonListOverview(isEmptyState);
     }
 }
