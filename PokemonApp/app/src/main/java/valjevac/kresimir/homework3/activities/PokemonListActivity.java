@@ -4,8 +4,11 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.widget.FrameLayout;
 
 import butterknife.BindView;
@@ -21,16 +24,24 @@ public class PokemonListActivity extends AppCompatActivity implements
         PokemonListFragment.OnFragmentInteractionListener, AddPokemonFragment.OnFragmentInteractionListener,
         ConfirmationDialog.OnCompleteListener, PokemonDetailsFragment.OnFragmentInteractionListener {
 
+    private static final int ORIENTATION_PORTRAIT = 1;
+    private static final int ORIENTATION_LANDSCAPE = 2;
     private static final String POKEMON_LIST_FRAGMENT_TAG = "PokemonListFragment";
     public static final String ADD_POKEMON_FRAGMENT_TAG = "AddPokemonFragment";
     private static final String POKEMON_DETAILS_FRAGMENT_TAG = "PokemonDetailsFragment";
+    private boolean isDeviceTablet;
+    private int currentOrientation;
 
     @Nullable
-    @BindView(R.id.fragmentContainer)
-    FrameLayout flFragmentContainer;
+    @BindView(R.id.fl_container_content)
+    FrameLayout flContainerContent;
 
     @BindView(R.id.fl_container_main)
     FrameLayout flContainerMain;
+
+    @Nullable
+    @BindView(R.id.tb_pokemon_list)
+    Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,33 +50,81 @@ public class PokemonListActivity extends AppCompatActivity implements
 
         ButterKnife.bind(this);
 
-        if (!checkIfFragmentExists(POKEMON_LIST_FRAGMENT_TAG)) {
+        isDeviceTablet = getResources().getBoolean(R.bool.isDeviceTablet);
+        currentOrientation = getCurrentOrientation();
+
+        if (!checkIfFragmentExists(POKEMON_LIST_FRAGMENT_TAG) && !isDeviceTablet) {
             loadFragment(PokemonListFragment.newInstance(false), POKEMON_LIST_FRAGMENT_TAG);
         }
-    }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
+        if (isDeviceTablet) {
+            if (isDeviceTablet && flContainerContent != null && currentOrientation == ORIENTATION_LANDSCAPE) {
+                loadFragment(AddPokemonFragment.newInstance(true), ADD_POKEMON_FRAGMENT_TAG);
+                ViewCompat.setElevation(flContainerMain, 7);
+            }
+
+            // Load initial fragment every time
+            loadFragment(PokemonListFragment.newInstance(false), POKEMON_LIST_FRAGMENT_TAG);
+        }
+
+        if (toolbar != null) {
+           setSupportActionBar(toolbar);
+
+            toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    switch(item.getItemId()) {
+                        case R.id.action_add:
+                            // In case that we're in landscape view remove the details fragment before loading the add fragment
+                            if (checkIfFragmentExists(POKEMON_DETAILS_FRAGMENT_TAG) && isDeviceTablet) {
+                                removeFragmentFromStack(POKEMON_DETAILS_FRAGMENT_TAG);
+                            }
+
+                            loadFragment(AddPokemonFragment.newInstance(isDeviceTablet), ADD_POKEMON_FRAGMENT_TAG);
+                            return true;
+                        default:
+                            return false;
+                    }
+                }
+            });
+        }
     }
 
     @Override
     public void onBackPressed() {
-        if (getSupportFragmentManager().getBackStackEntryCount() == 1) {
-            finish();
-        }
-        else {
-            Fragment fragment = getSupportFragmentManager().findFragmentByTag(ADD_POKEMON_FRAGMENT_TAG);
+        int backstackCount = getSupportFragmentManager().getBackStackEntryCount();
 
-            if (fragment instanceof AddPokemonFragment) {
-                if (((AddPokemonFragment) fragment).allowBackPressed()) {
-                    removeFragmentFromStack(fragment.getTag());
-                }
+        if (backstackCount == 1 || isDeviceTablet) {
+            if (backstackCount == 1 || currentOrientation == ORIENTATION_LANDSCAPE) {
+                finish();
             }
             else {
-                removeFragmentFromStack(POKEMON_DETAILS_FRAGMENT_TAG);
+                if (!checkIfBackPressAllowed(ADD_POKEMON_FRAGMENT_TAG)) {
+                    removeFragmentFromStack(ADD_POKEMON_FRAGMENT_TAG);
+                }
+                else {
+                    removeFragmentFromStack(POKEMON_DETAILS_FRAGMENT_TAG);
+                }
             }
         }
+        else {
+            if (!checkIfBackPressAllowed(ADD_POKEMON_FRAGMENT_TAG)) {
+                removeFragmentFromStack(ADD_POKEMON_FRAGMENT_TAG);
+            }
+        }
+    }
+
+    private boolean checkIfBackPressAllowed(String tag) {
+        FragmentManager manager = getSupportFragmentManager();
+        Fragment fragment = manager.findFragmentByTag(tag);
+
+        if (fragment instanceof AddPokemonFragment) {
+            if (((AddPokemonFragment) fragment).allowBackPressed()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private boolean checkIfFragmentExists(String tag) {
@@ -78,9 +137,21 @@ public class PokemonListActivity extends AppCompatActivity implements
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
 
-        transaction.replace(R.id.fl_container_main, fragment, tag);
+        if (tag.equals(POKEMON_LIST_FRAGMENT_TAG) || !isDeviceTablet) {
+            transaction.replace(R.id.fl_container_main, fragment, tag);
+        }
+        else {
+            if (currentOrientation == ORIENTATION_PORTRAIT) {
+                transaction.replace(R.id.fl_container_main, fragment, tag);
+            }
+            else {
+                transaction.replace(R.id.fl_container_content, fragment, tag);
+            }
+        }
 
-        if (manager.findFragmentByTag(tag) == null) {
+        if (manager.findFragmentByTag(tag) == null || (isDeviceTablet
+                && currentOrientation == ORIENTATION_PORTRAIT)) {
+
             transaction.addToBackStack(tag);
         }
 
@@ -97,19 +168,39 @@ public class PokemonListActivity extends AppCompatActivity implements
         manager.popBackStack();
     }
 
+    private int getCurrentOrientation() {
+        return getResources().getConfiguration().orientation;
+    }
+
     @Override
     public void onAddPokemonClick() {
-        loadFragment(AddPokemonFragment.newInstance(), ADD_POKEMON_FRAGMENT_TAG);
+        if (checkIfFragmentExists(POKEMON_DETAILS_FRAGMENT_TAG)) {
+            removeFragmentFromStack(POKEMON_DETAILS_FRAGMENT_TAG);
+        }
+
+        if (checkIfFragmentExists(ADD_POKEMON_FRAGMENT_TAG) && !isDeviceTablet) {
+            removeFragmentFromStack(ADD_POKEMON_FRAGMENT_TAG);
+        }
+
+        loadFragment(AddPokemonFragment.newInstance(isDeviceTablet), ADD_POKEMON_FRAGMENT_TAG);
     }
 
     @Override
     public void onShowPokemonDetailsClick(PokemonModel pokemon) {
-        loadFragment(PokemonDetailsFragment.newInstance(pokemon), POKEMON_DETAILS_FRAGMENT_TAG);
+        loadFragment(PokemonDetailsFragment.newInstance(pokemon, isDeviceTablet), POKEMON_DETAILS_FRAGMENT_TAG);
     }
 
     @Override
-    public void onPokemonAdded(int requestCode, PokemonModel pokemon) {
-        removeFragmentFromStack(ADD_POKEMON_FRAGMENT_TAG);
+    public void onPokemonAdded(PokemonModel pokemon) {
+        if (!isDeviceTablet) {
+            removeFragmentFromStack(ADD_POKEMON_FRAGMENT_TAG);
+        }
+        else {
+            if (currentOrientation == ORIENTATION_LANDSCAPE) {
+                removeFragmentFromStack(POKEMON_LIST_FRAGMENT_TAG);
+            }
+        }
+
         loadFragment(PokemonListFragment.newInstance(pokemon), POKEMON_LIST_FRAGMENT_TAG);
     }
 
@@ -127,6 +218,10 @@ public class PokemonListActivity extends AppCompatActivity implements
     public void onComplete(boolean confirmation, Fragment fragment) {
         if (confirmation) {
             if (fragment instanceof AddPokemonFragment) {
+                if (isDeviceTablet && currentOrientation == ORIENTATION_LANDSCAPE) {
+                    finish();
+                }
+
                 removeFragmentFromStack(ADD_POKEMON_FRAGMENT_TAG);
             }
         }

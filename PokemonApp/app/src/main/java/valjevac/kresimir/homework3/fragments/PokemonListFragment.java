@@ -7,7 +7,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -41,7 +40,6 @@ public class PokemonListFragment extends Fragment {
     public static final String EMPTY_STATE = "EmptyState";
     private ArrayList<PokemonModel> pokemonList;
     private PokemonAdapter pokemonAdapter;
-    private boolean isFragmentView;
     private static boolean animate;
     boolean isEmptyState;
 
@@ -54,6 +52,7 @@ public class PokemonListFragment extends Fragment {
     @BindView(R.id.ll_list_items_container)
     LinearLayout llItemsContainer;
 
+    @Nullable
     @BindView(R.id.tb_pokemon_list)
     Toolbar toolbar;
 
@@ -106,7 +105,6 @@ public class PokemonListFragment extends Fragment {
         unbinder = ButterKnife.bind(this, view);
 
         isEmptyState = true;
-        isFragmentView = false;
 
         if (savedInstanceState == null) {
 
@@ -117,12 +115,17 @@ public class PokemonListFragment extends Fragment {
         else {
             pokemonList = savedInstanceState.getParcelableArrayList(POKEMON_LIST_SATE);
             isEmptyState = savedInstanceState.getBoolean(EMPTY_STATE);
+
+            // In case that there is something in the save state but that the list isn't initialized, do it here
+            if (pokemonList == null) {
+                pokemonList = new ArrayList<>();
+            }
         }
 
         pokemonAdapter = new PokemonAdapter(getActivity(), pokemonList, new RecyclerViewClickListener<PokemonModel>() {
             @Override
-            public void OnClick(PokemonModel object) {
-                listener.onShowPokemonDetailsClick(object);
+            public void OnClick(PokemonModel pokemon) {
+                listener.onShowPokemonDetailsClick(pokemon);
             }
         });
 
@@ -235,18 +238,13 @@ public class PokemonListFragment extends Fragment {
 
     private void updatePokemonListOverview() {
         if (isEmptyState) {
+
             llEmptyStateContainer.setVisibility(View.VISIBLE);
-
-            if(isFragmentView) {
-                llItemsContainer.setVisibility(View.VISIBLE);
-            }
-            else {
-                llItemsContainer.setVisibility(View.GONE);
-            }
-
+            llItemsContainer.setVisibility(View.GONE);
             rvPokemonList.setVisibility(View.INVISIBLE);
         }
         else {
+
             llEmptyStateContainer.setVisibility(View.GONE);
             llItemsContainer.setVisibility(View.VISIBLE);
             rvPokemonList.setVisibility(View.VISIBLE);

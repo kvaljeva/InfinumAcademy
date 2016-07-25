@@ -31,6 +31,7 @@ public class PokemonDetailsFragment extends Fragment {
 
     private static PokemonDetailsFragment instance;
     private static final String POKEMON_DETAILS = "PokemonDetails";
+    private boolean isTabletView;
 
     @BindView(R.id.tv_details_pokemon_name)
     TextView tvName;
@@ -56,6 +57,7 @@ public class PokemonDetailsFragment extends Fragment {
     @BindView(R.id.iv_pokemon_image)
     ImageView ivImage;
 
+    @Nullable
     @BindView(R.id.tb_pokemon_details)
     Toolbar toolbar;
 
@@ -88,6 +90,24 @@ public class PokemonDetailsFragment extends Fragment {
         }
 
         instance.setArguments(bundle);
+        return instance;
+    }
+
+    public static PokemonDetailsFragment newInstance(PokemonModel pokemon, boolean isDeviceTablet) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(POKEMON_DETAILS, pokemon);
+
+        if (instance == null) {
+            instance = new PokemonDetailsFragment();
+            instance.setArguments(bundle);
+            instance.isTabletView = isDeviceTablet;
+
+            return instance;
+        }
+
+        instance.getArguments().putAll(bundle);
+        instance.isTabletView = isDeviceTablet;
+
         return instance;
     }
 
@@ -190,6 +210,10 @@ public class PokemonDetailsFragment extends Fragment {
             return AnimationUtils.loadAnimation(getActivity(), R.anim.enter_right);
         }
         else {
+            if (isTabletView) {
+                return AnimationUtils.loadAnimation(getActivity(), R.anim.exit_left);
+            }
+
             return AnimationUtils.loadAnimation(getActivity(), R.anim.exit_right);
         }
     }

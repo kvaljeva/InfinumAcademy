@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -46,6 +48,7 @@ import valjevac.kresimir.homework3.models.PokemonModel;
 public class AddPokemonFragment extends Fragment {
     private Unbinder unbinder;
     private OnFragmentInteractionListener listener;
+    private static AddPokemonFragment instance;
 
     private static final int SELECT_IMAGE = 420;
     private static final int REQUEST_CODE_PERMISSION = 42;
@@ -58,6 +61,7 @@ public class AddPokemonFragment extends Fragment {
     private boolean changesMade;
     private Uri imageUri;
     private boolean isColorChanged;
+    private boolean isTabletView;
 
     @BindView(R.id.et_pokemon_name)
     EditText etPokemonName;
@@ -105,13 +109,33 @@ public class AddPokemonFragment extends Fragment {
 
     public interface OnFragmentInteractionListener {
 
-        void onPokemonAdded(int requestCode, PokemonModel pokemon);
+        void onPokemonAdded(PokemonModel pokemon);
 
         void onAddHomePressed();
     }
 
     public static AddPokemonFragment newInstance() {
-        return new AddPokemonFragment();
+
+        if (instance == null) {
+            instance = new AddPokemonFragment();
+            return instance;
+        }
+
+        return instance;
+    }
+
+    public static AddPokemonFragment newInstance(boolean isDeviceTablet) {
+
+        if (instance == null) {
+            instance = new AddPokemonFragment();
+            instance.isTabletView = isDeviceTablet;
+
+            return instance;
+        }
+
+        instance.isTabletView = isDeviceTablet;
+
+        return instance;
     }
 
     @Nullable
@@ -133,11 +157,6 @@ public class AddPokemonFragment extends Fragment {
         }
 
         return view;
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
     }
 
     @Override
@@ -303,6 +322,29 @@ public class AddPokemonFragment extends Fragment {
         return false;
     }
 
+    private void clearInputViews(ViewGroup group) {
+
+        for (int i = 0; i < group.getChildCount(); i++) {
+            View view = group.getChildAt(i);
+
+            if (view instanceof EditText) {
+                EditText editText = (EditText) view;
+                editText.setText("");
+            }
+            else if (view instanceof RadioButton) {
+                RadioButton radioButton = (RadioButton) view;
+                radioButton.setChecked(false);
+            }
+
+            if (view instanceof ViewGroup && (((ViewGroup) view).getChildCount() > 0)) {
+                clearInputViews((ViewGroup) view);
+            }
+        }
+
+        this.imageUri = null;
+        BitmapHelper.loadResourceBitmap(ivPokemonImage, R.drawable.ic_person_details, false);
+    }
+
     private boolean validateDecimalInput(EditText etContent) {
         // Promijenjeno Kocu za dusu
         Pattern pattern = Pattern.compile("^(-?0[.]\\d+)$|^(-?[1-9]+\\d*([.]\\d+)?)$|^0$");
@@ -352,6 +394,10 @@ public class AddPokemonFragment extends Fragment {
             return AnimationUtils.loadAnimation(getActivity(), R.anim.enter_right);
         }
         else {
+            if (isTabletView) {
+                return AnimationUtils.loadAnimation(getActivity(), R.anim.exit_left);
+            }
+
             return AnimationUtils.loadAnimation(getActivity(), R.anim.exit_right);
         }
     }
@@ -386,14 +432,16 @@ public class AddPokemonFragment extends Fragment {
             double pokemonWeight = Double.valueOf(etPokemonWeight.getText().toString());
             String category = etPokemonCategory.getText().toString();
             String abilities = etPokemonAbilities.getText().toString();
-            Uri image = this.imageUri;
+            Uri image = (this.imageUri == null) ? BitmapHelper.getResourceUri(R.drawable.ic_person_details) : this.imageUri;
             String gender = (rbGenderFemale.isChecked()) ? getString(R.string.gender_female) :
                     (rbGenderMale.isChecked()) ? getString(R.string.gender_male) : NO_GENDER;
 
             PokemonModel pokemon = new PokemonModel(pokemonName, pokemonDesc, pokemonHeight,
                     pokemonWeight, category, abilities, image, gender);
 
-            listener.onPokemonAdded(PokemonListFragment.REQUEST_CODE_ADD_POKEMON, pokemon);
+            clearInputViews(rlActivityBody);
+
+            listener.onPokemonAdded(pokemon);
         }
     }
 
