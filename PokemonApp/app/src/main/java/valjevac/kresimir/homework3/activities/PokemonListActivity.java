@@ -1,10 +1,15 @@
 package valjevac.kresimir.homework3.activities;
 
+import android.content.res.Configuration;
 import android.support.annotation.Nullable;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -43,6 +48,14 @@ public class PokemonListActivity extends AppCompatActivity implements
     @BindView(R.id.tb_pokemon_list)
     Toolbar toolbar;
 
+    @BindView(R.id.nvDrawer)
+    NavigationView navigationDrawer;
+
+    @BindView(R.id.drawer_layout)
+    DrawerLayout drawerLayout;
+
+    private ActionBarDrawerToggle drawerToggle;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,7 +81,17 @@ public class PokemonListActivity extends AppCompatActivity implements
         }
 
         if (toolbar != null) {
-           setSupportActionBar(toolbar);
+            setSupportActionBar(toolbar);
+
+            drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.drawer_open,
+                    R.string.drawer_close);
+
+            drawerToggle.syncState();
+
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                getSupportActionBar().setHomeButtonEnabled(true);
+            }
 
             toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
                 @Override
@@ -86,6 +109,35 @@ public class PokemonListActivity extends AppCompatActivity implements
                     }
                 }
             });
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.home:
+                drawerLayout.openDrawer(GravityCompat.START);
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+
+        if (drawerToggle != null) {
+            drawerToggle.syncState();
+        }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        if (drawerToggle != null) {
+            drawerToggle.onConfigurationChanged(newConfig);
         }
     }
 
@@ -170,6 +222,45 @@ public class PokemonListActivity extends AppCompatActivity implements
 
     private int getCurrentOrientation() {
         return getResources().getConfiguration().orientation;
+    }
+
+    private void setupDrawerContent() {
+        navigationDrawer.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(MenuItem item) {
+                        return true;
+                    }
+                }
+        );
+    }
+
+    private void selectDrawerItem(MenuItem item) {
+        Fragment fragment = null;
+        Class fragmentClass = null;
+
+        switch(item.getItemId()) {
+            case R.id.menu_item_logout:
+                break;
+            default:
+                break;
+        }
+
+        try {
+            fragment = (Fragment) fragmentClass.newInstance();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        FragmentManager manager = getSupportFragmentManager();
+        manager.beginTransaction().replace(R.id.fl_container_main, fragment).commit();
+
+        item.setChecked(true);
+
+        setTitle(item.getTitle());
+
+        drawerLayout.closeDrawers();
     }
 
     @Override

@@ -32,4 +32,9 @@
     <string name="pokemon_details_toolbar_title">Pokemon Details</string>
     <string name="add_pokemon_toolbar_title">Add Pokemon</string>
     <string name="toolbar_pokemon_list_title">Pokemon</string>
+    <string name="menu_item_logout">Logout</string>
+    <string name="nav_student_name">Krešimir Valjevac</string>
+    <string name="nav_student_mail">student@infinum.hr</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
 </resources>
