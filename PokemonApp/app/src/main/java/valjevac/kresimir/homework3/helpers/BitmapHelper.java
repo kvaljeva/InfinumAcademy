@@ -14,6 +14,7 @@ import valjevac.kresimir.homework3.R;
 public class BitmapHelper {
     private static final int QUALITY = 100;
     private static final int MAX_SIZE = 360;
+    private static final String baseResourceUri  = "android.resource://valjevac.kresimir.homework3/";
 
     public static byte[] compressBitmap(Bitmap bitmap) {
         ByteArrayOutputStream outStream = new ByteArrayOutputStream();
@@ -25,6 +26,16 @@ public class BitmapHelper {
 
     public static Bitmap decompressBitmap(byte[] bytes) {
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+    }
+
+    public static Uri getResourceUri(int resourceId) {
+        return Uri.parse(baseResourceUri + resourceId);
+    }
+
+    public static void loadResourceBitmap(ImageView imageView, int resourceId, boolean scale) {
+        Uri imageUri = getResourceUri(resourceId);
+
+        loadBitmap(imageView, imageUri, scale);
     }
 
     public static void loadBitmap(ImageView imageView, Uri location, boolean scale) {

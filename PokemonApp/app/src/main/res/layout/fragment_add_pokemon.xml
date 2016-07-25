@@ -1,12 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/text_icons"
-    tools:context=".activities.AddPokemonActivity">
+    android:background="@color/text_icons">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/abl_header_add_pokemon"
@@ -36,6 +33,7 @@
                 android:id="@+id/tb_add_pokemon"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
+                android:theme="@style/ToolbarTheme"
                 app:layout_collapseMode="pin"/>
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
