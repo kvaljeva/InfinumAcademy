@@ -1,7 +1,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/text_icons">
 
     <LinearLayout
@@ -57,7 +56,7 @@
         android:id="@+id/tb_pokemon_list"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:title="Pokemon"
+        android:title="@string/toolbar_pokemon_list_title"
         android:background="?colorPrimary"
         android:theme="@style/ToolbarTheme"/>
 </RelativeLayout>

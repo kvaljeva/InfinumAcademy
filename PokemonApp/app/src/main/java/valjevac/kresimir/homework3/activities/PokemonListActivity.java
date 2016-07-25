@@ -75,8 +75,7 @@ public class PokemonListActivity extends AppCompatActivity implements
                 public boolean onMenuItemClick(MenuItem item) {
                     switch(item.getItemId()) {
                         case R.id.action_add:
-                            // In case that we're in landscape view remove the details fragment before loading the add fragment
-                            if (checkIfFragmentExists(POKEMON_DETAILS_FRAGMENT_TAG) && isDeviceTablet) {
+                            if (checkIfFragmentExists(POKEMON_DETAILS_FRAGMENT_TAG)) {
                                 removeFragmentFromStack(POKEMON_DETAILS_FRAGMENT_TAG);
                             }
 
@@ -92,15 +91,22 @@ public class PokemonListActivity extends AppCompatActivity implements
 
     @Override
     public void onBackPressed() {
-        int backstackCount = getSupportFragmentManager().getBackStackEntryCount();
+        FragmentManager manager = getSupportFragmentManager();
+        Fragment fragment = manager.findFragmentByTag(ADD_POKEMON_FRAGMENT_TAG);
+
+        int backstackCount = manager.getBackStackEntryCount();
 
         if (backstackCount == 1 || isDeviceTablet) {
             if (backstackCount == 1 || currentOrientation == ORIENTATION_LANDSCAPE) {
                 finish();
             }
             else {
-                if (!checkIfBackPressAllowed(ADD_POKEMON_FRAGMENT_TAG)) {
-                    removeFragmentFromStack(ADD_POKEMON_FRAGMENT_TAG);
+                if (fragment instanceof  AddPokemonFragment) {
+                    AddPokemonFragment addPokemonFragment = (AddPokemonFragment) fragment;
+
+                    if (addPokemonFragment.allowBackPressed()) {
+                        removeFragmentFromStack(ADD_POKEMON_FRAGMENT_TAG);
+                    }
                 }
                 else {
                     removeFragmentFromStack(POKEMON_DETAILS_FRAGMENT_TAG);
@@ -108,23 +114,17 @@ public class PokemonListActivity extends AppCompatActivity implements
             }
         }
         else {
-            if (!checkIfBackPressAllowed(ADD_POKEMON_FRAGMENT_TAG)) {
-                removeFragmentFromStack(ADD_POKEMON_FRAGMENT_TAG);
+            if (fragment instanceof  AddPokemonFragment) {
+                AddPokemonFragment addPokemonFragment = (AddPokemonFragment) fragment;
+
+                if (addPokemonFragment.allowBackPressed()) {
+                    removeFragmentFromStack(ADD_POKEMON_FRAGMENT_TAG);
+                }
+            }
+            else {
+                removeFragmentFromStack(POKEMON_DETAILS_FRAGMENT_TAG);
             }
         }
-    }
-
-    private boolean checkIfBackPressAllowed(String tag) {
-        FragmentManager manager = getSupportFragmentManager();
-        Fragment fragment = manager.findFragmentByTag(tag);
-
-        if (fragment instanceof AddPokemonFragment) {
-            if (((AddPokemonFragment) fragment).allowBackPressed()) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     private boolean checkIfFragmentExists(String tag) {
@@ -187,6 +187,10 @@ public class PokemonListActivity extends AppCompatActivity implements
 
     @Override
     public void onShowPokemonDetailsClick(PokemonModel pokemon) {
+        if (checkIfFragmentExists(POKEMON_DETAILS_FRAGMENT_TAG) && isDeviceTablet) {
+            removeFragmentFromStack(POKEMON_DETAILS_FRAGMENT_TAG);
+        }
+
         loadFragment(PokemonDetailsFragment.newInstance(pokemon, isDeviceTablet), POKEMON_DETAILS_FRAGMENT_TAG);
     }
 
@@ -221,6 +225,8 @@ public class PokemonListActivity extends AppCompatActivity implements
                 if (isDeviceTablet && currentOrientation == ORIENTATION_LANDSCAPE) {
                     finish();
                 }
+
+                ((AddPokemonFragment) fragment).clearUserData();
 
                 removeFragmentFromStack(ADD_POKEMON_FRAGMENT_TAG);
             }
