@@ -37,4 +37,15 @@
     <string name="nav_student_mail">student@infinum.hr</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
+    <string name="login_pokemon_logo">Login Pokemon logo</string>
+    <string name="pokeball_image_login">Pokeball image login</string>
+    <string name="btn_log_in">Log in</string>
+    <string name="btn_sign_up">Sign up</string>
+    <string name="et_password_hint">Password</string>
+    <string name="et_email_hint">Email</string>
+    <string name="user_email_login_icon">User email login icon</string>
+    <string name="user_password_login_icon">User password login icon</string>
+    <string name="et_nickname_hint">Nickname</string>
+    <string name="sign_up_activity_title">Sign up</string>
+    <string name="et_confirm_password_hint">Confirm password</string>
 </resources>
