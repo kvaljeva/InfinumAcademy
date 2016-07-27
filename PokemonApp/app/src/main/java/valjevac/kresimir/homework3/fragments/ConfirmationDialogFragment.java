@@ -1,4 +1,4 @@
-package valjevac.kresimir.homework3;
+package valjevac.kresimir.homework3.fragments;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -7,13 +7,15 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
-public class ConfirmationDialog extends DialogFragment {
+import valjevac.kresimir.homework3.R;
+
+public class ConfirmationDialogFragment extends DialogFragment {
     public static final String TITLE = "Title";
     public static final String MESSAGE = "Message";
     private static final Boolean RESULT_CLOSE = true;
     private static final Boolean RESULT_KEEP_OPEN = false;
 
-    public ConfirmationDialog() { }
+    public ConfirmationDialogFragment() { }
 
     public interface OnCompleteListener {
         void onComplete(boolean confirmation, Fragment fragment);

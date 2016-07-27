@@ -37,7 +37,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
 import butterknife.Unbinder;
-import valjevac.kresimir.homework3.ConfirmationDialog;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.activities.PokemonListActivity;
 import valjevac.kresimir.homework3.helpers.BitmapHelper;
@@ -291,11 +290,11 @@ public class AddPokemonFragment extends Fragment {
     }
 
     private void showDialog() {
-        DialogFragment dialog = new ConfirmationDialog();
+        DialogFragment dialog = new ConfirmationDialogFragment();
         Bundle args = new Bundle();
 
-        args.putString(ConfirmationDialog.TITLE, getString(R.string.alert_dialog_title));
-        args.putString(ConfirmationDialog.MESSAGE, getString(R.string.alert_dialog_message));
+        args.putString(ConfirmationDialogFragment.TITLE, getString(R.string.alert_dialog_title));
+        args.putString(ConfirmationDialogFragment.MESSAGE, getString(R.string.alert_dialog_message));
 
         dialog.setArguments(args);
         dialog.setTargetFragment(this, DIALOG_RESULT);

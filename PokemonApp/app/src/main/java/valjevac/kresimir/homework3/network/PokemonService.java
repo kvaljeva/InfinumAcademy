@@ -14,4 +14,9 @@ public interface PokemonService {
     Call<User> insertUser(
             @Body User user
     );
+
+    @POST("api/v1/users/login")
+    Call<User> loginUser(
+            @Body User user
+    );
 }

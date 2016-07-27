@@ -28,7 +28,7 @@ public class ApiManager {
     }).setLevel(HttpLoggingInterceptor.Level.BODY);
 
     private static OkHttpClient client = new OkHttpClient.Builder()
-            .addInterceptor(httpLoggingInterceptor)
+            .addNetworkInterceptor(httpLoggingInterceptor)
             .build();
 
     private static Retrofit REST_ADAPTER = new Retrofit.Builder()

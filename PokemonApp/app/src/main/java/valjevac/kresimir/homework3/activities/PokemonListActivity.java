@@ -18,7 +18,7 @@ import android.widget.FrameLayout;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import valjevac.kresimir.homework3.ConfirmationDialog;
+import valjevac.kresimir.homework3.fragments.ConfirmationDialogFragment;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.fragments.AddPokemonFragment;
 import valjevac.kresimir.homework3.fragments.PokemonDetailsFragment;
@@ -27,7 +27,7 @@ import valjevac.kresimir.homework3.models.PokemonModel;
 
 public class PokemonListActivity extends AppCompatActivity implements
         PokemonListFragment.OnFragmentInteractionListener, AddPokemonFragment.OnFragmentInteractionListener,
-        ConfirmationDialog.OnCompleteListener, PokemonDetailsFragment.OnFragmentInteractionListener {
+        ConfirmationDialogFragment.OnCompleteListener, PokemonDetailsFragment.OnFragmentInteractionListener {
 
     private static final int ORIENTATION_PORTRAIT = 1;
     private static final int ORIENTATION_LANDSCAPE = 2;
