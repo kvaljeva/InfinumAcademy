@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    android:id="@+id/rl_signup_container"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -37,7 +39,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:hint="@string/et_email_hint"
+            android:lines="1"
             android:inputType="textEmailAddress"
+            android:nextFocusDown="@+id/et_signup_user_nickname"
             android:layout_weight="16"/>
     </LinearLayout>
 
@@ -63,6 +67,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:hint="@string/et_nickname_hint"
+            android:inputType="text"
+            android:maxLines="1"
+            android:nextFocusDown="@+id/et_signup_user_password"
             android:layout_weight="16"/>
     </LinearLayout>
 
@@ -90,6 +97,7 @@
             android:hint="@string/et_password_hint"
             android:layout_weight="16"
             android:inputType="textPassword"
+            android:nextFocusDown="@+id/et_signup_user_confirm_password"
             android:fontFamily="@android:string/defaultMsisdnAlphaTag"
             android:drawableRight="@drawable/ic_visibility_off"
             android:drawableEnd="@drawable/ic_visibility_off"/>
