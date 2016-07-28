@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -159,7 +160,7 @@ public class PokemonListFragment extends Fragment {
         pokemonListCall.enqueue(new BaseCallback<BaseResponse>() {
             @Override
             public void onUnknownError(@Nullable String error) {
-
+                Log.e("API_POKEMON_LIST", error);
             }
 
             @Override

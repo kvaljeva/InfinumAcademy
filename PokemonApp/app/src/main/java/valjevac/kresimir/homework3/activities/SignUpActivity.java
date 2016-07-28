@@ -1,6 +1,7 @@
 package valjevac.kresimir.homework3.activities;
 
 import android.content.Intent;
+import android.icu.util.Currency;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -22,8 +23,10 @@ import butterknife.OnTouch;
 import retrofit2.Call;
 import retrofit2.Response;
 import valjevac.kresimir.homework3.R;
+import valjevac.kresimir.homework3.helpers.ApiErrorHelper;
 import valjevac.kresimir.homework3.models.BaseResponse;
 import valjevac.kresimir.homework3.models.Data;
+import valjevac.kresimir.homework3.models.ErrorResponse;
 import valjevac.kresimir.homework3.models.User;
 import valjevac.kresimir.homework3.network.ApiManager;
 import valjevac.kresimir.homework3.network.BaseCallback;
@@ -51,6 +54,8 @@ public class SignUpActivity extends AppCompatActivity {
     Call<BaseResponse> registerUserCall;
 
     private boolean isPasswordVisible;
+
+    private final static int CURRENT_ERROR = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -196,7 +201,9 @@ public class SignUpActivity extends AppCompatActivity {
         registerUserCall.enqueue(new BaseCallback<BaseResponse>() {
             @Override
             public void onUnknownError(@Nullable String error) {
-                Toast.makeText(SignUpActivity.this, error, Toast.LENGTH_SHORT).show();
+                ApiErrorHelper.createError(error);
+
+                Toast.makeText(SignUpActivity.this, ApiErrorHelper.getFullError(CURRENT_ERROR), Toast.LENGTH_SHORT).show();
             }
 
             @Override
