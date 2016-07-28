@@ -12,6 +12,8 @@ public class RequestInterceptor implements Interceptor {
 
     public static final String LOGIN_URL = "https://pokeapi.infinum.co/api/v1/users/login";
 
+    private static final String AUTHORIZATION = "Authorization";
+
     public static final String AUTH_TOKEN = "auth-token";
 
     @Override
@@ -20,14 +22,12 @@ public class RequestInterceptor implements Interceptor {
         Request modifiedRequest;
 
         String token = SharedPreferencesHelper.getString(SharedPreferencesHelper.AUTH_TOKEN);
+        String email = SharedPreferencesHelper.getString(SharedPreferencesHelper.EMAIL);
 
         if (!originalRequest.url().toString().equals(LOGIN_URL)) {
             Request.Builder builder = originalRequest.newBuilder();
-            HttpUrl modifiedUrl = originalRequest.url().newBuilder()
-                    .addQueryParameter(AUTH_TOKEN, token)
-                    .build();
 
-            builder.url(modifiedUrl.toString());
+            builder.addHeader(AUTHORIZATION, "Token token=" + token + ", email=" + email);
             modifiedRequest = builder.build();
 
             return chain.proceed(modifiedRequest);

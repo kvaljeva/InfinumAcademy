@@ -17,16 +17,24 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 
+import com.google.gson.Gson;
+
 import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import retrofit2.Call;
+import retrofit2.Response;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.activities.PokemonListActivity;
 import valjevac.kresimir.homework3.adapters.PokemonAdapter;
 import valjevac.kresimir.homework3.listeners.RecyclerViewClickListener;
+import valjevac.kresimir.homework3.models.BaseResponse;
+import valjevac.kresimir.homework3.models.Pokedex;
 import valjevac.kresimir.homework3.models.PokemonModel;
+import valjevac.kresimir.homework3.network.ApiManager;
+import valjevac.kresimir.homework3.network.BaseCallback;
 
 public class PokemonListFragment extends Fragment {
     private Unbinder unbinder;
@@ -55,6 +63,8 @@ public class PokemonListFragment extends Fragment {
     @Nullable
     @BindView(R.id.tb_pokemon_list)
     Toolbar toolbar;
+
+    Call<BaseResponse> pokemonListCall;
 
     public PokemonListFragment() { }
 
@@ -122,6 +132,8 @@ public class PokemonListFragment extends Fragment {
             }
         }
 
+        fetchPokemonList();
+
         pokemonAdapter = new PokemonAdapter(getActivity(), pokemonList, new RecyclerViewClickListener<PokemonModel>() {
             @Override
             public void OnClick(PokemonModel pokemon) {
@@ -139,6 +151,24 @@ public class PokemonListFragment extends Fragment {
         updatePokemonListOverview();
 
         return view;
+    }
+
+    private void fetchPokemonList() {
+        pokemonListCall = ApiManager.getService().getPokemons();
+
+        pokemonListCall.enqueue(new BaseCallback<BaseResponse>() {
+            @Override
+            public void onUnknownError(@Nullable String error) {
+
+            }
+
+            @Override
+            public void onSuccess(BaseResponse body, Response<BaseResponse> response) {
+                Pokedex pokedex = new Gson().fromJson(body.getData().getAttributes().toString(), Pokedex.class);
+
+                pokemonList = new ArrayList<>(pokedex.getData());
+            }
+        });
     }
 
     @Override

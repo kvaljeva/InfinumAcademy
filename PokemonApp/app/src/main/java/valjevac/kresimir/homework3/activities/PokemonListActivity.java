@@ -1,5 +1,6 @@
 package valjevac.kresimir.homework3.activities;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
@@ -14,28 +15,44 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import retrofit2.Call;
+import retrofit2.Response;
 import valjevac.kresimir.homework3.fragments.ConfirmationDialogFragment;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.fragments.AddPokemonFragment;
 import valjevac.kresimir.homework3.fragments.PokemonDetailsFragment;
 import valjevac.kresimir.homework3.fragments.PokemonListFragment;
+import valjevac.kresimir.homework3.helpers.SharedPreferencesHelper;
 import valjevac.kresimir.homework3.models.PokemonModel;
+import valjevac.kresimir.homework3.network.ApiManager;
+import valjevac.kresimir.homework3.network.BaseCallback;
 
 public class PokemonListActivity extends AppCompatActivity implements
         PokemonListFragment.OnFragmentInteractionListener, AddPokemonFragment.OnFragmentInteractionListener,
         ConfirmationDialogFragment.OnCompleteListener, PokemonDetailsFragment.OnFragmentInteractionListener {
 
     private static final int ORIENTATION_PORTRAIT = 1;
+
     private static final int ORIENTATION_LANDSCAPE = 2;
+
     private static final String POKEMON_LIST_FRAGMENT_TAG = "PokemonListFragment";
+
     public static final String ADD_POKEMON_FRAGMENT_TAG = "AddPokemonFragment";
+
     private static final String POKEMON_DETAILS_FRAGMENT_TAG = "PokemonDetailsFragment";
+
     private boolean isDeviceTablet;
+
     private int currentOrientation;
+
+    Call<Void> logoutUserCall;
 
     @Nullable
     @BindView(R.id.fl_container_content)
@@ -53,6 +70,14 @@ public class PokemonListActivity extends AppCompatActivity implements
 
     @BindView(R.id.drawer_layout)
     DrawerLayout drawerLayout;
+
+    @Nullable
+    @BindView(R.id.tv_student_mail)
+    TextView tvStudentMail;
+
+    @Nullable
+    @BindView(R.id.tv_student_name)
+    TextView tvStudentName;
 
     private ActionBarDrawerToggle drawerToggle;
 
@@ -87,6 +112,8 @@ public class PokemonListActivity extends AppCompatActivity implements
                     R.string.drawer_close);
 
             drawerToggle.syncState();
+
+            setupDrawerContent();
 
             if (getSupportActionBar() != null) {
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -225,10 +252,19 @@ public class PokemonListActivity extends AppCompatActivity implements
     }
 
     private void setupDrawerContent() {
+        if (tvStudentMail != null && tvStudentName != null) {
+            String username = SharedPreferencesHelper.getString(SharedPreferencesHelper.USER);
+            String email = SharedPreferencesHelper.getString(SharedPreferencesHelper.EMAIL);
+
+            tvStudentName.setText(username);
+            tvStudentMail.setText(email);
+        }
+
         navigationDrawer.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(MenuItem item) {
+                        selectDrawerItem(item);
                         return true;
                     }
                 }
@@ -236,31 +272,40 @@ public class PokemonListActivity extends AppCompatActivity implements
     }
 
     private void selectDrawerItem(MenuItem item) {
-        Fragment fragment = null;
-        Class fragmentClass = null;
 
         switch(item.getItemId()) {
             case R.id.menu_item_logout:
+                handleLogout();
                 break;
             default:
                 break;
         }
 
-        try {
-            fragment = (Fragment) fragmentClass.newInstance();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        FragmentManager manager = getSupportFragmentManager();
-        manager.beginTransaction().replace(R.id.fl_container_main, fragment).commit();
-
-        item.setChecked(true);
-
-        setTitle(item.getTitle());
-
         drawerLayout.closeDrawers();
+    }
+
+    private void handleLogout() {
+        logoutUserCall = ApiManager.getService().logoutUser();
+
+        logoutUserCall.enqueue(new BaseCallback<Void>() {
+            @Override
+            public void onUnknownError(@Nullable String error) {
+                Toast.makeText(PokemonListActivity.this, "Failed to log out.", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onSuccess(Void body, Response<Void> response) {
+                SharedPreferencesHelper.setInt(0, SharedPreferencesHelper.USER_ID);
+                SharedPreferencesHelper.setString("", SharedPreferencesHelper.AUTH_TOKEN);
+                SharedPreferencesHelper.setString("", SharedPreferencesHelper.USER);
+                SharedPreferencesHelper.setString("", SharedPreferencesHelper.EMAIL);
+
+                Intent intent = new Intent(PokemonListActivity.this, LoginActivity.class);
+                startActivity(intent);
+
+                finish();
+            }
+        });
     }
 
     @Override

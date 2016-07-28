@@ -15,6 +15,8 @@ public class ApiManager {
 
     public static final String API_ENDPOINT = "https://pokeapi.infinum.co";
 
+    public static final String TYPE_SESSION = "session";
+
     private static final Gson GSON = new GsonBuilder().create();
 
     private static HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
@@ -28,6 +30,7 @@ public class ApiManager {
     }).setLevel(HttpLoggingInterceptor.Level.BODY);
 
     private static OkHttpClient client = new OkHttpClient.Builder()
+            .addInterceptor(new RequestInterceptor())
             .addNetworkInterceptor(httpLoggingInterceptor)
             .build();
 

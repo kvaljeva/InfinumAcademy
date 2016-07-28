@@ -14,7 +14,7 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@color/colorPrimary"
         android:theme="@style/ToolbarTheme"
-        android:title="Sign up"
+        android:title="@string/sign_up_activity_title"
         app:titleTextColor="@color/white"
         android:fitsSystemWindows="true"/>
 

@@ -42,7 +42,7 @@ public abstract class BaseCallback<T> implements Callback<T> {
             return;
         }
 
-        onUnkownError(t != null ? t.getMessage() : null);
+        onUnknownError(t != null ? t.getMessage() : null);
     }
 
     private void failure(ResponseBody cause, int statusCode) {
@@ -70,11 +70,11 @@ public abstract class BaseCallback<T> implements Callback<T> {
                 onNotFound(error);
             }
             else {
-                onUnkownError(error);
+                onUnknownError(error);
             }
         }
         catch (Exception e) {
-            onUnkownError(e.getMessage());
+            onUnknownError(e.getMessage());
         }
     }
 
@@ -91,18 +91,18 @@ public abstract class BaseCallback<T> implements Callback<T> {
     }
 
     private void onNotFound(String error) {
-        onUnkownError(error);
+        onUnknownError(error);
     }
 
     private void onForbidden(String error) {
-        onUnkownError(error);
+        onUnknownError(error);
     }
 
     private void onUnauthorized(String error) {
-        onUnkownError(error);
+        onUnknownError(error);
     }
 
-    public abstract void onUnkownError(@Nullable String error);
+    public abstract void onUnknownError(@Nullable String error);
 
     public abstract void onSuccess(T body, Response<T> response);
 }

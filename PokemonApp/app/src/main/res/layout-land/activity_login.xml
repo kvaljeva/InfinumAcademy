@@ -8,6 +8,7 @@
     tools:context="valjevac.kresimir.homework3.activities.LoginActivity">
 
     <RelativeLayout
+        android:id="@+id/rl_login_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 

@@ -4,15 +4,24 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.SerializedName;
+
 public class PokemonModel implements Parcelable {
-    String name;
-    String description;
-    double height;
-    double weight;
-    String category;
-    String abilities;
-    Uri image;
-    String gender;
+    private String name;
+
+    private String description;
+
+    private double height;
+
+    private double weight;
+
+    private String category;
+
+    private String abilities;
+
+    private Uri image;
+
+    private String gender;
 
     public PokemonModel(String name, String description, double height, double weight,
                         String category, String abilities, Uri image, String gender) {

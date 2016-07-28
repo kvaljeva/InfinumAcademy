@@ -22,7 +22,7 @@ import butterknife.OnTouch;
 import retrofit2.Call;
 import retrofit2.Response;
 import valjevac.kresimir.homework3.R;
-import valjevac.kresimir.homework3.models.Attributes;
+import valjevac.kresimir.homework3.models.BaseResponse;
 import valjevac.kresimir.homework3.models.Data;
 import valjevac.kresimir.homework3.models.User;
 import valjevac.kresimir.homework3.network.ApiManager;
@@ -48,7 +48,7 @@ public class SignUpActivity extends AppCompatActivity {
     @BindView(R.id.et_signup_user_nickname)
     EditText etNickname;
 
-    Call<User> registerUserCall;
+    Call<BaseResponse> registerUserCall;
 
     private boolean isPasswordVisible;
 
@@ -187,20 +187,20 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private void sendUserData(String username, String email, String password, String confirmationPassword) {
-        Attributes attributes = new Attributes(username, email, password, confirmationPassword);
-        Data data = new Data("session", attributes);
-        User user = new User(data);
+        User user = new User(username, email, password, confirmationPassword);
+        Data<User> data = new Data<>(ApiManager.TYPE_SESSION, user);
+        BaseResponse request = new BaseResponse(data);
 
-        registerUserCall = ApiManager.getService().insertUser(user);
+        registerUserCall = ApiManager.getService().insertUser(request);
 
-        registerUserCall.enqueue(new BaseCallback<User>() {
+        registerUserCall.enqueue(new BaseCallback<BaseResponse>() {
             @Override
-            public void onUnkownError(@Nullable String error) {
+            public void onUnknownError(@Nullable String error) {
                 Toast.makeText(SignUpActivity.this, error, Toast.LENGTH_SHORT).show();
             }
 
             @Override
-            public void onSuccess(User body, Response<User> response) {
+            public void onSuccess(BaseResponse body, Response<BaseResponse> response) {
                 Toast.makeText(SignUpActivity.this, "Registered successfully!", Toast.LENGTH_SHORT).show();
 
                 new Handler().postDelayed(new Runnable() {

@@ -15,6 +15,8 @@ public class SharedPreferencesHelper {
 
     public static final String AUTH_TOKEN = "AuthToken";
 
+    public static final String EMAIL = "Email";
+
     private static SharedPreferences sharedPrefs;
 
     private static SharedPreferences getSharedPrefs() {

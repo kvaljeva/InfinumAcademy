@@ -13,6 +13,8 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -21,15 +23,13 @@ import retrofit2.Call;
 import retrofit2.Response;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.helpers.SharedPreferencesHelper;
-import valjevac.kresimir.homework3.models.Attributes;
+import valjevac.kresimir.homework3.models.BaseResponse;
 import valjevac.kresimir.homework3.models.Data;
 import valjevac.kresimir.homework3.models.User;
 import valjevac.kresimir.homework3.network.ApiManager;
 import valjevac.kresimir.homework3.network.BaseCallback;
 
 public class LoginActivity extends AppCompatActivity {
-
-    private static final String SESSION = "session";
 
     @BindView(R.id.et_user_email)
     EditText etUserEmail;
@@ -42,7 +42,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private boolean isPasswordVisible;
 
-    Call<User> loginUserCall;
+    Call<BaseResponse> loginUserCall;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,28 +80,31 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void sendUserData(String email, String password) {
-        Attributes attributes = new Attributes(email, password);
-        Data data = new Data(SESSION, attributes);
-        User user = new User(data);
+        User user = new User(email, password);
+        Data<User> data = new Data<>(ApiManager.TYPE_SESSION, user);
+        BaseResponse request = new BaseResponse(data);
 
-        loginUserCall = ApiManager.getService().loginUser(user);
+        loginUserCall = ApiManager.getService().loginUser(request);
 
-        loginUserCall.enqueue(new BaseCallback<User>() {
+        loginUserCall.enqueue(new BaseCallback<BaseResponse>() {
             @Override
-            public void onUnkownError(@Nullable String error) {
+            public void onUnknownError(@Nullable String error) {
                 Toast.makeText(LoginActivity.this, "Login failed.", Toast.LENGTH_SHORT).show();
             }
 
             @Override
-            public void onSuccess(User body, Response<User> response) {
+            public void onSuccess(BaseResponse body, Response<BaseResponse> response) {
+                User userData = new Gson().fromJson(body.getData().getAttributes().toString(), User.class);
+
                 SharedPreferencesHelper.setInt(body.getData().getId(), SharedPreferencesHelper.USER_ID);
-                SharedPreferencesHelper.setString(body.getData().getAttributes().getAuthToken(),
-                        SharedPreferencesHelper.AUTH_TOKEN);
-                SharedPreferencesHelper.setString(body.getData().getAttributes().getUsername(),
-                        SharedPreferencesHelper.USER);
+                SharedPreferencesHelper.setString(userData.getAuthToken(), SharedPreferencesHelper.AUTH_TOKEN);
+                SharedPreferencesHelper.setString(userData.getUsername(), SharedPreferencesHelper.USER);
+                SharedPreferencesHelper.setString(userData.getEmail(), SharedPreferencesHelper.EMAIL);
 
                 Intent intent = new Intent(LoginActivity.this, PokemonListActivity.class);
                 startActivity(intent);
+
+                finish();
             }
         });
     }
