@@ -22,6 +22,7 @@ import butterknife.OnTouch;
 import retrofit2.Call;
 import retrofit2.Response;
 import valjevac.kresimir.homework3.R;
+import valjevac.kresimir.homework3.helpers.ApiErrorHelper;
 import valjevac.kresimir.homework3.helpers.SharedPreferencesHelper;
 import valjevac.kresimir.homework3.models.BaseResponse;
 import valjevac.kresimir.homework3.models.Data;
@@ -41,6 +42,8 @@ public class LoginActivity extends AppCompatActivity {
     RelativeLayout rlLoginContainer;
 
     private boolean isPasswordVisible;
+
+    private final static int CURRENT_ERROR = 0;
 
     Call<BaseResponse> loginUserCall;
 
@@ -89,7 +92,9 @@ public class LoginActivity extends AppCompatActivity {
         loginUserCall.enqueue(new BaseCallback<BaseResponse>() {
             @Override
             public void onUnknownError(@Nullable String error) {
-                Toast.makeText(LoginActivity.this, "Login failed.", Toast.LENGTH_SHORT).show();
+                ApiErrorHelper.createError(error);
+
+                Toast.makeText(LoginActivity.this, ApiErrorHelper.getFullError(CURRENT_ERROR), Toast.LENGTH_SHORT).show();
             }
 
             @Override

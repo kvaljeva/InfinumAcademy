@@ -36,8 +36,15 @@ public class ApiErrorHelper {
         String source = getErrorSource(index);
         String detail = errorResponse.getErrors().get(index).getDetail();
 
-        source = source.substring(0, 1).toUpperCase() + source.substring(1);
+        if (!detail.contains(source)) {
 
-        return source + " " + detail;
+            source = source.substring(0, 1).toUpperCase() + source.substring(1);
+
+            return source + " " + detail;
+        }
+
+        detail = detail.substring(0, 1).toUpperCase() + detail.substring(1);
+
+        return detail;
     }
 }
