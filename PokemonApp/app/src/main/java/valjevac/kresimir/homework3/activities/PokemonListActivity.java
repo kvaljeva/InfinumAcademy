@@ -14,6 +14,8 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -85,12 +87,16 @@ public class PokemonListActivity extends AppCompatActivity implements
 
     private ActionBarDrawerToggle drawerToggle;
 
+    private boolean isListLoading;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pokemon_list);
 
         ButterKnife.bind(this);
+
+        isListLoading = true;
 
         isDeviceTablet = getResources().getBoolean(R.bool.isDeviceTablet);
         currentOrientation = getCurrentOrientation();
@@ -111,17 +117,24 @@ public class PokemonListActivity extends AppCompatActivity implements
             loadFragment(PokemonListFragment.newInstance(false), POKEMON_LIST_FRAGMENT_TAG);
         }
 
+        setUpToolbar();
+    }
+
+    private void setUpToolbar() {
         if (toolbar != null) {
             setSupportActionBar(toolbar);
 
             drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.drawer_open,
                     R.string.drawer_close);
 
-            drawerToggle.syncState();
-
             setupDrawerContent();
 
             if (getSupportActionBar() != null) {
+
+                if (!getSupportActionBar().isShowing()) {
+                    getSupportActionBar().show();
+                }
+
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
                 getSupportActionBar().setHomeButtonEnabled(true);
             }
@@ -135,13 +148,17 @@ public class PokemonListActivity extends AppCompatActivity implements
                                 removeFragmentFromStack(POKEMON_DETAILS_FRAGMENT_TAG);
                             }
 
-                            loadFragment(AddPokemonFragment.newInstance(isDeviceTablet), ADD_POKEMON_FRAGMENT_TAG);
+                            if (!isListLoading) {
+                                loadFragment(AddPokemonFragment.newInstance(isDeviceTablet), ADD_POKEMON_FRAGMENT_TAG);
+                            }
                             return true;
                         default:
                             return false;
                     }
                 }
             });
+
+            drawerToggle.syncState();
         }
     }
 
@@ -152,6 +169,14 @@ public class PokemonListActivity extends AppCompatActivity implements
         if (logoutUserCall != null) {
             logoutUserCall.cancel();
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_item_add, menu);
+
+        return true;
     }
 
     @Override
@@ -192,7 +217,6 @@ public class PokemonListActivity extends AppCompatActivity implements
 
         if (backstackCount == 1 || isDeviceTablet) {
             if (backstackCount == 1 || currentOrientation == ORIENTATION_LANDSCAPE) {
-                //setResult(LoginActivity.RESULT_OK, new Intent());
                 finish();
             }
             else {
@@ -257,12 +281,19 @@ public class PokemonListActivity extends AppCompatActivity implements
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
 
-        transaction.setCustomAnimations(R.anim.fade_out, R.anim.fade_in);
+        if (tag.equals(PROGRESS_LOAD_FRAGMENT_TAG)) {
+            transaction.setCustomAnimations(R.anim.fade_out, R.anim.fade_out);
+        }
 
         transaction.remove(manager.findFragmentByTag(tag));
         transaction.commit();
 
         manager.popBackStack();
+
+        if (drawerToggle != null) {
+
+            setUpToolbar();
+        }
     }
 
     private int getCurrentOrientation() {
@@ -385,6 +416,9 @@ public class PokemonListActivity extends AppCompatActivity implements
 
     @Override
     public void onPokemonListLoaded() {
-        removeFragmentFromStack(PROGRESS_LOAD_FRAGMENT_TAG);
+        if (checkIfFragmentExists(PROGRESS_LOAD_FRAGMENT_TAG)) {
+            removeFragmentFromStack(PROGRESS_LOAD_FRAGMENT_TAG);
+            isListLoading = false;
+        }
     }
 }

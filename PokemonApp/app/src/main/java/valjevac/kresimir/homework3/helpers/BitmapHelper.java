@@ -12,6 +12,7 @@ import java.io.ByteArrayOutputStream;
 
 import valjevac.kresimir.homework3.PokemonApplication;
 import valjevac.kresimir.homework3.R;
+import valjevac.kresimir.homework3.network.ApiManager;
 
 public class BitmapHelper {
     private static final int QUALITY = 100;
@@ -41,7 +42,7 @@ public class BitmapHelper {
     public static void loadResourceBitmap(ImageView imageView, int resourceId, boolean scale) {
         Uri imageUri = getResourceUri(resourceId);
 
-        loadBitmap(imageView, imageUri, scale);
+        loadBitmap(imageView, imageUri.toString(), scale);
     }
 
     public static String getImageBase64(Uri location) {
@@ -59,18 +60,23 @@ public class BitmapHelper {
         return null;
     }
 
-    public static void loadBitmap(ImageView imageView, Uri location, boolean scale) {
+    public static void loadBitmap(ImageView imageView, String location, boolean scale) {
 
         if (location == null) {
             Glide.with(imageView.getContext())
                     .load(R.drawable.ic_person_details)
                     .crossFade()
                     .into(imageView);
+
+            return;
         }
+
+        String url = ApiManager.API_ENDPOINT + location;
+        Uri uri = Uri.parse(url);
 
         if (scale) {
             Glide.with(imageView.getContext())
-                    .load(location)
+                    .load(uri)
                     .override(MAX_SIZE, MAX_SIZE)
                     .crossFade()
                     .fitCenter()
@@ -78,7 +84,7 @@ public class BitmapHelper {
         }
         else {
             Glide.with(imageView.getContext())
-                    .load(location)
+                    .load(uri)
                     .crossFade()
                     .into(imageView);
         }

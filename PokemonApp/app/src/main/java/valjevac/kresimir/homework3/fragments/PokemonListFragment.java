@@ -1,18 +1,16 @@
 package valjevac.kresimir.homework3.fragments;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -27,7 +25,6 @@ import butterknife.Unbinder;
 import retrofit2.Call;
 import retrofit2.Response;
 import valjevac.kresimir.homework3.R;
-import valjevac.kresimir.homework3.activities.PokemonListActivity;
 import valjevac.kresimir.homework3.adapters.PokemonAdapter;
 import valjevac.kresimir.homework3.listeners.RecyclerViewClickListener;
 import valjevac.kresimir.homework3.models.BaseResponse;
@@ -67,9 +64,8 @@ public class PokemonListFragment extends Fragment {
     @BindView(R.id.ll_list_items_container)
     LinearLayout llItemsContainer;
 
-    @Nullable
-    @BindView(R.id.tb_pokemon_list)
-    Toolbar toolbar;
+    @BindView(R.id.srl_recycler_container)
+    SwipeRefreshLayout srlRecyclerContainer;
 
     Call<BaseResponse<ArrayList<Data<PokemonModel>>>> pokemonListCall;
 
@@ -164,10 +160,31 @@ public class PokemonListFragment extends Fragment {
 
         updatePokemonListOverview();
 
+        setUpRefreshView();
+
         return view;
     }
 
+    private void setUpRefreshView() {
+
+        srlRecyclerContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                fetchPokemonList();
+            }
+        });
+
+        srlRecyclerContainer.setColorSchemeResources(
+                R.color.colorPrimary,
+                R.color.colorPrimaryDark,
+                R.color.colorAccent,
+                android.R.color.holo_red_light
+        );
+    }
+
     private void fetchPokemonList() {
+        pokemonList.clear();
+
         pokemonListCall = ApiManager.getService().getPokemons();
 
         pokemonListCall.enqueue(new BaseCallback<BaseResponse<ArrayList<Data<PokemonModel>>>>() {
@@ -193,6 +210,10 @@ public class PokemonListFragment extends Fragment {
                 listener.onPokemonListLoaded();
 
                 updatePokemonListOverview();
+
+                if (srlRecyclerContainer != null && srlRecyclerContainer.isRefreshing()) {
+                    srlRecyclerContainer.setRefreshing(false);
+                }
             }
         });
     }
@@ -206,32 +227,6 @@ public class PokemonListFragment extends Fragment {
         }
         else {
             throw new RuntimeException(context.toString() + " must implement OnFragmentInteractionListener.");
-        }
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        setHasOptionsMenu(true);
-
-        if (toolbar != null) {
-            PokemonListActivity pokemonListActivity = (PokemonListActivity) getActivity();
-
-            pokemonListActivity.setSupportActionBar(toolbar);
-
-            toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem item) {
-                    switch(item.getItemId()) {
-                        case R.id.action_add:
-                            listener.onAddPokemonClick();
-                            return true;
-                        default:
-                            return false;
-                    }
-                }
-            });
         }
     }
 
@@ -260,12 +255,6 @@ public class PokemonListFragment extends Fragment {
         if (unbinder != null) {
             unbinder.unbind();
         }
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater = getActivity().getMenuInflater();
-        inflater.inflate(R.menu.menu_item_add, menu);
     }
 
     @Override

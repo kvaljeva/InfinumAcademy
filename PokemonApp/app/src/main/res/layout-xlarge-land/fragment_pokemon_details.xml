@@ -111,7 +111,7 @@
                     android:layout_weight="1"
                     android:textSize="@dimen/tv_details_text_size"
                     android:textColor="@color/pokemonDetails"
-                    android:text="@string/et_pokemon_category"/>
+                    android:text="@string/et_pokemon_type"/>
             </LinearLayout>
 
             <LinearLayout

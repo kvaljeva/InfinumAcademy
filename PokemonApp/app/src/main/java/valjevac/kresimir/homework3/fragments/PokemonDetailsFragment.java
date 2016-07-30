@@ -2,6 +2,7 @@
 package valjevac.kresimir.homework3.fragments;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
@@ -123,29 +124,7 @@ public class PokemonDetailsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_pokemon_details, container, false);
         unbinder = ButterKnife.bind(this, view);
 
-        setToolbarTitle();
-
-        if (toolbar != null) {
-            PokemonListActivity activity = (PokemonListActivity) getActivity();
-
-            activity.setSupportActionBar(toolbar);
-
-            toolbar.setTitle(R.string.pokemon_details_toolbar_title);
-
-            if (activity.getSupportActionBar() != null) {
-
-                activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                activity.getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
-                activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
-            }
-
-            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    listener.onDetailsHomePressed();
-                }
-            });
-        }
+        setUpToolbar();
 
         Bundle arguments = getArguments();
         if (arguments != null) {
@@ -159,8 +138,8 @@ public class PokemonDetailsFragment extends Fragment {
                 tvDescription.setText(pokemon.getDescription());
                 tvHeight.setText(height);
                 tvWeight.setText(weight);
-                tvAbilities.setText(pokemon.getAbilites());
-                tvCategory.setText(pokemon.getCategory());
+                tvAbilities.setText(pokemon.getMoves());
+                tvCategory.setText(pokemon.getType());
                 tvGender.setText(pokemon.getGender());
 
                 BitmapHelper.loadBitmap(ivImage, pokemon.getImage(), false);
@@ -218,6 +197,13 @@ public class PokemonDetailsFragment extends Fragment {
         }
     }
 
+    private String transformHeightString(String height) {
+        height = height.replace(".", "´ ");
+        height += "˝";
+
+        return height;
+    }
+
     private void setToolbarTitle() {
         if (ctlHeaderPokemonDetails != null) {
             ctlHeaderPokemonDetails.setTitle(getString(R.string.pokemon_details_toolbar_title));
@@ -226,10 +212,31 @@ public class PokemonDetailsFragment extends Fragment {
         }
     }
 
-    private String transformHeightString(String height) {
-        height = height.replace(".", "´ ");
-        height += "˝";
+    private void setUpToolbar() {
+        final PokemonListActivity pokemonListActivity = (PokemonListActivity) getActivity();
 
-        return height;
+        if (pokemonListActivity.getSupportActionBar() != null) {
+            pokemonListActivity.getSupportActionBar().hide();
+        }
+
+        if (toolbar != null) {
+            pokemonListActivity.setSupportActionBar(toolbar);
+
+            toolbar.setTitle(R.string.add_pokemon_toolbar_title);
+
+            if (pokemonListActivity.getSupportActionBar() != null) {
+                pokemonListActivity.getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
+                pokemonListActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            }
+
+            setToolbarTitle();
+
+            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    listener.onDetailsHomePressed();
+                }
+            });
+        }
     }
 }

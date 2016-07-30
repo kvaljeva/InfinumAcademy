@@ -7,10 +7,13 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
+
 import butterknife.ButterKnife;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.fragments.LoginFragment;
 import valjevac.kresimir.homework3.fragments.SignupFragment;
+import valjevac.kresimir.homework3.helpers.SharedPreferencesHelper;
 
 public class LoginActivity extends AppCompatActivity implements LoginFragment.OnFragmentInteractionListener,
         SignupFragment.OnFragmentInteractionListener {
@@ -27,6 +30,13 @@ public class LoginActivity extends AppCompatActivity implements LoginFragment.On
         setContentView(R.layout.activity_login);
 
         ButterKnife.bind(this);
+
+        String email = SharedPreferencesHelper.getString(SharedPreferencesHelper.EMAIL);
+        String authToken = SharedPreferencesHelper.getString(SharedPreferencesHelper.AUTH_TOKEN);
+
+        if (!TextUtils.isEmpty(email) && !TextUtils.isEmpty(authToken)) {
+            openHomeActivity();
+        }
 
         if (!isFragmentActive(LOGIN_FRAGMENT_TAG)) {
             loadFragment(LoginFragment.newInstance(), LOGIN_FRAGMENT_TAG);
@@ -107,7 +117,7 @@ public class LoginActivity extends AppCompatActivity implements LoginFragment.On
     private void openHomeActivity() {
         Intent intent = new Intent(LoginActivity.this, PokemonListActivity.class);
 
-        startActivityForResult(intent, ACTIVITY_RESULT);
+        startActivity(intent);
         finish();
     }
 

@@ -175,7 +175,7 @@ public class AddPokemonFragment extends Fragment {
             imageUri = savedInstanceState.getParcelable(IMAGE_LOCATION);
 
             if (imageUri != null && !imageUri.toString().isEmpty()) {
-                BitmapHelper.loadBitmap(ivPokemonImage, imageUri, false);
+                BitmapHelper.loadBitmap(ivPokemonImage, imageUri.toString(), false);
             }
         }
 
@@ -187,7 +187,7 @@ public class AddPokemonFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         setHasOptionsMenu(true);
-        createToolbar();
+        setUpToolbar();
 
         changesMade = false;
 
@@ -253,7 +253,7 @@ public class AddPokemonFragment extends Fragment {
             if (resultCode == PokemonListActivity.RESULT_OK) {
                 Uri selectedImage = data.getData();
 
-                BitmapHelper.loadBitmap(ivPokemonImage, selectedImage, false);
+                BitmapHelper.loadBitmap(ivPokemonImage, selectedImage.toString(), false);
                 imageUri = selectedImage;
 
                 changesMade = true;
@@ -269,10 +269,14 @@ public class AddPokemonFragment extends Fragment {
         outState.putParcelable(IMAGE_LOCATION, imageUri);
     }
 
-    private void createToolbar() {
-        if (toolbar != null) {
-            PokemonListActivity pokemonListActivity = (PokemonListActivity) getActivity();
+    private void setUpToolbar() {
+        PokemonListActivity pokemonListActivity = (PokemonListActivity) getActivity();
 
+        if (pokemonListActivity.getSupportActionBar() != null) {
+            pokemonListActivity.getSupportActionBar().hide();
+        }
+
+        if (toolbar != null) {
             pokemonListActivity.setSupportActionBar(toolbar);
 
             toolbar.setTitle(R.string.add_pokemon_toolbar_title);
@@ -469,7 +473,7 @@ public class AddPokemonFragment extends Fragment {
                     (rbGenderMale.isChecked()) ? getString(R.string.gender_male) : NO_GENDER;
 
             PokemonModel pokemon = new PokemonModel(pokemonName, pokemonDesc, pokemonHeight,
-                    pokemonWeight, category, abilities, image, gender);
+                    pokemonWeight, category, abilities, image.toString(), gender);
 
             clearInputViews(rlActivityBody);
 
@@ -505,7 +509,7 @@ public class AddPokemonFragment extends Fragment {
     private void tryInsertPokemon(PokemonModel pokemon) {
         int[] moves = new int[0];
         int[] category = new int[0];
-        String imageBase64 = BitmapHelper.getImageBase64(pokemon.getImage());
+        String imageBase64 = BitmapHelper.getImageBase64(Uri.parse(pokemon.getImage()));
 
         RequestBody body = null;
 
@@ -528,7 +532,7 @@ public class AddPokemonFragment extends Fragment {
         insertPokemonCall.enqueue(new Callback<BaseResponse<Data<PokemonModel>>>() {
             @Override
             public void onResponse(Call<BaseResponse<Data<PokemonModel>>> call, Response<BaseResponse<Data<PokemonModel>>> response) {
-
+                Toast.makeText(getActivity(), "Pokemon created successfully.", Toast.LENGTH_SHORT).show();
             }
 
             @Override

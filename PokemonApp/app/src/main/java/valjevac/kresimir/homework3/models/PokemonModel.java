@@ -6,32 +6,43 @@ import android.os.Parcelable;
 
 import com.google.gson.annotations.SerializedName;
 
-public class PokemonModel implements Parcelable {
+import java.io.Serializable;
+
+public class PokemonModel implements Parcelable, Serializable {
+
+    @SerializedName("name")
     private String name;
 
+    @SerializedName("description")
     private String description;
 
+    @SerializedName("height")
     private double height;
 
+    @SerializedName("weight")
     private double weight;
 
-    private String category;
+    @SerializedName("types")
+    private String type;
 
-    private String abilities;
+    @SerializedName("moves")
+    private String moves;
 
-    private Uri image;
+    @SerializedName("image-url")
+    private String image;
 
+    @SerializedName("gender")
     private String gender;
 
     public PokemonModel(String name, String description, double height, double weight,
-                        String category, String abilities, Uri image, String gender) {
+                        String type, String moves, String image, String gender) {
 
         this.name = name;
         this.description = description;
         this.height = height;
         this.weight = weight;
-        this.category = category;
-        this.abilities = abilities;
+        this.type = type;
+        this.moves = moves;
         this.image = image;
         this.gender = gender;
     }
@@ -41,8 +52,8 @@ public class PokemonModel implements Parcelable {
         this.description = parcel.readString();
         this.height = parcel.readDouble();
         this.weight = parcel.readDouble();
-        this.category = parcel.readString();
-        this.abilities = parcel.readString();
+        this.type = parcel.readString();
+        this.moves = parcel.readString();
         this.image = parcel.readParcelable(Uri.class.getClassLoader());
         this.gender = parcel.readString();
     }
@@ -79,27 +90,27 @@ public class PokemonModel implements Parcelable {
         this.weight = weight;
     }
 
-    public String getCategory() {
-        return category;
+    public String getType() {
+        return type;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setType(String category) {
+        this.type = category;
     }
 
-    public String getAbilites() {
-        return abilities;
+    public String getMoves() {
+        return moves;
     }
 
-    public void setAbilites(String abilities) {
-        this.abilities = abilities;
+    public void setMoves(String abilities) {
+        this.moves = abilities;
     }
 
-    public Uri getImage() {
+    public String getImage() {
         return image;
     }
 
-    public void setImage(Uri image) {
+    public void setImage(String image) {
         this.image = image;
     }
 
@@ -122,9 +133,9 @@ public class PokemonModel implements Parcelable {
         parcel.writeString(description);
         parcel.writeDouble(height);
         parcel.writeDouble(weight);
-        parcel.writeString(category);
-        parcel.writeString(abilities);
-        parcel.writeParcelable(image, i);
+        parcel.writeString(type);
+        parcel.writeString(moves);
+        parcel.writeString(image);
         parcel.writeString(gender);
     }
 

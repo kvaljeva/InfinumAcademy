@@ -22,9 +22,6 @@ public class ProgressLoadFragment extends Fragment {
     @BindView(R.id.tv_progress_title)
     TextView tvProgressTitle;
 
-    @BindView(R.id.toolbar_progress_load)
-    Toolbar toolbar;
-
     public ProgressLoadFragment() {
 
     }
@@ -50,19 +47,10 @@ public class ProgressLoadFragment extends Fragment {
 
         Bundle arguments = getArguments();
 
-        if (toolbar != null) {
-
-            PokemonListActivity activity = (PokemonListActivity) getActivity();
-
-            activity.setSupportActionBar(toolbar);
-        }
-
         if (arguments != null) {
-            String title = arguments.getString("Title");
             String progressText = arguments.getString("ProgressText");
 
             tvProgressTitle.setText(progressText);
-            toolbar.setTitle(title);
         }
 
         return view;

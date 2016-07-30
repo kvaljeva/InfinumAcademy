@@ -5,14 +5,30 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context=".activities.PokemonListActivity">
 
-    <FrameLayout
-        android:id="@+id/fl_container_main"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/text_icons">
-    </FrameLayout>
+        android:orientation="vertical">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/tb_pokemon_list"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:minHeight="?attr/actionBarSize"
+            android:title="@string/toolbar_pokemon_list_title"
+            android:background="?attr/colorPrimary"
+            android:theme="@style/ToolbarTheme"/>
+
+        <FrameLayout
+            android:id="@+id/fl_container_main"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/text_icons">
+        </FrameLayout>
+    </LinearLayout>
 
     <android.support.design.widget.NavigationView
         android:id="@+id/nvDrawer"
