@@ -148,7 +148,7 @@ public class LoginFragment extends Fragment {
             public void onUnknownError(@Nullable String error) {
                 if (!NetworkHelper.isNetworkAvailable()) {
 
-                    Toast.makeText(getActivity(), "No internet connection.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), R.string.no_internet_conn, Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -233,7 +233,7 @@ public class LoginFragment extends Fragment {
         EditText emptyEditText = validateEditTexts(rlLoginContainer);
 
         if (emptyEditText != null) {
-            Toast.makeText(getActivity(), "This field cannot be empty.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), R.string.empty_field_warning, Toast.LENGTH_SHORT).show();
             emptyEditText.requestFocus();
         }
 

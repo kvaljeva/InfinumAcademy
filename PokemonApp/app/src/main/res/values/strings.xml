@@ -51,4 +51,6 @@
     <string name="toolbar_title_sign_up">Sign up</string>
     <string name="authorization_header_content">Token token=%1$s, email=%2$s</string>
     <string name="progress_load_description">Loading pokemon list</string>
+    <string name="no_internet_conn">No internet connection.</string>
+    <string name="empty_field_warning">This field cannot be empty.</string>
 </resources>

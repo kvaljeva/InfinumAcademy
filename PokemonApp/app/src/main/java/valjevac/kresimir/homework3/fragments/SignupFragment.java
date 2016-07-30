@@ -27,6 +27,7 @@ import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.activities.LoginActivity;
 import valjevac.kresimir.homework3.activities.PokemonListActivity;
 import valjevac.kresimir.homework3.helpers.ApiErrorHelper;
+import valjevac.kresimir.homework3.helpers.NetworkHelper;
 import valjevac.kresimir.homework3.helpers.SharedPreferencesHelper;
 import valjevac.kresimir.homework3.models.BaseResponse;
 import valjevac.kresimir.homework3.models.Data;
@@ -257,9 +258,16 @@ public class SignupFragment extends Fragment {
         registerUserCall.enqueue(new BaseCallback<BaseResponse<Data<User>>>() {
             @Override
             public void onUnknownError(@Nullable String error) {
-                ApiErrorHelper.createError(error);
+                if (!NetworkHelper.isNetworkAvailable()) {
 
-                Toast.makeText(getActivity(), ApiErrorHelper.getFullError(CURRENT_ERROR), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), R.string.no_internet_conn, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (ApiErrorHelper.createError(error)) {
+
+                    Toast.makeText(getActivity(), ApiErrorHelper.getFullError(CURRENT_ERROR), Toast.LENGTH_SHORT).show();
+                }
 
                 listener.onRegisterButtonPressed(SIGNUP_FAILED);
             }
