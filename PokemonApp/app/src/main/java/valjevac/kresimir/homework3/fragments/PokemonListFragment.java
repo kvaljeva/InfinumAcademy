@@ -1,6 +1,7 @@
 package valjevac.kresimir.homework3.fragments;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -18,8 +19,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 
-import com.google.gson.Gson;
-
 import java.util.ArrayList;
 
 import butterknife.BindView;
@@ -32,7 +31,7 @@ import valjevac.kresimir.homework3.activities.PokemonListActivity;
 import valjevac.kresimir.homework3.adapters.PokemonAdapter;
 import valjevac.kresimir.homework3.listeners.RecyclerViewClickListener;
 import valjevac.kresimir.homework3.models.BaseResponse;
-import valjevac.kresimir.homework3.models.Pokedex;
+import valjevac.kresimir.homework3.models.Data;
 import valjevac.kresimir.homework3.models.PokemonModel;
 import valjevac.kresimir.homework3.network.ApiManager;
 import valjevac.kresimir.homework3.network.BaseCallback;
@@ -43,13 +42,20 @@ public class PokemonListFragment extends Fragment {
 
     private static PokemonListFragment instance;
 
-    public static final int REQUEST_CODE_ADD_POKEMON = 420;
     public static final String POKEMON = "Pokemon";
+
     public static final String POKEMON_LIST_SATE = "PokemonListState";
+
     public static final String EMPTY_STATE = "EmptyState";
+
+    public static final String LOAD_ANIMATION = "LoadAnimation";
+
     private ArrayList<PokemonModel> pokemonList;
+
     private PokemonAdapter pokemonAdapter;
+
     private static boolean animate;
+
     boolean isEmptyState;
 
     @BindView(R.id.recycler_view_pokemon_list)
@@ -65,7 +71,7 @@ public class PokemonListFragment extends Fragment {
     @BindView(R.id.tb_pokemon_list)
     Toolbar toolbar;
 
-    Call<BaseResponse> pokemonListCall;
+    Call<BaseResponse<ArrayList<Data<PokemonModel>>>> pokemonListCall;
 
     public PokemonListFragment() { }
 
@@ -74,20 +80,19 @@ public class PokemonListFragment extends Fragment {
         void onAddPokemonClick();
 
         void onShowPokemonDetailsClick(PokemonModel pokemon);
+
+        void onPokemonListLoaded();
     }
 
     public static PokemonListFragment newInstance(boolean loadAnimation) {
 
-        if (instance == null) {
-            instance = new PokemonListFragment();
-            instance.setArguments(new Bundle());
-            animate = loadAnimation;
+        PokemonListFragment fragment = new PokemonListFragment();
 
-            return instance;
-        }
+        Bundle args = new Bundle();
+        args.putBoolean(LOAD_ANIMATION, loadAnimation);
+        fragment.setArguments(args);
 
-        animate = loadAnimation;
-        return instance;
+        return fragment;
     }
 
     public static PokemonListFragment newInstance(PokemonModel pokemon) {
@@ -117,11 +122,21 @@ public class PokemonListFragment extends Fragment {
 
         isEmptyState = true;
 
+        if (getArguments() != null) {
+            Bundle args = getArguments();
+
+            animate = args.getBoolean(LOAD_ANIMATION);
+        }
+
         if (savedInstanceState == null) {
 
             if (pokemonList == null) {
                 pokemonList = new ArrayList<>();
+
+                // Fetch initial list
+                fetchPokemonList();
             }
+
         }
         else {
             pokemonList = savedInstanceState.getParcelableArrayList(POKEMON_LIST_SATE);
@@ -132,8 +147,6 @@ public class PokemonListFragment extends Fragment {
                 pokemonList = new ArrayList<>();
             }
         }
-
-        fetchPokemonList();
 
         pokemonAdapter = new PokemonAdapter(getActivity(), pokemonList, new RecyclerViewClickListener<PokemonModel>() {
             @Override
@@ -157,24 +170,31 @@ public class PokemonListFragment extends Fragment {
     private void fetchPokemonList() {
         pokemonListCall = ApiManager.getService().getPokemons();
 
-        pokemonListCall.enqueue(new BaseCallback<BaseResponse>() {
+        pokemonListCall.enqueue(new BaseCallback<BaseResponse<ArrayList<Data<PokemonModel>>>>() {
             @Override
             public void onUnknownError(@Nullable String error) {
                 Log.e("API_POKEMON_LIST", error);
             }
 
             @Override
-            public void onSuccess(BaseResponse body, Response<BaseResponse> response) {
-                Pokedex pokedex = new Gson().fromJson(body.getData().getAttributes().toString(), Pokedex.class);
+            public void onSuccess(BaseResponse<ArrayList<Data<PokemonModel>>> body, Response<BaseResponse<ArrayList<Data<PokemonModel>>>> response) {
 
-                pokemonList = new ArrayList<>(pokedex.getData());
+                for (Data data : body.getData()) {
+                    if (data.getAttributes() instanceof PokemonModel) {
+
+                        pokemonList.add((PokemonModel) data.getAttributes());
+                    }
+                }
+
+                if (pokemonList.size() > 0) {
+                    isEmptyState = false;
+                }
+
+                listener.onPokemonListLoaded();
+
+                updatePokemonListOverview();
             }
         });
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
     }
 
     @Override
@@ -212,6 +232,15 @@ public class PokemonListFragment extends Fragment {
                     }
                 }
             });
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (pokemonListCall != null) {
+            pokemonListCall.cancel();
         }
     }
 
@@ -275,10 +304,12 @@ public class PokemonListFragment extends Fragment {
             rvPokemonList.setVisibility(View.INVISIBLE);
         }
         else {
+            if (llEmptyStateContainer != null && llEmptyStateContainer.getVisibility() == View.VISIBLE) {
 
-            llEmptyStateContainer.setVisibility(View.GONE);
-            llItemsContainer.setVisibility(View.VISIBLE);
-            rvPokemonList.setVisibility(View.VISIBLE);
+                llEmptyStateContainer.setVisibility(View.GONE);
+                llItemsContainer.setVisibility(View.VISIBLE);
+                rvPokemonList.setVisibility(View.VISIBLE);
+            }
 
             pokemonAdapter.update(pokemonList);
         }

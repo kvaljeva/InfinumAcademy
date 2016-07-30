@@ -1,12 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
-    android:id="@+id/rl_signup_container"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context="valjevac.kresimir.homework3.activities.SignUpActivity">
+    android:id="@+id/rl_signup_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
@@ -14,7 +11,7 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@color/colorPrimary"
         android:theme="@style/ToolbarTheme"
-        android:title="@string/sign_up_activity_title"
+        android:title="@string/toolbar_title_sign_up"
         app:titleTextColor="@color/white"
         android:fitsSystemWindows="true"/>
 
@@ -112,33 +109,42 @@
         android:orientation="horizontal"
         android:weightSum="20">
 
+        <View
+            android:layout_height="40dp"
+            android:layout_width="0dp"
+            android:layout_weight="3"/>
+
         <EditText
             android:id="@+id/et_signup_user_confirm_password"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:hint="@string/et_confirm_password_hint"
-            android:layout_weight="19"
+            android:layout_weight="16"
             android:inputType="textPassword"
-            android:fontFamily="@android:string/defaultMsisdnAlphaTag"
-            android:drawableRight="@drawable/ic_visibility_off"
-            android:drawableEnd="@drawable/ic_visibility_off"
-            android:layout_marginStart="55dp"
-            android:layout_marginLeft="55dp"/>
+            android:fontFamily="@android:string/defaultMsisdnAlphaTag"/>
     </LinearLayout>
 
-    <FrameLayout
-        android:id="@+id/fl_btn_log_in_container"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
-        android:layout_alignParentBottom="true">
+        android:layout_height="match_parent"
+        android:layout_below="@id/ll_signup_password_confirm_container"
+        android:gravity="center_horizontal|bottom"
+        android:orientation="vertical"
+        android:layout_marginTop="40dp">
 
-        <Button
-            android:id="@+id/btn_register_confirm"
+        <FrameLayout
+            android:id="@+id/fl_btn_log_in_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?android:attr/selectableItemBackground"
-            android:text="@string/btn_sign_up"
-            android:textColor="@color/white"/>
-    </FrameLayout>
+            android:background="@color/colorPrimary">
+
+            <Button
+                android:id="@+id/btn_register_confirm"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:text="@string/btn_sign_up"
+                android:textColor="@color/white"/>
+        </FrameLayout>
+    </LinearLayout>
 </RelativeLayout>

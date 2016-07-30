@@ -1,5 +1,7 @@
 package valjevac.kresimir.homework3.helpers;
 
+import android.text.TextUtils;
+
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -10,10 +12,15 @@ import valjevac.kresimir.homework3.models.ErrorResponse;
 public class ApiErrorHelper {
     private static ErrorResponse errorResponse;
 
-    public static void createError(String error) {
-        Gson gson = new Gson();
+    public static boolean createError(String error) {
+        if (TextUtils.isEmpty(error)) {
+            return false;
+        }
 
+        Gson gson = new Gson();
         errorResponse = gson.fromJson(error, ErrorResponse.class);
+
+        return true;
     }
 
     public static ArrayList<Error> getErrorList() {

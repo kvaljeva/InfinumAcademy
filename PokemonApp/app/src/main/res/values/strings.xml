@@ -49,4 +49,6 @@
     <string name="sign_up_activity_title">Sign up</string>
     <string name="et_confirm_password_hint">Confirm password</string>
     <string name="toolbar_title_sign_up">Sign up</string>
+    <string name="authorization_header_content">Token token=%1$s, email=%2$s</string>
+    <string name="progress_load_description">Loading pokemon list</string>
 </resources>

@@ -1,51 +1,25 @@
 package valjevac.kresimir.homework3.activities;
 
+import android.app.Activity;
 import android.content.Intent;
-import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.text.method.PasswordTransformationMethod;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.RelativeLayout;
-import android.widget.Toast;
-
-import com.google.gson.Gson;
-
-import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.OnTouch;
-import retrofit2.Call;
-import retrofit2.Response;
 import valjevac.kresimir.homework3.R;
-import valjevac.kresimir.homework3.helpers.ApiErrorHelper;
-import valjevac.kresimir.homework3.helpers.SharedPreferencesHelper;
-import valjevac.kresimir.homework3.models.BaseResponse;
-import valjevac.kresimir.homework3.models.Data;
-import valjevac.kresimir.homework3.models.User;
-import valjevac.kresimir.homework3.network.ApiManager;
-import valjevac.kresimir.homework3.network.BaseCallback;
+import valjevac.kresimir.homework3.fragments.LoginFragment;
+import valjevac.kresimir.homework3.fragments.SignupFragment;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity implements LoginFragment.OnFragmentInteractionListener,
+        SignupFragment.OnFragmentInteractionListener {
 
-    @BindView(R.id.et_user_email)
-    EditText etUserEmail;
+    private final static String LOGIN_FRAGMENT_TAG = "LoginFragmentTag";
 
-    @BindView(R.id.et_user_password)
-    EditText etUserPassword;
+    private final static String SIGNUP_FRAGMENT_TAG = "SignUpFragmentTag";
 
-    @BindView(R.id.rl_login_container)
-    RelativeLayout rlLoginContainer;
-
-    private boolean isPasswordVisible;
-
-    private final static int CURRENT_ERROR = 0;
-
-    Call<BaseResponse> loginUserCall;
+    private final static int ACTIVITY_RESULT = 420;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,128 +28,97 @@ public class LoginActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
-        isPasswordVisible = false;
+        if (!isFragmentActive(LOGIN_FRAGMENT_TAG)) {
+            loadFragment(LoginFragment.newInstance(), LOGIN_FRAGMENT_TAG);
+        }
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
+    public void onBackPressed() {
+        FragmentManager manager = getSupportFragmentManager();
 
-        if (loginUserCall != null) {
-            loginUserCall.cancel();
+        if (manager.getBackStackEntryCount() == 1) {
+            finish();
+        }
+        else {
+            removeFragment(SIGNUP_FRAGMENT_TAG);
         }
     }
 
-    @OnClick(R.id.btn_register)
-    public void openRegistrationForm() {
-        Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
-        startActivity(intent);
-    }
+    private void loadFragment(Fragment fragment, String tag) {
+        FragmentManager manager = getSupportFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction();
 
-    @OnClick(R.id.btn_log_in)
-    public void sendLoginInfo() {
+        transaction.setCustomAnimations(R.anim.enter_right, R.anim.exit_left, R.anim.enter_left, R.anim.exit_right);
+        transaction.replace(R.id.fl_login_container, fragment, tag);
 
-        if (!validateInputFields()) {
-            return;
+        if (!isFragmentActive(tag)) {
+            transaction.addToBackStack(tag);
         }
 
-        sendUserData(etUserEmail.getText().toString(), etUserPassword.getText().toString());
+        transaction.commit();
     }
 
-    private void sendUserData(String email, String password) {
-        User user = new User(email, password);
-        Data<User> data = new Data<>(ApiManager.TYPE_SESSION, user);
-        BaseResponse request = new BaseResponse(data);
+    private boolean isFragmentActive(String tag) {
+        FragmentManager manager = getSupportFragmentManager();
 
-        loginUserCall = ApiManager.getService().loginUser(request);
+        return manager.findFragmentByTag(tag) != null;
+    }
 
-        loginUserCall.enqueue(new BaseCallback<BaseResponse>() {
-            @Override
-            public void onUnknownError(@Nullable String error) {
-                ApiErrorHelper.createError(error);
+    private void removeFragment(String tag) {
+        FragmentManager manager = getSupportFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction();
 
-                Toast.makeText(LoginActivity.this, ApiErrorHelper.getFullError(CURRENT_ERROR), Toast.LENGTH_SHORT).show();
-            }
+        Fragment fragment = manager.findFragmentByTag(tag);
 
-            @Override
-            public void onSuccess(BaseResponse body, Response<BaseResponse> response) {
-                User userData = new Gson().fromJson(body.getData().getAttributes().toString(), User.class);
+        transaction.setCustomAnimations(R.anim.enter_left, R.anim.exit_right);
+        transaction.remove(fragment);
+        transaction.commit();
 
-                SharedPreferencesHelper.setInt(body.getData().getId(), SharedPreferencesHelper.USER_ID);
-                SharedPreferencesHelper.setString(userData.getAuthToken(), SharedPreferencesHelper.AUTH_TOKEN);
-                SharedPreferencesHelper.setString(userData.getUsername(), SharedPreferencesHelper.USER);
-                SharedPreferencesHelper.setString(userData.getEmail(), SharedPreferencesHelper.EMAIL);
+        manager.popBackStack();
+    }
 
-                Intent intent = new Intent(LoginActivity.this, PokemonListActivity.class);
-                startActivity(intent);
+    @Override
+    public void onLoginButtonClick(boolean isSuccess) {
+
+        if (isSuccess) {
+            openHomeActivity();
+        }
+    }
+
+    @Override
+    public void onSignupButtonClick() {
+        loadFragment(SignupFragment.newInstance(), SIGNUP_FRAGMENT_TAG);
+    }
+
+    @Override
+    public void onBackButtonPressed() {
+        onBackPressed();
+    }
+
+    @Override
+    public void onRegisterButtonPressed(boolean isSuccess) {
+
+        if (isSuccess) {
+            openHomeActivity();
+        }
+    }
+
+    private void openHomeActivity() {
+        Intent intent = new Intent(LoginActivity.this, PokemonListActivity.class);
+
+        startActivityForResult(intent, ACTIVITY_RESULT);
+        finish();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == ACTIVITY_RESULT) {
 
                 finish();
             }
-        });
-    }
-
-    @OnTouch(R.id.et_user_password)
-    public boolean setEditTextIcon(MotionEvent event) {
-        final int DRAWABLE_RIGHT = 2;
-
-        if (event.getAction() == MotionEvent.ACTION_UP) {
-            if (event.getRawX() >= (etUserPassword.getRight() -
-                    etUserPassword.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
-
-                if (isPasswordVisible) {
-                    etUserPassword.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_visibility_off, 0);
-                    etUserPassword.setTransformationMethod(new PasswordTransformationMethod());
-
-                    isPasswordVisible = false;
-                }
-                else {
-                    etUserPassword.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_visibility_on, 0);
-                    etUserPassword.setTransformationMethod(null);
-
-                    isPasswordVisible = true;
-                }
-
-                return true;
-            }
         }
-
-        return false;
-    }
-
-    private EditText validateEditTexts(ViewGroup v) {
-
-        EditText invalidEditText = null;
-
-        for (int i = 0; i < v.getChildCount(); i++) {
-            View child = v.getChildAt(i);
-
-            if (child instanceof EditText) {
-                EditText editText = (EditText) child;
-
-                if(TextUtils.isEmpty(editText.getText())) {
-                    return editText;
-                }
-            }
-            else if(child instanceof ViewGroup) {
-                invalidEditText = validateEditTexts((ViewGroup)child);
-
-                if(invalidEditText != null) {
-                    break;
-                }
-            }
-        }
-
-        return invalidEditText;
-    }
-
-    private boolean validateInputFields() {
-        EditText emptyEditText = validateEditTexts(rlLoginContainer);
-
-        if (emptyEditText != null) {
-            Toast.makeText(LoginActivity.this, "This field cannot be empty.", Toast.LENGTH_SHORT).show();
-            emptyEditText.requestFocus();
-        }
-
-        return emptyEditText == null;
     }
 }

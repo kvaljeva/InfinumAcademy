@@ -2,20 +2,20 @@ package valjevac.kresimir.homework3.models;
 
 import com.google.gson.annotations.SerializedName;
 
-public class BaseResponse {
+public class BaseResponse<T> {
 
     @SerializedName("data")
-    private Data data;
+    private T data;
 
-    public BaseResponse(Data data) {
+    public BaseResponse(T data) {
         this.data = data;
     }
 
-    public Data getData() {
+    public T getData() {
         return data;
     }
 
-    public void setData(Data data) {
+    public void setData(T data) {
         this.data = data;
     }
 }

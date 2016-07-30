@@ -37,10 +37,18 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
 import butterknife.Unbinder;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.activities.PokemonListActivity;
 import valjevac.kresimir.homework3.helpers.BitmapHelper;
+import valjevac.kresimir.homework3.models.BaseResponse;
+import valjevac.kresimir.homework3.models.Data;
 import valjevac.kresimir.homework3.models.PokemonModel;
+import valjevac.kresimir.homework3.network.ApiManager;
 
 public class AddPokemonFragment extends Fragment {
     private Unbinder unbinder;
@@ -48,16 +56,29 @@ public class AddPokemonFragment extends Fragment {
     private static AddPokemonFragment instance;
 
     private static final int SELECT_IMAGE = 420;
+
     private static final int REQUEST_CODE_PERMISSION = 42;
+
     private static final int DIALOG_RESULT = 4;
+
     private static final String CHANGES_MADE = "ChangesMade";
+
     private static final String DIALOG_SHOW = "DialogShow";
+
     private static final String IMAGE_LOCATION = "ImageLocation";
+
     private static final String NO_GENDER = "-";
+
     private static final String FORMAT_TYPE_IMAGE = "image/*";
+
+    private static final String IS_DEVICE_TABLET = "IsTablet";
+
     private boolean changesMade;
+
     private Uri imageUri;
+
     private boolean isColorChanged;
+
     private boolean isTabletView;
 
     @BindView(R.id.et_pokemon_name)
@@ -102,11 +123,13 @@ public class AddPokemonFragment extends Fragment {
     @BindView(R.id.abl_header_add_pokemon)
     AppBarLayout ablHeaderAddPokemon;
 
+    Call<BaseResponse<Data<PokemonModel>>> insertPokemonCall;
+
     public AddPokemonFragment() { }
 
     public interface OnFragmentInteractionListener {
 
-        void onPokemonAdded(PokemonModel pokemon);
+        void onPokemonAdded();
 
         void onAddHomePressed();
     }
@@ -123,16 +146,13 @@ public class AddPokemonFragment extends Fragment {
 
     public static AddPokemonFragment newInstance(boolean isDeviceTablet) {
 
-        if (instance == null) {
-            instance = new AddPokemonFragment();
-            instance.isTabletView = isDeviceTablet;
+        AddPokemonFragment fragment = new AddPokemonFragment();
 
-            return instance;
-        }
+        Bundle args = new Bundle();
+        args.putBoolean(IS_DEVICE_TABLET, isDeviceTablet);
+        fragment.setArguments(args);
 
-        instance.isTabletView = isDeviceTablet;
-
-        return instance;
+        return fragment;
     }
 
     @Nullable
@@ -143,6 +163,12 @@ public class AddPokemonFragment extends Fragment {
         unbinder = ButterKnife.bind(this, view);
 
         isColorChanged = false;
+
+        if (getArguments() != null) {
+            Bundle args = getArguments();
+
+            isTabletView = args.getBoolean(IS_DEVICE_TABLET);
+        }
 
         if (savedInstanceState != null) {
             changesMade = savedInstanceState.getBoolean(CHANGES_MADE);
@@ -189,6 +215,15 @@ public class AddPokemonFragment extends Fragment {
         }
         else {
             throw new RuntimeException(context.toString() + " must implement OnFragmentInteractionListener.");
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (insertPokemonCall != null) {
+            insertPokemonCall.cancel();
         }
     }
 
@@ -438,7 +473,9 @@ public class AddPokemonFragment extends Fragment {
 
             clearInputViews(rlActivityBody);
 
-            listener.onPokemonAdded(pokemon);
+            tryInsertPokemon(pokemon);
+
+            listener.onPokemonAdded();
         }
     }
 
@@ -463,5 +500,41 @@ public class AddPokemonFragment extends Fragment {
 
     public void clearUserData() {
         clearInputViews(rlActivityBody);
+    }
+
+    private void tryInsertPokemon(PokemonModel pokemon) {
+        int[] moves = new int[0];
+        int[] category = new int[0];
+        String imageBase64 = BitmapHelper.getImageBase64(pokemon.getImage());
+
+        RequestBody body = null;
+
+        if (imageBase64 != null) {
+            body = RequestBody.create(MediaType.parse("application/image"), imageBase64);
+        }
+
+        insertPokemonCall = ApiManager.getService().insertPokemon(
+                pokemon.getName(),
+                pokemon.getHeight(),
+                pokemon.getWeight(),
+                1,
+                true,
+                pokemon.getDescription(),
+                category,
+                moves,
+                body
+        );
+
+        insertPokemonCall.enqueue(new Callback<BaseResponse<Data<PokemonModel>>>() {
+            @Override
+            public void onResponse(Call<BaseResponse<Data<PokemonModel>>> call, Response<BaseResponse<Data<PokemonModel>>> response) {
+
+            }
+
+            @Override
+            public void onFailure(Call<BaseResponse<Data<PokemonModel>>> call, Throwable t) {
+
+            }
+        });
     }
 }

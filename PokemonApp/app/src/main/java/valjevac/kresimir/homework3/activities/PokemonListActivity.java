@@ -15,7 +15,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,6 +28,7 @@ import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.fragments.AddPokemonFragment;
 import valjevac.kresimir.homework3.fragments.PokemonDetailsFragment;
 import valjevac.kresimir.homework3.fragments.PokemonListFragment;
+import valjevac.kresimir.homework3.fragments.ProgressLoadFragment;
 import valjevac.kresimir.homework3.helpers.SharedPreferencesHelper;
 import valjevac.kresimir.homework3.models.PokemonModel;
 import valjevac.kresimir.homework3.network.ApiManager;
@@ -47,6 +47,10 @@ public class PokemonListActivity extends AppCompatActivity implements
     public static final String ADD_POKEMON_FRAGMENT_TAG = "AddPokemonFragment";
 
     private static final String POKEMON_DETAILS_FRAGMENT_TAG = "PokemonDetailsFragment";
+
+    private static final String PROGRESS_LOAD_FRAGMENT_TAG = "ProgressLoadFragment";
+
+    private static final String PROGRESS_LOAD_TITLE = "Pokemon";
 
     private boolean isDeviceTablet;
 
@@ -93,6 +97,8 @@ public class PokemonListActivity extends AppCompatActivity implements
 
         if (!checkIfFragmentExists(POKEMON_LIST_FRAGMENT_TAG) && !isDeviceTablet) {
             loadFragment(PokemonListFragment.newInstance(false), POKEMON_LIST_FRAGMENT_TAG);
+
+            loadFragment(ProgressLoadFragment.newInstance(getString(R.string.progress_load_description), PROGRESS_LOAD_TITLE), PROGRESS_LOAD_FRAGMENT_TAG);
         }
 
         if (isDeviceTablet) {
@@ -140,6 +146,15 @@ public class PokemonListActivity extends AppCompatActivity implements
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+
+        if (logoutUserCall != null) {
+            logoutUserCall.cancel();
+        }
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case R.id.home:
@@ -177,6 +192,7 @@ public class PokemonListActivity extends AppCompatActivity implements
 
         if (backstackCount == 1 || isDeviceTablet) {
             if (backstackCount == 1 || currentOrientation == ORIENTATION_LANDSCAPE) {
+                //setResult(LoginActivity.RESULT_OK, new Intent());
                 finish();
             }
             else {
@@ -240,6 +256,8 @@ public class PokemonListActivity extends AppCompatActivity implements
     private void removeFragmentFromStack(String tag) {
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
+
+        transaction.setCustomAnimations(R.anim.fade_out, R.anim.fade_in);
 
         transaction.remove(manager.findFragmentByTag(tag));
         transaction.commit();
@@ -314,10 +332,6 @@ public class PokemonListActivity extends AppCompatActivity implements
             removeFragmentFromStack(POKEMON_DETAILS_FRAGMENT_TAG);
         }
 
-        if (checkIfFragmentExists(ADD_POKEMON_FRAGMENT_TAG) && !isDeviceTablet) {
-            removeFragmentFromStack(ADD_POKEMON_FRAGMENT_TAG);
-        }
-
         loadFragment(AddPokemonFragment.newInstance(isDeviceTablet), ADD_POKEMON_FRAGMENT_TAG);
     }
 
@@ -331,7 +345,7 @@ public class PokemonListActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onPokemonAdded(PokemonModel pokemon) {
+    public void onPokemonAdded() {
         if (!isDeviceTablet) {
             removeFragmentFromStack(ADD_POKEMON_FRAGMENT_TAG);
         }
@@ -341,7 +355,7 @@ public class PokemonListActivity extends AppCompatActivity implements
             }
         }
 
-        loadFragment(PokemonListFragment.newInstance(pokemon), POKEMON_LIST_FRAGMENT_TAG);
+        loadFragment(PokemonListFragment.newInstance(isDeviceTablet), POKEMON_LIST_FRAGMENT_TAG);
     }
 
     @Override
@@ -367,5 +381,10 @@ public class PokemonListActivity extends AppCompatActivity implements
                 removeFragmentFromStack(ADD_POKEMON_FRAGMENT_TAG);
             }
         }
+    }
+
+    @Override
+    public void onPokemonListLoaded() {
+        removeFragmentFromStack(PROGRESS_LOAD_FRAGMENT_TAG);
     }
 }
