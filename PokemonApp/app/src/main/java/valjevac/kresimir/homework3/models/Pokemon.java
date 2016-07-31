@@ -17,7 +17,7 @@ import valjevac.kresimir.homework3.database.AppDatabase;
 @Table(database = AppDatabase.class)
 public class Pokemon extends BaseModel implements Parcelable, Serializable {
 
-    @PrimaryKey(autoincrement = true)
+    @PrimaryKey(autoincrement = false)
     @SerializedName("id")
     private int id;
 

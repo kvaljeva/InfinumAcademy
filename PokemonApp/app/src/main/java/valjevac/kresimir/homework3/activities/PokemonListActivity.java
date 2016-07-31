@@ -14,6 +14,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -151,11 +152,6 @@ public class PokemonListActivity extends AppCompatActivity implements
                             }
 
                             if (!isListLoading) {
-                                if (!NetworkHelper.isNetworkAvailable()) {
-                                    Toast.makeText(PokemonListActivity.this, getString(R.string.no_internet_conn),
-                                            Toast.LENGTH_SHORT).show();
-                                }
-
                                 loadFragment(AddPokemonFragment.newInstance(isDeviceTablet), ADD_POKEMON_FRAGMENT_TAG);
                             }
                             return true;
@@ -316,8 +312,14 @@ public class PokemonListActivity extends AppCompatActivity implements
             String username = SharedPreferencesHelper.getString(SharedPreferencesHelper.USER);
             String email = SharedPreferencesHelper.getString(SharedPreferencesHelper.EMAIL);
 
-            tvStudentName.setText(username);
-            tvStudentMail.setText(email);
+            if (!TextUtils.isEmpty(username) && !TextUtils.isEmpty(email)) {
+                tvStudentName.setText(username);
+                tvStudentMail.setText(email);
+            }
+            else {
+                tvStudentName.setText("Student");
+                tvStudentMail.setText("student@infinum.com");
+            }
         }
 
         navigationDrawer.setNavigationItemSelectedListener(
@@ -434,8 +436,9 @@ public class PokemonListActivity extends AppCompatActivity implements
         if (isSuccess) {
             if (checkIfFragmentExists(PROGRESS_LOAD_FRAGMENT_TAG)) {
                 removeFragmentFromStack(PROGRESS_LOAD_FRAGMENT_TAG);
-                isListLoading = false;
             }
+
+            isListLoading = false;
         }
         else {
             if (!NetworkHelper.isNetworkAvailable()) {
@@ -444,6 +447,8 @@ public class PokemonListActivity extends AppCompatActivity implements
             else {
                 Toast.makeText(PokemonListActivity.this, "Failed to load pokemon list", Toast.LENGTH_SHORT).show();
             }
+
+            isListLoading = false;
         }
     }
 }

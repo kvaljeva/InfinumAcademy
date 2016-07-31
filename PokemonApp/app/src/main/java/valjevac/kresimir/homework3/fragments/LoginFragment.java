@@ -43,9 +43,6 @@ public class LoginFragment extends Fragment {
     @BindView(R.id.et_user_password)
     EditText etUserPassword;
 
-    @BindView(R.id.rl_login_container)
-    RelativeLayout rlLoginContainer;
-
     @BindView(R.id.rl_login_form_container)
     RelativeLayout rlLoginFormContainer;
 
@@ -135,11 +132,17 @@ public class LoginFragment extends Fragment {
     @OnClick(R.id.btn_log_in)
     public void sendLoginInfo() {
 
+        if (!NetworkHelper.isNetworkAvailable()) {
+
+            Toast.makeText(getActivity(), R.string.no_internet_conn, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if (!validateInputFields()) {
             return;
         }
 
-        displayLoginProgress(true);
+        displayProgress(true);
 
         sendUserData(etUserEmail.getText().toString(), etUserPassword.getText().toString());
     }
@@ -154,7 +157,9 @@ public class LoginFragment extends Fragment {
         loginUserCall.enqueue(new BaseCallback<BaseResponse<Data<User>>>() {
             @Override
             public void onUnknownError(@Nullable String error) {
-                displayLoginProgress(false);
+                displayProgress(false);
+
+                listener.onLoginButtonClick(false);
 
                 if (!NetworkHelper.isNetworkAvailable()) {
 
@@ -166,8 +171,6 @@ public class LoginFragment extends Fragment {
 
                     Toast.makeText(getActivity(), ApiErrorHelper.getFullError(CURRENT_ERROR), Toast.LENGTH_SHORT).show();
                 }
-
-                listener.onLoginButtonClick(false);
             }
 
             @Override
@@ -240,7 +243,7 @@ public class LoginFragment extends Fragment {
     }
 
     private boolean validateInputFields() {
-        EditText emptyEditText = validateEditTexts(rlLoginContainer);
+        EditText emptyEditText = validateEditTexts(rlLoginFormContainer);
 
         if (emptyEditText != null) {
             Toast.makeText(getActivity(), R.string.empty_field_warning, Toast.LENGTH_SHORT).show();
@@ -250,7 +253,7 @@ public class LoginFragment extends Fragment {
         return emptyEditText == null;
     }
 
-    private void displayLoginProgress(boolean isVisible) {
+    private void displayProgress(boolean isVisible) {
         if (isVisible) {
             rlLoginFormContainer.setVisibility(View.GONE);
             rlLoginProgressContaienr.setVisibility(View.VISIBLE);

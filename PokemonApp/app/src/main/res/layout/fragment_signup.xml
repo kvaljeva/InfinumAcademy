@@ -1,6 +1,7 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rl_signup_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
@@ -15,136 +16,180 @@
         app:titleTextColor="@color/white"
         android:fitsSystemWindows="true"/>
 
-    <LinearLayout
-        android:id="@+id/ll_signup_email_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="80dp"
-        android:orientation="horizontal"
-        android:weightSum="20">
-
-        <ImageView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_mail"
-            android:layout_marginTop="15dp"
-            android:layout_weight="3"
-            android:contentDescription="@string/user_email_login_icon"/>
-
-        <EditText
-            android:id="@+id/et_signup_user_email"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:hint="@string/et_email_hint"
-            android:lines="1"
-            android:inputType="textEmailAddress"
-            android:nextFocusDown="@+id/et_signup_user_nickname"
-            android:layout_weight="16"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/ll_signup_nickname_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/ll_signup_email_container"
-        android:layout_marginTop="10dp"
-        android:orientation="horizontal"
-        android:weightSum="20">
-
-        <ImageView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_person"
-            android:layout_marginTop="15dp"
-            android:layout_weight="3"
-            android:contentDescription="@string/user_password_login_icon"/>
-
-        <EditText
-            android:id="@+id/et_signup_user_nickname"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:hint="@string/et_nickname_hint"
-            android:inputType="text"
-            android:maxLines="1"
-            android:nextFocusDown="@+id/et_signup_user_password"
-            android:layout_weight="16"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/ll_signup_password_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/ll_signup_nickname_container"
-        android:layout_marginTop="10dp"
-        android:orientation="horizontal"
-        android:weightSum="20">
-
-        <ImageView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_lock"
-            android:layout_marginTop="15dp"
-            android:layout_weight="3"
-            android:contentDescription="@string/user_password_login_icon"/>
-
-        <EditText
-            android:id="@+id/et_signup_user_password"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:hint="@string/et_password_hint"
-            android:layout_weight="16"
-            android:inputType="textPassword"
-            android:nextFocusDown="@+id/et_signup_user_confirm_password"
-            android:fontFamily="@android:string/defaultMsisdnAlphaTag"
-            android:drawableRight="@drawable/ic_visibility_off"
-            android:drawableEnd="@drawable/ic_visibility_off"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/ll_signup_password_confirm_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/ll_signup_password_container"
-        android:layout_marginTop="10dp"
-        android:orientation="horizontal"
-        android:weightSum="20">
-
-        <View
-            android:layout_height="40dp"
-            android:layout_width="0dp"
-            android:layout_weight="3"/>
-
-        <EditText
-            android:id="@+id/et_signup_user_confirm_password"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:hint="@string/et_confirm_password_hint"
-            android:layout_weight="16"
-            android:inputType="textPassword"
-            android:fontFamily="@android:string/defaultMsisdnAlphaTag"/>
-    </LinearLayout>
-
-    <LinearLayout
+    <RelativeLayout
+        android:id="@+id/rl_signup_form_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/ll_signup_password_confirm_container"
-        android:gravity="center_horizontal|bottom"
-        android:orientation="vertical"
-        android:layout_marginTop="40dp">
+        android:layout_below="@id/toolbar">
 
-        <FrameLayout
-            android:id="@+id/fl_btn_log_in_container"
+        <LinearLayout
+            android:id="@+id/ll_signup_email_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/colorPrimary">
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal"
+            android:weightSum="20">
 
-            <Button
-                android:id="@+id/btn_register_confirm"
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_mail"
+                android:layout_marginTop="15dp"
+                android:layout_weight="3"
+                android:contentDescription="@string/user_email_login_icon"/>
+
+            <EditText
+                android:id="@+id/et_signup_user_email"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="@string/et_email_hint"
+                android:lines="1"
+                android:inputType="textEmailAddress"
+                android:nextFocusDown="@+id/et_signup_user_nickname"
+                android:layout_weight="16"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_signup_nickname_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ll_signup_email_container"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal"
+            android:weightSum="20">
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_person"
+                android:layout_marginTop="15dp"
+                android:layout_weight="3"
+                android:contentDescription="@string/user_password_login_icon"/>
+
+            <EditText
+                android:id="@+id/et_signup_user_nickname"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="@string/et_nickname_hint"
+                android:inputType="text"
+                android:maxLines="1"
+                android:nextFocusDown="@+id/et_signup_user_password"
+                android:layout_weight="16"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_signup_password_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ll_signup_nickname_container"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal"
+            android:weightSum="20">
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_lock"
+                android:layout_marginTop="15dp"
+                android:layout_weight="3"
+                android:contentDescription="@string/user_password_login_icon"/>
+
+            <EditText
+                android:id="@+id/et_signup_user_password"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="@string/et_password_hint"
+                android:layout_weight="16"
+                android:inputType="textPassword"
+                android:nextFocusDown="@+id/et_signup_user_confirm_password"
+                android:fontFamily="@android:string/defaultMsisdnAlphaTag"
+                android:drawableRight="@drawable/ic_visibility_off"
+                android:drawableEnd="@drawable/ic_visibility_off"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_signup_password_confirm_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ll_signup_password_container"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal"
+            android:weightSum="20">
+
+            <View
+                android:layout_height="40dp"
+                android:layout_width="0dp"
+                android:layout_weight="3"/>
+
+            <EditText
+                android:id="@+id/et_signup_user_confirm_password"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="@string/et_confirm_password_hint"
+                android:layout_weight="16"
+                android:inputType="textPassword"
+                android:fontFamily="@android:string/defaultMsisdnAlphaTag"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/ll_signup_password_confirm_container"
+            android:gravity="center_horizontal|bottom"
+            android:orientation="vertical"
+            android:layout_marginTop="40dp">
+
+            <FrameLayout
+                android:id="@+id/fl_btn_log_in_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?android:attr/selectableItemBackground"
-                android:text="@string/btn_sign_up"
-                android:textColor="@color/white"/>
-        </FrameLayout>
-    </LinearLayout>
+                android:background="@color/colorPrimary">
+
+                <Button
+                    android:id="@+id/btn_register_confirm"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:text="@string/btn_sign_up"
+                    android:textColor="@color/white"/>
+            </FrameLayout>
+        </LinearLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl_signup_progress_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/toolbar"
+        android:visibility="gone"
+        tools:visibility="gone">
+
+        <View
+            android:id="@+id/v_signup_anchor"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_centerInParent="true"/>
+
+        <TextView
+            android:id="@+id/tv_signup_progress_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Creating your account"
+            android:textSize="23sp"
+            android:layout_centerHorizontal="true"
+            android:layout_above="@id/v_signup_anchor"
+            android:layout_marginBottom="10dp"/>
+
+        <ProgressBar
+            android:layout_width="match_parent"
+            android:layout_height="13dp"
+            android:layout_alignStart="@id/tv_signup_progress_text"
+            android:layout_alignLeft="@id/tv_signup_progress_text"
+            android:layout_alignEnd="@id/tv_signup_progress_text"
+            android:layout_alignRight="@id/tv_signup_progress_text"
+            android:layout_below="@id/v_signup_anchor"
+            android:layout_marginTop="10dp"
+            android:indeterminate="true"
+            style="?android:attr/progressBarStyleHorizontal"/>
+    </RelativeLayout>
 </RelativeLayout>

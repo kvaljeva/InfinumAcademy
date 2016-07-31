@@ -45,6 +45,7 @@ import retrofit2.Response;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.activities.PokemonListActivity;
 import valjevac.kresimir.homework3.helpers.BitmapHelper;
+import valjevac.kresimir.homework3.helpers.NetworkHelper;
 import valjevac.kresimir.homework3.models.BaseResponse;
 import valjevac.kresimir.homework3.models.Data;
 import valjevac.kresimir.homework3.models.Pokemon;
@@ -448,6 +449,13 @@ public class AddPokemonFragment extends Fragment {
     @OnClick(R.id.btn_save_pokemon)
     public void savePokemon() {
         boolean emptyViewsExist = checkForEmptyViews();
+
+        if (!NetworkHelper.isNetworkAvailable()) {
+            Toast.makeText(getActivity(), getString(R.string.no_internet_conn),
+                    Toast.LENGTH_SHORT).show();
+
+            return;
+        }
 
         if (emptyViewsExist || !validateDecimalInput(etPokemonWeight) || !validateDecimalInput(etPokemonHeight)) {
             Toast toast;

@@ -16,7 +16,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -226,9 +225,12 @@ public class PokemonListFragment extends Fragment {
 
                 for (Data data : body.getData()) {
                     if (data.getAttributes() instanceof Pokemon) {
+                        Pokemon pokemon = (Pokemon) data.getAttributes();
 
-                        pokemonList.add((Pokemon) data.getAttributes());
-                        pokemonListDatabase.addPokemon((Pokemon) data.getAttributes());
+                        pokemon.setId(data.getId());
+
+                        pokemonList.add(pokemon);
+                        pokemonListDatabase.addPokemon(pokemon);
                     }
                 }
 

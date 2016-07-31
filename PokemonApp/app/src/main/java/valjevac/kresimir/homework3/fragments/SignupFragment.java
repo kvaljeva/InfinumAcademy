@@ -42,9 +42,6 @@ public class SignupFragment extends Fragment {
     @BindView(R.id.toolbar)
     Toolbar toolbar;
 
-    @BindView(R.id.rl_signup_container)
-    RelativeLayout rlSignupContainer;
-
     @BindView(R.id.et_signup_user_password)
     EditText etPassword;
 
@@ -56,6 +53,12 @@ public class SignupFragment extends Fragment {
 
     @BindView(R.id.et_signup_user_nickname)
     EditText etNickname;
+
+    @BindView(R.id.rl_signup_form_container)
+    RelativeLayout rlSignupFormContainer;
+
+    @BindView(R.id.rl_signup_progress_container)
+    RelativeLayout rlSignupProgressContainer;
 
     Call<BaseResponse<Data<User>>> registerUserCall;
 
@@ -186,7 +189,7 @@ public class SignupFragment extends Fragment {
     }
 
     private boolean validateInputFields() {
-        EditText emptyEditText = validateEditTexts(rlSignupContainer);
+        EditText emptyEditText = validateEditTexts(rlSignupFormContainer);
 
         if (emptyEditText != null) {
             Toast.makeText(getActivity(), "This field cannot be empty.", Toast.LENGTH_SHORT).show();
@@ -236,9 +239,17 @@ public class SignupFragment extends Fragment {
     @OnClick(R.id.btn_register_confirm)
     public void registerUser() {
 
+        if (!NetworkHelper.isNetworkAvailable()) {
+
+            Toast.makeText(getActivity(), R.string.no_internet_conn, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if (!validateInputFields()) {
             return;
         }
+
+        displayProgress(true);
 
         String username = etNickname.getText().toString();
         String email = etEmail.getText().toString();
@@ -258,6 +269,9 @@ public class SignupFragment extends Fragment {
         registerUserCall.enqueue(new BaseCallback<BaseResponse<Data<User>>>() {
             @Override
             public void onUnknownError(@Nullable String error) {
+
+                displayProgress(false);
+
                 if (!NetworkHelper.isNetworkAvailable()) {
 
                     Toast.makeText(getActivity(), R.string.no_internet_conn, Toast.LENGTH_SHORT).show();
@@ -287,5 +301,16 @@ public class SignupFragment extends Fragment {
                 listener.onRegisterButtonPressed(SIGNUP_SUCCESSFULL);
             }
         });
+    }
+
+    private void displayProgress(boolean isVisible) {
+        if (isVisible) {
+            rlSignupFormContainer.setVisibility(View.GONE);
+            rlSignupProgressContainer.setVisibility(View.VISIBLE);
+        }
+        else {
+            rlSignupFormContainer.setVisibility(View.VISIBLE);
+            rlSignupProgressContainer.setVisibility(View.GONE);
+        }
     }
 }
