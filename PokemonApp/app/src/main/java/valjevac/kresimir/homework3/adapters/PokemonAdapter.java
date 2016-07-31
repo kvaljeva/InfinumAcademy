@@ -1,9 +1,7 @@
 package valjevac.kresimir.homework3.adapters;
 
 import android.content.Context;
-import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,17 +15,16 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.helpers.BitmapHelper;
-import valjevac.kresimir.homework3.listeners.RecyclerViewClickListener;
-import valjevac.kresimir.homework3.models.PokemonModel;
-import valjevac.kresimir.homework3.network.ApiManager;
+import valjevac.kresimir.homework3.interfaces.RecyclerViewClickListener;
+import valjevac.kresimir.homework3.models.Pokemon;
 
 public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHolder> {
-    private List<PokemonModel> pokemonList;
+    private List<Pokemon> pokemonList;
     private Context context;
-    private RecyclerViewClickListener<PokemonModel> clickListener;
+    private RecyclerViewClickListener<Pokemon> clickListener;
 
-    public PokemonAdapter(Context context, List<PokemonModel> pokemonList,
-                          RecyclerViewClickListener<PokemonModel> clickListener) {
+    public PokemonAdapter(Context context, List<Pokemon> pokemonList,
+                          RecyclerViewClickListener<Pokemon> clickListener) {
 
         this.context = context;
         this.pokemonList = new ArrayList<>(pokemonList);
@@ -51,7 +48,7 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHold
         return pokemonList.size();
     }
 
-    public void update(ArrayList<PokemonModel> updateList) {
+    public void update(ArrayList<Pokemon> updateList) {
         if (pokemonList != null) {
             pokemonList.clear();
             pokemonList.addAll(updateList);

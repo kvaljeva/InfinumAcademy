@@ -47,7 +47,7 @@ import valjevac.kresimir.homework3.activities.PokemonListActivity;
 import valjevac.kresimir.homework3.helpers.BitmapHelper;
 import valjevac.kresimir.homework3.models.BaseResponse;
 import valjevac.kresimir.homework3.models.Data;
-import valjevac.kresimir.homework3.models.PokemonModel;
+import valjevac.kresimir.homework3.models.Pokemon;
 import valjevac.kresimir.homework3.network.ApiManager;
 
 public class AddPokemonFragment extends Fragment {
@@ -123,7 +123,7 @@ public class AddPokemonFragment extends Fragment {
     @BindView(R.id.abl_header_add_pokemon)
     AppBarLayout ablHeaderAddPokemon;
 
-    Call<BaseResponse<Data<PokemonModel>>> insertPokemonCall;
+    Call<BaseResponse<Data<Pokemon>>> insertPokemonCall;
 
     public AddPokemonFragment() { }
 
@@ -464,15 +464,15 @@ public class AddPokemonFragment extends Fragment {
         else {
             String pokemonName = etPokemonName.getText().toString();
             String pokemonDesc = etPokemonDescription.getText().toString();
-            double pokemonHeight = Double.valueOf(etPokemonHeight.getText().toString());
-            double pokemonWeight = Double.valueOf(etPokemonWeight.getText().toString());
+            float pokemonHeight = Float.valueOf(etPokemonHeight.getText().toString());
+            float pokemonWeight = Float.valueOf(etPokemonWeight.getText().toString());
             String category = etPokemonCategory.getText().toString();
             String abilities = etPokemonAbilities.getText().toString();
             Uri image = (this.imageUri == null) ? BitmapHelper.getResourceUri(R.drawable.ic_person_details) : this.imageUri;
             String gender = (rbGenderFemale.isChecked()) ? getString(R.string.gender_female) :
                     (rbGenderMale.isChecked()) ? getString(R.string.gender_male) : NO_GENDER;
 
-            PokemonModel pokemon = new PokemonModel(pokemonName, pokemonDesc, pokemonHeight,
+            Pokemon pokemon = new Pokemon(pokemonName, pokemonDesc, pokemonHeight,
                     pokemonWeight, category, abilities, image.toString(), gender);
 
             clearInputViews(rlActivityBody);
@@ -506,7 +506,7 @@ public class AddPokemonFragment extends Fragment {
         clearInputViews(rlActivityBody);
     }
 
-    private void tryInsertPokemon(PokemonModel pokemon) {
+    private void tryInsertPokemon(Pokemon pokemon) {
         int[] moves = new int[0];
         int[] category = new int[0];
         String imageBase64 = BitmapHelper.getImageBase64(Uri.parse(pokemon.getImage()));
@@ -529,14 +529,14 @@ public class AddPokemonFragment extends Fragment {
                 body
         );
 
-        insertPokemonCall.enqueue(new Callback<BaseResponse<Data<PokemonModel>>>() {
+        insertPokemonCall.enqueue(new Callback<BaseResponse<Data<Pokemon>>>() {
             @Override
-            public void onResponse(Call<BaseResponse<Data<PokemonModel>>> call, Response<BaseResponse<Data<PokemonModel>>> response) {
+            public void onResponse(Call<BaseResponse<Data<Pokemon>>> call, Response<BaseResponse<Data<Pokemon>>> response) {
                 Toast.makeText(getActivity(), "Pokemon created successfully.", Toast.LENGTH_SHORT).show();
             }
 
             @Override
-            public void onFailure(Call<BaseResponse<Data<PokemonModel>>> call, Throwable t) {
+            public void onFailure(Call<BaseResponse<Data<Pokemon>>> call, Throwable t) {
 
             }
         });

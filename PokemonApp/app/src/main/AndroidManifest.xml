@@ -23,7 +23,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activities.PokemonListActivity">
+        <activity android:name=".activities.PokemonListActivity"
+            android:noHistory="true">
 
         </activity>
     </application>

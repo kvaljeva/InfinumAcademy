@@ -12,7 +12,7 @@ import retrofit2.http.POST;
 import retrofit2.http.Part;
 import valjevac.kresimir.homework3.models.BaseResponse;
 import valjevac.kresimir.homework3.models.Data;
-import valjevac.kresimir.homework3.models.PokemonModel;
+import valjevac.kresimir.homework3.models.Pokemon;
 import valjevac.kresimir.homework3.models.User;
 
 public interface PokemonService {
@@ -31,11 +31,11 @@ public interface PokemonService {
     Call<Void> logoutUser();
 
     @GET("/api/v1/pokemons")
-    Call<BaseResponse<ArrayList<Data<PokemonModel>>>> getPokemons();
+    Call<BaseResponse<ArrayList<Data<Pokemon>>>> getPokemons();
 
     @Multipart
     @POST("/api/v1/pokemons")
-    Call<BaseResponse<Data<PokemonModel>>> insertPokemon(
+    Call<BaseResponse<Data<Pokemon>>> insertPokemon(
             @Part(value = "data[attributes][name]", encoding = "text/plain") String name,
             @Part(value = "data[attributes][height]") double height,
             @Part(value = "data[attributes][weight]") double weight,

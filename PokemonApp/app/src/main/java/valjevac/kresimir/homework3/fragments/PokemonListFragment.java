@@ -9,8 +9,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -18,6 +16,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -26,10 +25,13 @@ import retrofit2.Call;
 import retrofit2.Response;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.adapters.PokemonAdapter;
-import valjevac.kresimir.homework3.listeners.RecyclerViewClickListener;
+import valjevac.kresimir.homework3.database.SQLitePokemonList;
+import valjevac.kresimir.homework3.helpers.NetworkHelper;
+import valjevac.kresimir.homework3.interfaces.PokemonList;
+import valjevac.kresimir.homework3.interfaces.RecyclerViewClickListener;
 import valjevac.kresimir.homework3.models.BaseResponse;
 import valjevac.kresimir.homework3.models.Data;
-import valjevac.kresimir.homework3.models.PokemonModel;
+import valjevac.kresimir.homework3.models.Pokemon;
 import valjevac.kresimir.homework3.network.ApiManager;
 import valjevac.kresimir.homework3.network.BaseCallback;
 
@@ -47,7 +49,7 @@ public class PokemonListFragment extends Fragment {
 
     public static final String LOAD_ANIMATION = "LoadAnimation";
 
-    private ArrayList<PokemonModel> pokemonList;
+    private ArrayList<Pokemon> pokemonList;
 
     private PokemonAdapter pokemonAdapter;
 
@@ -67,7 +69,9 @@ public class PokemonListFragment extends Fragment {
     @BindView(R.id.srl_recycler_container)
     SwipeRefreshLayout srlRecyclerContainer;
 
-    Call<BaseResponse<ArrayList<Data<PokemonModel>>>> pokemonListCall;
+    Call<BaseResponse<ArrayList<Data<Pokemon>>>> pokemonListCall;
+
+    PokemonList pokemonListDatabase;
 
     public PokemonListFragment() { }
 
@@ -75,9 +79,9 @@ public class PokemonListFragment extends Fragment {
 
         void onAddPokemonClick();
 
-        void onShowPokemonDetailsClick(PokemonModel pokemon);
+        void onShowPokemonDetailsClick(Pokemon pokemon);
 
-        void onPokemonListLoaded();
+        void onPokemonListLoad(boolean isSuccess);
     }
 
     public static PokemonListFragment newInstance(boolean loadAnimation) {
@@ -91,7 +95,7 @@ public class PokemonListFragment extends Fragment {
         return fragment;
     }
 
-    public static PokemonListFragment newInstance(PokemonModel pokemon) {
+    public static PokemonListFragment newInstance(Pokemon pokemon) {
         Bundle bundle = new Bundle();
         bundle.putParcelable(POKEMON, pokemon);
 
@@ -117,6 +121,8 @@ public class PokemonListFragment extends Fragment {
         unbinder = ButterKnife.bind(this, view);
 
         isEmptyState = true;
+
+        pokemonListDatabase = new SQLitePokemonList();
 
         if (getArguments() != null) {
             Bundle args = getArguments();
@@ -144,9 +150,9 @@ public class PokemonListFragment extends Fragment {
             }
         }
 
-        pokemonAdapter = new PokemonAdapter(getActivity(), pokemonList, new RecyclerViewClickListener<PokemonModel>() {
+        pokemonAdapter = new PokemonAdapter(getActivity(), pokemonList, new RecyclerViewClickListener<Pokemon>() {
             @Override
-            public void OnClick(PokemonModel pokemon) {
+            public void OnClick(Pokemon pokemon) {
                 listener.onShowPokemonDetailsClick(pokemon);
             }
         });
@@ -185,21 +191,44 @@ public class PokemonListFragment extends Fragment {
     private void fetchPokemonList() {
         pokemonList.clear();
 
+        if (!NetworkHelper.isNetworkAvailable()) {
+            pokemonList.addAll(pokemonListDatabase.getPokemons());
+
+            if (pokemonList.size() > 0) {
+                isEmptyState = false;
+            }
+
+            listener.onPokemonListLoad(true);
+
+            if (srlRecyclerContainer != null && srlRecyclerContainer.isRefreshing()) {
+                srlRecyclerContainer.setRefreshing(false);
+            }
+
+            return;
+        }
+
         pokemonListCall = ApiManager.getService().getPokemons();
 
-        pokemonListCall.enqueue(new BaseCallback<BaseResponse<ArrayList<Data<PokemonModel>>>>() {
+        pokemonListCall.enqueue(new BaseCallback<BaseResponse<ArrayList<Data<Pokemon>>>>() {
             @Override
             public void onUnknownError(@Nullable String error) {
                 Log.e("API_POKEMON_LIST", error);
+
+                listener.onPokemonListLoad(false);
+
+                if (srlRecyclerContainer != null && srlRecyclerContainer.isRefreshing()) {
+                    srlRecyclerContainer.setRefreshing(false);
+                }
             }
 
             @Override
-            public void onSuccess(BaseResponse<ArrayList<Data<PokemonModel>>> body, Response<BaseResponse<ArrayList<Data<PokemonModel>>>> response) {
+            public void onSuccess(BaseResponse<ArrayList<Data<Pokemon>>> body, Response<BaseResponse<ArrayList<Data<Pokemon>>>> response) {
 
                 for (Data data : body.getData()) {
-                    if (data.getAttributes() instanceof PokemonModel) {
+                    if (data.getAttributes() instanceof Pokemon) {
 
-                        pokemonList.add((PokemonModel) data.getAttributes());
+                        pokemonList.add((Pokemon) data.getAttributes());
+                        pokemonListDatabase.addPokemon((Pokemon) data.getAttributes());
                     }
                 }
 
@@ -207,7 +236,7 @@ public class PokemonListFragment extends Fragment {
                     isEmptyState = false;
                 }
 
-                listener.onPokemonListLoaded();
+                listener.onPokemonListLoad(true);
 
                 updatePokemonListOverview();
 
@@ -308,7 +337,7 @@ public class PokemonListFragment extends Fragment {
         Bundle arguments = instance.getArguments();
 
         if (arguments != null) {
-            PokemonModel pokemon = arguments.getParcelable(POKEMON);
+            Pokemon pokemon = arguments.getParcelable(POKEMON);
 
             if (pokemon != null) {
                 instance.pokemonList.add(pokemon);

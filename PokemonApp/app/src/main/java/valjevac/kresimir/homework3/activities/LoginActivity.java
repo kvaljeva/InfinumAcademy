@@ -12,6 +12,7 @@ import android.text.TextUtils;
 import butterknife.ButterKnife;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.fragments.LoginFragment;
+import valjevac.kresimir.homework3.fragments.ProgressLoadFragment;
 import valjevac.kresimir.homework3.fragments.SignupFragment;
 import valjevac.kresimir.homework3.helpers.SharedPreferencesHelper;
 
@@ -21,6 +22,8 @@ public class LoginActivity extends AppCompatActivity implements LoginFragment.On
     private final static String LOGIN_FRAGMENT_TAG = "LoginFragmentTag";
 
     private final static String SIGNUP_FRAGMENT_TAG = "SignUpFragmentTag";
+
+    private final static String PROGRESS_LOAD_FRAGMENT_TAG = "ProgressLoadFragmentTag";
 
     private final static int ACTIVITY_RESULT = 420;
 

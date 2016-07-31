@@ -2,7 +2,6 @@
 package valjevac.kresimir.homework3.fragments;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
@@ -24,7 +23,7 @@ import butterknife.Unbinder;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.activities.PokemonListActivity;
 import valjevac.kresimir.homework3.helpers.BitmapHelper;
-import valjevac.kresimir.homework3.models.PokemonModel;
+import valjevac.kresimir.homework3.models.Pokemon;
 
 public class PokemonDetailsFragment extends Fragment {
     private Unbinder unbinder;
@@ -80,7 +79,7 @@ public class PokemonDetailsFragment extends Fragment {
         return instance;
     }
 
-    public static PokemonDetailsFragment newInstance(PokemonModel pokemon) {
+    public static PokemonDetailsFragment newInstance(Pokemon pokemon) {
         Bundle bundle = new Bundle();
         bundle.putParcelable(POKEMON_DETAILS, pokemon);
 
@@ -94,7 +93,7 @@ public class PokemonDetailsFragment extends Fragment {
         return instance;
     }
 
-    public static PokemonDetailsFragment newInstance(PokemonModel pokemon, boolean isDeviceTablet) {
+    public static PokemonDetailsFragment newInstance(Pokemon pokemon, boolean isDeviceTablet) {
         Bundle bundle = new Bundle();
         bundle.putParcelable(POKEMON_DETAILS, pokemon);
 
@@ -128,7 +127,7 @@ public class PokemonDetailsFragment extends Fragment {
 
         Bundle arguments = getArguments();
         if (arguments != null) {
-            PokemonModel pokemon = arguments.getParcelable(POKEMON_DETAILS);
+            Pokemon pokemon = arguments.getParcelable(POKEMON_DETAILS);
 
             if (pokemon != null) {
                 String height = transformHeightString(String.valueOf(pokemon.getHeight()));

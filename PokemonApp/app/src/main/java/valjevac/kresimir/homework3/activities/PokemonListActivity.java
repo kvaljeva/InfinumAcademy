@@ -17,6 +17,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,8 +32,9 @@ import valjevac.kresimir.homework3.fragments.AddPokemonFragment;
 import valjevac.kresimir.homework3.fragments.PokemonDetailsFragment;
 import valjevac.kresimir.homework3.fragments.PokemonListFragment;
 import valjevac.kresimir.homework3.fragments.ProgressLoadFragment;
+import valjevac.kresimir.homework3.helpers.NetworkHelper;
 import valjevac.kresimir.homework3.helpers.SharedPreferencesHelper;
-import valjevac.kresimir.homework3.models.PokemonModel;
+import valjevac.kresimir.homework3.models.Pokemon;
 import valjevac.kresimir.homework3.network.ApiManager;
 import valjevac.kresimir.homework3.network.BaseCallback;
 
@@ -77,14 +79,6 @@ public class PokemonListActivity extends AppCompatActivity implements
     @BindView(R.id.drawer_layout)
     DrawerLayout drawerLayout;
 
-    @Nullable
-    @BindView(R.id.tv_student_mail)
-    TextView tvStudentMail;
-
-    @Nullable
-    @BindView(R.id.tv_student_name)
-    TextView tvStudentName;
-
     private ActionBarDrawerToggle drawerToggle;
 
     private boolean isListLoading;
@@ -104,7 +98,10 @@ public class PokemonListActivity extends AppCompatActivity implements
         if (!checkIfFragmentExists(POKEMON_LIST_FRAGMENT_TAG) && !isDeviceTablet) {
             loadFragment(PokemonListFragment.newInstance(false), POKEMON_LIST_FRAGMENT_TAG);
 
-            loadFragment(ProgressLoadFragment.newInstance(getString(R.string.progress_load_description), PROGRESS_LOAD_TITLE), PROGRESS_LOAD_FRAGMENT_TAG);
+            if (NetworkHelper.isNetworkAvailable()) {
+                loadFragment(ProgressLoadFragment.newInstance(getString(R.string.progress_load_description),
+                        PROGRESS_LOAD_TITLE), PROGRESS_LOAD_FRAGMENT_TAG);
+            }
         }
 
         if (isDeviceTablet) {
@@ -115,6 +112,11 @@ public class PokemonListActivity extends AppCompatActivity implements
 
             // Load initial fragment every time
             loadFragment(PokemonListFragment.newInstance(false), POKEMON_LIST_FRAGMENT_TAG);
+
+            if (NetworkHelper.isNetworkAvailable()) {
+                loadFragment(ProgressLoadFragment.newInstance(getString(R.string.progress_load_description),
+                        PROGRESS_LOAD_TITLE), PROGRESS_LOAD_FRAGMENT_TAG);
+            }
         }
 
         setUpToolbar();
@@ -149,6 +151,11 @@ public class PokemonListActivity extends AppCompatActivity implements
                             }
 
                             if (!isListLoading) {
+                                if (!NetworkHelper.isNetworkAvailable()) {
+                                    Toast.makeText(PokemonListActivity.this, getString(R.string.no_internet_conn),
+                                            Toast.LENGTH_SHORT).show();
+                                }
+
                                 loadFragment(AddPokemonFragment.newInstance(isDeviceTablet), ADD_POKEMON_FRAGMENT_TAG);
                             }
                             return true;
@@ -301,6 +308,10 @@ public class PokemonListActivity extends AppCompatActivity implements
     }
 
     private void setupDrawerContent() {
+        View header = navigationDrawer.getHeaderView(0);
+        TextView tvStudentMail = (TextView) header.findViewById(R.id.tv_student_mail);
+        TextView tvStudentName = (TextView) header.findViewById(R.id.tv_student_name);
+
         if (tvStudentMail != null && tvStudentName != null) {
             String username = SharedPreferencesHelper.getString(SharedPreferencesHelper.USER);
             String email = SharedPreferencesHelper.getString(SharedPreferencesHelper.EMAIL);
@@ -339,22 +350,26 @@ public class PokemonListActivity extends AppCompatActivity implements
         logoutUserCall.enqueue(new BaseCallback<Void>() {
             @Override
             public void onUnknownError(@Nullable String error) {
-                Toast.makeText(PokemonListActivity.this, "Failed to log out.", Toast.LENGTH_SHORT).show();
+                logout();
             }
 
             @Override
             public void onSuccess(Void body, Response<Void> response) {
-                SharedPreferencesHelper.setInt(0, SharedPreferencesHelper.USER_ID);
-                SharedPreferencesHelper.setString("", SharedPreferencesHelper.AUTH_TOKEN);
-                SharedPreferencesHelper.setString("", SharedPreferencesHelper.USER);
-                SharedPreferencesHelper.setString("", SharedPreferencesHelper.EMAIL);
-
-                Intent intent = new Intent(PokemonListActivity.this, LoginActivity.class);
-                startActivity(intent);
-
-                finish();
+                logout();
             }
         });
+    }
+
+    private void logout() {
+        SharedPreferencesHelper.setInt(0, SharedPreferencesHelper.USER_ID);
+        SharedPreferencesHelper.setString("", SharedPreferencesHelper.AUTH_TOKEN);
+        SharedPreferencesHelper.setString("", SharedPreferencesHelper.USER);
+        SharedPreferencesHelper.setString("", SharedPreferencesHelper.EMAIL);
+
+        Intent intent = new Intent(PokemonListActivity.this, LoginActivity.class);
+        startActivity(intent);
+
+        finish();
     }
 
     @Override
@@ -367,7 +382,7 @@ public class PokemonListActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onShowPokemonDetailsClick(PokemonModel pokemon) {
+    public void onShowPokemonDetailsClick(Pokemon pokemon) {
         if (checkIfFragmentExists(POKEMON_DETAILS_FRAGMENT_TAG) && isDeviceTablet) {
             removeFragmentFromStack(POKEMON_DETAILS_FRAGMENT_TAG);
         }
@@ -415,10 +430,20 @@ public class PokemonListActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onPokemonListLoaded() {
-        if (checkIfFragmentExists(PROGRESS_LOAD_FRAGMENT_TAG)) {
-            removeFragmentFromStack(PROGRESS_LOAD_FRAGMENT_TAG);
-            isListLoading = false;
+    public void onPokemonListLoad(boolean isSuccess) {
+        if (isSuccess) {
+            if (checkIfFragmentExists(PROGRESS_LOAD_FRAGMENT_TAG)) {
+                removeFragmentFromStack(PROGRESS_LOAD_FRAGMENT_TAG);
+                isListLoading = false;
+            }
+        }
+        else {
+            if (!NetworkHelper.isNetworkAvailable()) {
+                Toast.makeText(PokemonListActivity.this, getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
+            }
+            else {
+                Toast.makeText(PokemonListActivity.this, "Failed to load pokemon list", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }

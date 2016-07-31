@@ -1,5 +1,5 @@
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rl_login_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
@@ -22,96 +22,134 @@
         android:layout_below="@id/iv_login_pokemon_logo"
         android:contentDescription="@string/pokeball_image_login"/>
 
-    <LinearLayout
-        android:id="@+id/ll_email_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/iv_login_pokeball_image"
-        android:orientation="horizontal"
-        android:weightSum="20">
-
-        <ImageView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_mail"
-            android:layout_marginTop="15dp"
-            android:layout_weight="3"
-            android:contentDescription="@string/user_email_login_icon"/>
-
-        <EditText
-            android:id="@+id/et_user_email"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:hint="@string/et_email_hint"
-            android:inputType="textEmailAddress"
-            android:layout_weight="16"
-            style="@style/EditTextTheme"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/ll_password_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/ll_email_container"
-        android:orientation="horizontal"
-        android:weightSum="20">
-
-        <ImageView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_lock"
-            android:layout_marginTop="15dp"
-            android:layout_weight="3"
-            android:contentDescription="@string/user_password_login_icon"/>
-
-        <EditText
-            android:id="@+id/et_user_password"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:hint="@string/et_password_hint"
-            android:layout_weight="16"
-            android:inputType="textPassword"
-            android:fontFamily="@android:string/defaultMsisdnAlphaTag"
-            android:drawableRight="@drawable/ic_visibility_off"
-            android:drawableEnd="@drawable/ic_visibility_off"
-            style="@style/EditTextTheme"/>
-    </LinearLayout>
-
-    <LinearLayout
+    <RelativeLayout
+        android:id="@+id/rl_login_form_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/ll_password_container"
-        android:gravity="center_horizontal|bottom"
-        android:orientation="vertical"
-        android:layout_marginTop="40dp">
+        android:layout_below="@id/iv_login_pokeball_image">
 
-        <FrameLayout
-            android:id="@+id/fl_btn_log_in_container"
+        <LinearLayout
+            android:id="@+id/ll_email_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/colorPrimary">
+            android:orientation="horizontal"
+            android:weightSum="20">
 
-            <Button
-                android:id="@+id/btn_log_in"
-                android:layout_width="match_parent"
+            <ImageView
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:background="?android:attr/selectableItemBackground"
-                android:text="@string/btn_log_in"
-                android:textColor="@color/white"/>
-        </FrameLayout>
+                android:src="@drawable/ic_mail"
+                android:layout_marginTop="15dp"
+                android:layout_weight="3"
+                android:contentDescription="@string/user_email_login_icon"/>
 
-        <FrameLayout
-            android:id="@+id/fl_register_container"
+            <EditText
+                android:id="@+id/et_user_email"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="@string/et_email_hint"
+                android:inputType="textEmailAddress"
+                android:layout_weight="16"
+                style="@style/EditTextTheme"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_password_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ll_email_container"
+            android:orientation="horizontal"
+            android:weightSum="20">
 
-            <Button
-                android:id="@+id/btn_register"
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_lock"
+                android:layout_marginTop="15dp"
+                android:layout_weight="3"
+                android:contentDescription="@string/user_password_login_icon"/>
+
+            <EditText
+                android:id="@+id/et_user_password"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="@string/et_password_hint"
+                android:layout_weight="16"
+                android:inputType="textPassword"
+                android:fontFamily="@android:string/defaultMsisdnAlphaTag"
+                android:drawableRight="@drawable/ic_visibility_off"
+                android:drawableEnd="@drawable/ic_visibility_off"
+                style="@style/EditTextTheme"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/ll_password_container"
+            android:gravity="center_horizontal|bottom"
+            android:orientation="vertical"
+            android:layout_marginTop="40dp">
+
+            <FrameLayout
+                android:id="@+id/fl_btn_log_in_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?android:attr/selectableItemBackground"
-                android:text="@string/btn_sign_up"
-                android:textColor="@color/colorPrimary"/>
-        </FrameLayout>
-    </LinearLayout>
+                android:background="@color/colorPrimary">
+
+                <Button
+                    android:id="@+id/btn_log_in"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:text="@string/btn_log_in"
+                    android:textColor="@color/white"/>
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/fl_register_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:id="@+id/btn_register"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:text="@string/btn_sign_up"
+                    android:textColor="@color/colorPrimary"/>
+            </FrameLayout>
+        </LinearLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl_login_progress_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/iv_login_pokeball_image"
+        android:visibility="gone"
+        tools:visibility="gone">
+
+        <View
+            android:id="@+id/v_login_anchor"
+            android:layout_height="0dp"
+            android:layout_width="0dp"
+            android:layout_centerInParent="true" />
+
+        <TextView
+            android:id="@+id/tv_sign_in_progress_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Signing in"
+            android:layout_above="@id/v_login_anchor"
+            android:layout_marginBottom="10dp"
+            android:layout_centerHorizontal="true"
+            android:textSize="23sp"/>
+
+        <ProgressBar
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:layout_below="@id/v_login_anchor"
+            android:indeterminate="true"
+            android:layout_marginTop="10dp"/>
+    </RelativeLayout>
 </RelativeLayout>

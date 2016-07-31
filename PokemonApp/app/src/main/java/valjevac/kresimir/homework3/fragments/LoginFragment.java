@@ -46,6 +46,12 @@ public class LoginFragment extends Fragment {
     @BindView(R.id.rl_login_container)
     RelativeLayout rlLoginContainer;
 
+    @BindView(R.id.rl_login_form_container)
+    RelativeLayout rlLoginFormContainer;
+
+    @BindView(R.id.rl_login_progress_container)
+    RelativeLayout rlLoginProgressContaienr;
+
     private boolean isPasswordVisible;
 
     private final static int CURRENT_ERROR = 0;
@@ -133,6 +139,8 @@ public class LoginFragment extends Fragment {
             return;
         }
 
+        displayLoginProgress(true);
+
         sendUserData(etUserEmail.getText().toString(), etUserPassword.getText().toString());
     }
 
@@ -146,6 +154,8 @@ public class LoginFragment extends Fragment {
         loginUserCall.enqueue(new BaseCallback<BaseResponse<Data<User>>>() {
             @Override
             public void onUnknownError(@Nullable String error) {
+                displayLoginProgress(false);
+
                 if (!NetworkHelper.isNetworkAvailable()) {
 
                     Toast.makeText(getActivity(), R.string.no_internet_conn, Toast.LENGTH_SHORT).show();
@@ -238,5 +248,16 @@ public class LoginFragment extends Fragment {
         }
 
         return emptyEditText == null;
+    }
+
+    private void displayLoginProgress(boolean isVisible) {
+        if (isVisible) {
+            rlLoginFormContainer.setVisibility(View.GONE);
+            rlLoginProgressContaienr.setVisibility(View.VISIBLE);
+        }
+        else {
+            rlLoginFormContainer.setVisibility(View.VISIBLE);
+            rlLoginProgressContaienr.setVisibility(View.GONE);
+        }
     }
 }
