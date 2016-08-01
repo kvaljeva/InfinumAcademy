@@ -61,26 +61,12 @@ public class PokemonListActivity extends AppCompatActivity implements
 
     private int currentOrientation;
 
-    Call<Void> logoutUserCall;
-
     @Nullable
     @BindView(R.id.fl_container_content)
     FrameLayout flContainerContent;
 
     @BindView(R.id.fl_container_main)
     FrameLayout flContainerMain;
-
-    @Nullable
-    @BindView(R.id.tb_pokemon_list)
-    Toolbar toolbar;
-
-    @BindView(R.id.nvDrawer)
-    NavigationView navigationDrawer;
-
-    @BindView(R.id.drawer_layout)
-    DrawerLayout drawerLayout;
-
-    private ActionBarDrawerToggle drawerToggle;
 
     private boolean isListLoading;
 
@@ -118,96 +104,6 @@ public class PokemonListActivity extends AppCompatActivity implements
                 loadFragment(ProgressLoadFragment.newInstance(getString(R.string.progress_load_description),
                         PROGRESS_LOAD_TITLE), PROGRESS_LOAD_FRAGMENT_TAG);
             }
-        }
-
-        setUpToolbar();
-    }
-
-    private void setUpToolbar() {
-        if (toolbar != null) {
-            setSupportActionBar(toolbar);
-
-            drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.drawer_open,
-                    R.string.drawer_close);
-
-            setupDrawerContent();
-
-            if (getSupportActionBar() != null) {
-
-                if (!getSupportActionBar().isShowing()) {
-                    getSupportActionBar().show();
-                }
-
-                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                getSupportActionBar().setHomeButtonEnabled(true);
-            }
-
-            toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem item) {
-                    switch(item.getItemId()) {
-                        case R.id.action_add:
-                            if (checkIfFragmentExists(POKEMON_DETAILS_FRAGMENT_TAG)) {
-                                removeFragmentFromStack(POKEMON_DETAILS_FRAGMENT_TAG);
-                            }
-
-                            if (!isListLoading) {
-                                loadFragment(AddPokemonFragment.newInstance(isDeviceTablet), ADD_POKEMON_FRAGMENT_TAG);
-                            }
-                            return true;
-                        default:
-                            return false;
-                    }
-                }
-            });
-
-            drawerToggle.syncState();
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        if (logoutUserCall != null) {
-            logoutUserCall.cancel();
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_item_add, menu);
-
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
-            case R.id.home:
-                drawerLayout.openDrawer(GravityCompat.START);
-                return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-
-        if (drawerToggle != null) {
-            drawerToggle.syncState();
-        }
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-        if (drawerToggle != null) {
-            drawerToggle.onConfigurationChanged(newConfig);
         }
     }
 
@@ -292,95 +188,10 @@ public class PokemonListActivity extends AppCompatActivity implements
         transaction.commit();
 
         manager.popBackStack();
-
-        if (drawerToggle != null) {
-
-            setUpToolbar();
-        }
     }
 
     private int getCurrentOrientation() {
         return getResources().getConfiguration().orientation;
-    }
-
-    private void setupDrawerContent() {
-        View header = navigationDrawer.getHeaderView(0);
-        TextView tvStudentMail = (TextView) header.findViewById(R.id.tv_student_mail);
-        TextView tvStudentName = (TextView) header.findViewById(R.id.tv_student_name);
-
-        if (tvStudentMail != null && tvStudentName != null) {
-            String username = SharedPreferencesHelper.getString(SharedPreferencesHelper.USER);
-            String email = SharedPreferencesHelper.getString(SharedPreferencesHelper.EMAIL);
-
-            if (!TextUtils.isEmpty(username) && !TextUtils.isEmpty(email)) {
-                tvStudentName.setText(username);
-                tvStudentMail.setText(email);
-            }
-            else {
-                tvStudentName.setText("Student");
-                tvStudentMail.setText("student@infinum.com");
-            }
-        }
-
-        navigationDrawer.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(MenuItem item) {
-                        selectDrawerItem(item);
-                        return true;
-                    }
-                }
-        );
-    }
-
-    private void selectDrawerItem(MenuItem item) {
-
-        switch(item.getItemId()) {
-            case R.id.menu_item_logout:
-                handleLogout();
-                break;
-            default:
-                break;
-        }
-
-        drawerLayout.closeDrawers();
-    }
-
-    private void handleLogout() {
-        logoutUserCall = ApiManager.getService().logoutUser();
-
-        logoutUserCall.enqueue(new BaseCallback<Void>() {
-            @Override
-            public void onUnknownError(@Nullable String error) {
-                logout();
-            }
-
-            @Override
-            public void onSuccess(Void body, Response<Void> response) {
-                logout();
-            }
-        });
-    }
-
-    private void logout() {
-        SharedPreferencesHelper.setInt(0, SharedPreferencesHelper.USER_ID);
-        SharedPreferencesHelper.setString("", SharedPreferencesHelper.AUTH_TOKEN);
-        SharedPreferencesHelper.setString("", SharedPreferencesHelper.USER);
-        SharedPreferencesHelper.setString("", SharedPreferencesHelper.EMAIL);
-
-        Intent intent = new Intent(PokemonListActivity.this, LoginActivity.class);
-        startActivity(intent);
-
-        finish();
-    }
-
-    @Override
-    public void onAddPokemonClick() {
-        if (checkIfFragmentExists(POKEMON_DETAILS_FRAGMENT_TAG)) {
-            removeFragmentFromStack(POKEMON_DETAILS_FRAGMENT_TAG);
-        }
-
-        loadFragment(AddPokemonFragment.newInstance(isDeviceTablet), ADD_POKEMON_FRAGMENT_TAG);
     }
 
     @Override
@@ -445,10 +256,35 @@ public class PokemonListActivity extends AppCompatActivity implements
                 Toast.makeText(PokemonListActivity.this, getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
             }
             else {
-                Toast.makeText(PokemonListActivity.this, "Failed to load pokemon list", Toast.LENGTH_SHORT).show();
+                Toast.makeText(PokemonListActivity.this, R.string.list_load_error, Toast.LENGTH_SHORT).show();
             }
 
             isListLoading = false;
         }
+    }
+
+    @Override
+    public void onAddPokemonClick() {
+        if (checkIfFragmentExists(POKEMON_DETAILS_FRAGMENT_TAG)) {
+            removeFragmentFromStack(POKEMON_DETAILS_FRAGMENT_TAG);
+        }
+
+        if (!isListLoading) {
+            loadFragment(AddPokemonFragment.newInstance(isDeviceTablet), ADD_POKEMON_FRAGMENT_TAG);
+        }
+    }
+
+    @Override
+    public void onLogoutClick() {
+
+        SharedPreferencesHelper.setInt(0, SharedPreferencesHelper.USER_ID);
+        SharedPreferencesHelper.setString("", SharedPreferencesHelper.AUTH_TOKEN);
+        SharedPreferencesHelper.setString("", SharedPreferencesHelper.USER);
+        SharedPreferencesHelper.setString("", SharedPreferencesHelper.EMAIL);
+
+        Intent intent = new Intent(PokemonListActivity.this, LoginActivity.class);
+        startActivity(intent);
+
+        finish();
     }
 }

@@ -17,6 +17,8 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.text.DecimalFormat;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
@@ -130,16 +132,21 @@ public class PokemonDetailsFragment extends Fragment {
             Pokemon pokemon = arguments.getParcelable(POKEMON_DETAILS);
 
             if (pokemon != null) {
-                String height = transformHeightString(String.valueOf(pokemon.getHeight()));
-                String weight = String.valueOf(pokemon.getWeight());
+                DecimalFormat decimalFormat = new DecimalFormat("0.00");
+                double weight = pokemon.getWeight();
+                double height = pokemon.getHeight();
+
+                String heightFixed = transformHeightString(decimalFormat.format(height));
+                String weightFixed = decimalFormat.format(weight);
+                String gender = (pokemon.getGender() == 1) ? "M" : "F";
 
                 tvName.setText(pokemon.getName());
                 tvDescription.setText(pokemon.getDescription());
-                tvHeight.setText(height);
-                tvWeight.setText(weight);
+                tvHeight.setText(heightFixed);
+                tvWeight.setText(weightFixed);
                 tvAbilities.setText(pokemon.getMoves());
                 tvCategory.setText(pokemon.getType());
-                tvGender.setText(pokemon.getGender());
+                tvGender.setText(gender);
 
                 BitmapHelper.loadBitmap(ivImage, pokemon.getImage(), false);
             }
@@ -213,10 +220,6 @@ public class PokemonDetailsFragment extends Fragment {
 
     private void setUpToolbar() {
         final PokemonListActivity pokemonListActivity = (PokemonListActivity) getActivity();
-
-        if (pokemonListActivity.getSupportActionBar() != null) {
-            pokemonListActivity.getSupportActionBar().hide();
-        }
 
         if (toolbar != null) {
             pokemonListActivity.setSupportActionBar(toolbar);

@@ -53,8 +53,8 @@ import valjevac.kresimir.homework3.network.ApiManager;
 
 public class AddPokemonFragment extends Fragment {
     private Unbinder unbinder;
+
     private OnFragmentInteractionListener listener;
-    private static AddPokemonFragment instance;
 
     private static final int SELECT_IMAGE = 420;
 
@@ -68,9 +68,9 @@ public class AddPokemonFragment extends Fragment {
 
     private static final String IMAGE_LOCATION = "ImageLocation";
 
-    private static final String NO_GENDER = "-";
-
     private static final String FORMAT_TYPE_IMAGE = "image/*";
+
+    private static final String MEDIA_TYPE = "application/image";
 
     private static final String IS_DEVICE_TABLET = "IsTablet";
 
@@ -137,12 +137,7 @@ public class AddPokemonFragment extends Fragment {
 
     public static AddPokemonFragment newInstance() {
 
-        if (instance == null) {
-            instance = new AddPokemonFragment();
-            return instance;
-        }
-
-        return instance;
+        return new AddPokemonFragment();
     }
 
     public static AddPokemonFragment newInstance(boolean isDeviceTablet) {
@@ -272,10 +267,6 @@ public class AddPokemonFragment extends Fragment {
 
     private void setUpToolbar() {
         PokemonListActivity pokemonListActivity = (PokemonListActivity) getActivity();
-
-        if (pokemonListActivity.getSupportActionBar() != null) {
-            pokemonListActivity.getSupportActionBar().hide();
-        }
 
         if (toolbar != null) {
             pokemonListActivity.setSupportActionBar(toolbar);
@@ -477,17 +468,12 @@ public class AddPokemonFragment extends Fragment {
             String category = etPokemonCategory.getText().toString();
             String abilities = etPokemonAbilities.getText().toString();
             Uri image = (this.imageUri == null) ? BitmapHelper.getResourceUri(R.drawable.ic_person_details) : this.imageUri;
-            String gender = (rbGenderFemale.isChecked()) ? getString(R.string.gender_female) :
-                    (rbGenderMale.isChecked()) ? getString(R.string.gender_male) : NO_GENDER;
+            int gender = (rbGenderFemale.isChecked()) ? 2 : 1;
 
             Pokemon pokemon = new Pokemon(pokemonName, pokemonDesc, pokemonHeight,
                     pokemonWeight, category, abilities, image.toString(), gender);
 
-            clearInputViews(rlActivityBody);
-
-            tryInsertPokemon(pokemon);
-
-            listener.onPokemonAdded();
+            insertPokemon(pokemon);
         }
     }
 
@@ -514,7 +500,7 @@ public class AddPokemonFragment extends Fragment {
         clearInputViews(rlActivityBody);
     }
 
-    private void tryInsertPokemon(Pokemon pokemon) {
+    private void insertPokemon(Pokemon pokemon) {
         int[] moves = new int[0];
         int[] category = new int[0];
         String imageBase64 = BitmapHelper.getImageBase64(Uri.parse(pokemon.getImage()));
@@ -522,14 +508,14 @@ public class AddPokemonFragment extends Fragment {
         RequestBody body = null;
 
         if (imageBase64 != null) {
-            body = RequestBody.create(MediaType.parse("application/image"), imageBase64);
+            body = RequestBody.create(MediaType.parse(MEDIA_TYPE), imageBase64);
         }
 
         insertPokemonCall = ApiManager.getService().insertPokemon(
                 pokemon.getName(),
                 pokemon.getHeight(),
                 pokemon.getWeight(),
-                1,
+                pokemon.getGender(),
                 true,
                 pokemon.getDescription(),
                 category,
@@ -541,11 +527,17 @@ public class AddPokemonFragment extends Fragment {
             @Override
             public void onResponse(Call<BaseResponse<Data<Pokemon>>> call, Response<BaseResponse<Data<Pokemon>>> response) {
                 Toast.makeText(getActivity(), "Pokemon created successfully.", Toast.LENGTH_SHORT).show();
+
+                listener.onPokemonAdded();
+                clearInputViews(rlActivityBody);
+
             }
 
             @Override
             public void onFailure(Call<BaseResponse<Data<Pokemon>>> call, Throwable t) {
+                Toast.makeText(getActivity(), "Failed.", Toast.LENGTH_SHORT).show();
 
+                listener.onPokemonAdded();
             }
         });
     }

@@ -11,6 +11,7 @@ import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import java.io.Serializable;
+import java.text.DecimalFormat;
 
 import valjevac.kresimir.homework3.database.AppDatabase;
 
@@ -50,15 +51,15 @@ public class Pokemon extends BaseModel implements Parcelable, Serializable {
     private String image;
 
     @Column
-    @SerializedName("gender")
-    private String gender;
+    @SerializedName("gender_id")
+    private int gender;
 
     public Pokemon() {
 
     }
 
     public Pokemon(String name, String description, float height, float weight,
-                   String type, String moves, String image, String gender) {
+                   String type, String moves, String image, int gender) {
 
         this.name = name;
         this.description = description;
@@ -78,7 +79,7 @@ public class Pokemon extends BaseModel implements Parcelable, Serializable {
         this.type = parcel.readString();
         this.moves = parcel.readString();
         this.image = parcel.readParcelable(Uri.class.getClassLoader());
-        this.gender = parcel.readString();
+        this.gender = parcel.readInt();
     }
 
     public int getId() {
@@ -145,11 +146,11 @@ public class Pokemon extends BaseModel implements Parcelable, Serializable {
         this.image = image;
     }
 
-    public String getGender() {
+    public int getGender() {
         return gender;
     }
 
-    public void setGender(String gender) {
+    public void setGender(int gender) {
         this.gender = gender;
     }
 
@@ -167,7 +168,7 @@ public class Pokemon extends BaseModel implements Parcelable, Serializable {
         parcel.writeString(type);
         parcel.writeString(moves);
         parcel.writeString(image);
-        parcel.writeString(gender);
+        parcel.writeInt(gender);
     }
 
     public static final Parcelable.Creator<Pokemon> CREATOR = new Parcelable.Creator<Pokemon>() {

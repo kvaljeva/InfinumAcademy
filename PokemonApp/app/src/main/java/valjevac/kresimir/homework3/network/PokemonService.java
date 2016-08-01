@@ -37,13 +37,13 @@ public interface PokemonService {
     @POST("/api/v1/pokemons")
     Call<BaseResponse<Data<Pokemon>>> insertPokemon(
             @Part(value = "data[attributes][name]", encoding = "text/plain") String name,
-            @Part(value = "data[attributes][height]") double height,
-            @Part(value = "data[attributes][weight]") double weight,
-            @Part(value = "data[attributes][gender_id]") int genderId,
-            @Part(value = "data[attributes][is_default]") boolean isDefault,
+            @Part("data[attributes][height]") double height,
+            @Part("data[attributes][weight]") double weight,
+            @Part("data[attributes][gender_id]") int genderId,
+            @Part("data[attributes][is_default]") boolean isDefault,
             @Part(value = "data[attributes][description]", encoding = "text/plain") String description,
-            @Part(value = "data[attributes][type_ids][]") int[] category,
-            @Part(value = "data[attributes][move_ids][]") int[] moves,
-            @Part(value = "data[attributes][image]\"; filename=\"pokemonImage.jpg") RequestBody image
+            @Part("data[attributes][type_ids][]") int[] category,
+            @Part("data[attributes][move_ids][]") int[] moves,
+            @Part("data[attributes][image]\"; filename=\"pokemon.jpg") RequestBody image
     );
 }

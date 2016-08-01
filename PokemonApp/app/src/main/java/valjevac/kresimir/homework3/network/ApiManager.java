@@ -9,6 +9,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.converter.scalars.ScalarsConverterFactory;
 import valjevac.kresimir.homework3.BuildConfig;
 
 public class ApiManager {
@@ -36,6 +37,7 @@ public class ApiManager {
 
     private static Retrofit REST_ADAPTER = new Retrofit.Builder()
             .baseUrl(API_ENDPOINT)
+            .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(GsonConverterFactory.create(GSON))
             .client(client)
             .build();

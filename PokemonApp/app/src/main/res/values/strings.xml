@@ -53,4 +53,6 @@
     <string name="progress_load_description">Loading pokemon list</string>
     <string name="no_internet_conn">No internet connection.</string>
     <string name="empty_field_warning">This field cannot be empty.</string>
+    <string name="list_load_error">Failed to load pokemon list</string>
+    <string name="signing_in_progress_text">Signing in</string>
 </resources>

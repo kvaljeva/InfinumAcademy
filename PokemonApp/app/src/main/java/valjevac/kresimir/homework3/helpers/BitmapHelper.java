@@ -3,6 +3,7 @@ package valjevac.kresimir.homework3.helpers;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.util.Base64;
 import android.widget.ImageView;
 
@@ -16,27 +17,15 @@ import valjevac.kresimir.homework3.network.ApiManager;
 
 public class BitmapHelper {
     private static final int QUALITY = 100;
+
     private static final int MAX_SIZE = 360;
-    private static final String baseResourceUri  = "android.resource://valjevac.kresimir.homework3/";
 
-    private static Bitmap getBitmap(Uri location) {
-        try {
-            return Glide
-                    .with(PokemonApplication.getAppContext())
-                    .load(location)
-                    .asBitmap()
-                    .into(-1, -1)
-                    .get();
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
+    private static final String BASE_RESOURCE_URI  = "android.resource://valjevac.kresimir.homework3/";
 
-        return null;
-    }
+    private static final String INTERNAL_CONTENT = "content://";
 
     public static Uri getResourceUri(int resourceId) {
-        return Uri.parse(baseResourceUri + resourceId);
+        return Uri.parse(BASE_RESOURCE_URI + resourceId);
     }
 
     public static void loadResourceBitmap(ImageView imageView, int resourceId, boolean scale) {
@@ -46,15 +35,20 @@ public class BitmapHelper {
     }
 
     public static String getImageBase64(Uri location) {
-        Bitmap image = getBitmap(location);
+        Bitmap image = null;
+
+        try {
+            image = MediaStore.Images.Media.getBitmap(PokemonApplication.getAppContext().getContentResolver(), location);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
 
         if (image != null) {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             image.compress(Bitmap.CompressFormat.PNG, QUALITY, outputStream);
 
-            byte[] imageBytes = outputStream.toByteArray();
-
-            return Base64.encodeToString(imageBytes, Base64.DEFAULT);
+            return Base64.encodeToString(outputStream.toByteArray(), Base64.DEFAULT);
         }
 
         return null;
@@ -71,8 +65,16 @@ public class BitmapHelper {
             return;
         }
 
-        String url = ApiManager.API_ENDPOINT + location;
-        Uri uri = Uri.parse(url);
+        Uri uri;
+
+        if (!location.contains(INTERNAL_CONTENT)) {
+            String url = ApiManager.API_ENDPOINT + location;
+            uri = Uri.parse(url);
+        }
+        else {
+            uri = Uri.parse(location);
+        }
+
 
         if (scale) {
             Glide.with(imageView.getContext())
