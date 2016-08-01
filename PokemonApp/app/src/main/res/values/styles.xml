@@ -19,6 +19,17 @@
     <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorAccent">@color/colorPrimary</item>
+    </style>
+
+    <style name="ToolbarTheme" parent="AppTheme.NoActionBar">
+        <item name="actionMenuTextColor">@color/text_icons</item>
+        <item name="colorControlNormal">@color/text_icons</item>
+        <item name="colorControlActivated">@color/text_icons</item>
+        <item name="android:textColorPrimary">@color/text_icons</item>
+        <item name="actionButtonStyle">@style/Widget.AppCompat.ActionButton</item>
+        <item name="selectableItemBackground">?android:selectableItemBackground</item>
+        <item name="selectableItemBackgroundBorderless">?android:selectableItemBackground</item>
+        <item name="colorControlHighlight">@color/colorPrimaryDark</item>
     </style>
 </resources>

@@ -7,13 +7,13 @@
     <string name="et_pokemon_name">Name</string>
     <string name="iv_pokemon_name_icon">Pokemon name icon</string>
     <string name="iv_pokemon_description_icon">Pokemon description icon</string>
-    <string name="et_pokemon_abilities">Abilities</string>
+    <string name="et_pokemon_moves">Moves</string>
     <string name="empty_fields_warning">Please fill out the given fields</string>
     <string name="non_numeric_value_warning">Please enter numerical values for weight and height</string>
     <string name="alert_dialog_message">Are you sure that you want to abandon your data?</string>
     <string name="alert_dialog_title">Warning</string>
     <string name="iv_pokemon_empty_state">iv_pokemon_empty_state</string>
-    <string name="et_pokemon_category">Category</string>
+    <string name="et_pokemon_type">Type</string>
     <string name="et_pokemon_weight">Weight</string>
     <string name="et_pokemon_height">Height</string>
     <string name="rb_male_text">Male</string>
@@ -29,4 +29,28 @@
     <string name="menu_action_add_pokemon">Menu action add pokemon</string>
     <string name="gender_female">F</string>
     <string name="gender_male">M</string>
+    <string name="pokemon_details_toolbar_title">Pokemon Details</string>
+    <string name="add_pokemon_toolbar_title">Add Pokemon</string>
+    <string name="toolbar_pokemon_list_title">Pokemon</string>
+    <string name="menu_item_logout">Logout</string>
+    <string name="nav_student_name">Krešimir Valjevac</string>
+    <string name="nav_student_mail">student@infinum.hr</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <string name="login_pokemon_logo">Login Pokemon logo</string>
+    <string name="pokeball_image_login">Pokeball image login</string>
+    <string name="btn_log_in">Log in</string>
+    <string name="btn_sign_up">Sign up</string>
+    <string name="et_password_hint">Password</string>
+    <string name="et_email_hint">Email</string>
+    <string name="user_email_login_icon">User email login icon</string>
+    <string name="user_password_login_icon">User password login icon</string>
+    <string name="et_nickname_hint">Nickname</string>
+    <string name="sign_up_activity_title">Sign up</string>
+    <string name="et_confirm_password_hint">Confirm password</string>
+    <string name="toolbar_title_sign_up">Sign up</string>
+    <string name="authorization_header_content">Token token=%1$s, email=%2$s</string>
+    <string name="progress_load_description">Loading pokemon list</string>
+    <string name="no_internet_conn">No internet connection.</string>
+    <string name="empty_field_warning">This field cannot be empty.</string>
 </resources>

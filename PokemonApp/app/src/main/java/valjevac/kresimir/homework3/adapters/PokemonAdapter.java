@@ -1,7 +1,9 @@
 package valjevac.kresimir.homework3.adapters;
 
 import android.content.Context;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +19,7 @@ import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.helpers.BitmapHelper;
 import valjevac.kresimir.homework3.listeners.RecyclerViewClickListener;
 import valjevac.kresimir.homework3.models.PokemonModel;
+import valjevac.kresimir.homework3.network.ApiManager;
 
 public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHolder> {
     private List<PokemonModel> pokemonList;
