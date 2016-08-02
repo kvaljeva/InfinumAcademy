@@ -26,7 +26,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -189,11 +188,6 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-    }
-
-    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.menu_item_add, menu);
@@ -269,16 +263,12 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
 
     @Override
     public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
-        if (animate) {
-            if (enter) {
-                return AnimationUtils.loadAnimation(getActivity(), R.anim.enter_left);
-            }
-            else {
-                return AnimationUtils.loadAnimation(getActivity(), R.anim.exit_left);
-            }
+        if (enter) {
+            return AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in);
         }
-
-        return new Animation() { };
+        else {
+            return AnimationUtils.loadAnimation(getActivity(), R.anim.fade_out);
+        }
     }
 
 

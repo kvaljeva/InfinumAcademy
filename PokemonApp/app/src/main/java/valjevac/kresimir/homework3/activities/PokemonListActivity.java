@@ -1,7 +1,6 @@
 package valjevac.kresimir.homework3.activities;
 
 import android.content.Intent;
-import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -12,7 +11,6 @@ import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
-import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -145,20 +143,20 @@ public class PokemonListActivity extends AppCompatActivity implements
 
             if (checkIfFragmentExists(POKEMON_LIST_FRAGMENT_TAG)) {
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && imageView != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && imageView.length > 0) {
 
-                    Fragment listFragment = manager.findFragmentByTag(POKEMON_LIST_FRAGMENT_TAG);
-                    Transition changeTransform = TransitionInflater.from(this).inflateTransition(R.transition.change_image_transform);
-
-                    listFragment.setSharedElementReturnTransition(changeTransform);
-                    listFragment.setExitTransition(changeTransform);
-
-                    fragment.setSharedElementEnterTransition(changeTransform);
-                    fragment.setEnterTransition(changeTransform);
-
-                    ImageView ivPokemonImage = (imageView.length > 0) ? imageView[0] : null;
-
-                    transaction.addSharedElement(ivPokemonImage, getString(R.string.details_transit));
+//                    Fragment listFragment = manager.findFragmentByTag(POKEMON_LIST_FRAGMENT_TAG);
+//                    Transition changeTransform = TransitionInflater.from(this).inflateTransition(R.transition.change_image_transform);
+//
+//                    listFragment.setSharedElementReturnTransition(changeTransform);
+//                    listFragment.setExitTransition(changeTransform);
+//
+//                    fragment.setSharedElementEnterTransition(changeTransform);
+//                    fragment.setEnterTransition(changeTransform);
+//
+//                    ImageView ivPokemonImage = (imageView.length > 0) ? imageView[0] : null;
+//
+//                    transaction.addSharedElement(ivPokemonImage, getString(R.string.details_transit));
                 }
             }
         }

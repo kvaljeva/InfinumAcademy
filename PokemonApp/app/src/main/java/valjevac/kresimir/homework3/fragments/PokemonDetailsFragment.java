@@ -31,11 +31,12 @@ import valjevac.kresimir.homework3.models.Pokemon;
 
 public class PokemonDetailsFragment extends Fragment {
     private Unbinder unbinder;
+
     private OnFragmentInteractionListener listener;
 
     private static PokemonDetailsFragment instance;
+
     private static final String POKEMON_DETAILS = "PokemonDetails";
-    private boolean isTabletView;
 
     @BindView(R.id.tv_details_pokemon_name)
     TextView tvName;
@@ -104,13 +105,11 @@ public class PokemonDetailsFragment extends Fragment {
         if (instance == null) {
             instance = new PokemonDetailsFragment();
             instance.setArguments(bundle);
-            instance.isTabletView = isDeviceTablet;
 
             return instance;
         }
 
         instance.getArguments().putAll(bundle);
-        instance.isTabletView = isDeviceTablet;
 
         return instance;
     }
@@ -174,16 +173,6 @@ public class PokemonDetailsFragment extends Fragment {
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.change_image_transform));
-            setEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-        }
-    }
-
-    @Override
     public void onDetach() {
         super.onDetach();
 
@@ -237,6 +226,16 @@ public class PokemonDetailsFragment extends Fragment {
                     listener.onDetailsHomePressed();
                 }
             });
+        }
+    }
+
+    @Override
+    public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
+        if (enter) {
+            return AnimationUtils.loadAnimation(getActivity(), R.anim.enter_right);
+        }
+        else {
+            return AnimationUtils.loadAnimation(getActivity(), R.anim.exit_right);
         }
     }
 }
