@@ -23,7 +23,6 @@ public class ApiManager {
     private static HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
         @Override
         public void log(String message) {
-
             if (BuildConfig.DEBUG) {
                 Log.e("API_TAG", message);
             }

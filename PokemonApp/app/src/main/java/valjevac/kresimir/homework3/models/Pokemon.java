@@ -11,7 +11,6 @@ import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import java.io.Serializable;
-import java.text.DecimalFormat;
 
 import valjevac.kresimir.homework3.database.AppDatabase;
 

@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="valjevac.kresimir.homework3">
 
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -23,7 +24,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activities.PokemonListActivity">
+        <activity android:name=".activities.PokemonListActivity"
+            android:windowSoftInputMode="adjustResize">
 
         </activity>
     </application>

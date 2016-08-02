@@ -2,6 +2,7 @@
 package valjevac.kresimir.homework3.fragments;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
@@ -9,6 +10,7 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
+import android.transition.TransitionInflater;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -172,6 +174,16 @@ public class PokemonDetailsFragment extends Fragment {
     }
 
     @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.change_image_transform));
+            setEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+        }
+    }
+
+    @Override
     public void onDetach() {
         super.onDetach();
 
@@ -186,20 +198,6 @@ public class PokemonDetailsFragment extends Fragment {
 
         if (unbinder != null) {
             unbinder.unbind();
-        }
-    }
-
-    @Override
-    public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
-        if (enter) {
-            return AnimationUtils.loadAnimation(getActivity(), R.anim.enter_right);
-        }
-        else {
-            if (isTabletView) {
-                return AnimationUtils.loadAnimation(getActivity(), R.anim.exit_left);
-            }
-
-            return AnimationUtils.loadAnimation(getActivity(), R.anim.exit_right);
         }
     }
 

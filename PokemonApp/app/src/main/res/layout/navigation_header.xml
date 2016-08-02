@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:text="@string/nav_student_name"
         android:textColor="@color/white"
-        android:paddingBottom="@dimen/tv_student_name_padding"
+        android:paddingBottom="@dimen/padding_small"
         android:textSize="17sp"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 
@@ -24,7 +24,7 @@
         android:layout_height="wrap_content"
         android:text="@string/nav_student_mail"
         android:textColor="@color/white"
-        android:paddingBottom="@dimen/tv_student_name_padding"
+        android:paddingBottom="@dimen/padding_small"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 
 </LinearLayout>

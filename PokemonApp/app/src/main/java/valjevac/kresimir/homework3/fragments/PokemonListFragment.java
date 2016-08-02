@@ -1,6 +1,7 @@
 package valjevac.kresimir.homework3.fragments;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -15,6 +16,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.transition.TransitionInflater;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,6 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -65,6 +68,8 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
     private PokemonAdapter pokemonAdapter;
 
     private static boolean animate;
+
+    private boolean isListLoading;
 
     boolean isEmptyState;
 
@@ -184,6 +189,11 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
     }
 
     @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.menu_item_add, menu);
@@ -199,6 +209,78 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
 
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        if (context instanceof OnFragmentInteractionListener) {
+            listener = (OnFragmentInteractionListener) context;
+        }
+        else {
+            throw new RuntimeException(context.toString() + " must implement OnFragmentInteractionListener.");
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (pokemonListCall != null) {
+            pokemonListCall.cancel();
+        }
+
+        if (logoutUserCall != null) {
+            logoutUserCall.cancel();
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        if (listener != null) {
+            listener = null;
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        if (unbinder != null) {
+            unbinder.unbind();
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putParcelableArrayList(POKEMON_LIST_SATE, pokemonList);
+
+        if (pokemonList != null && pokemonList.size() > 0) {
+            outState.putBoolean(EMPTY_STATE, false);
+        }
+        else {
+            outState.putBoolean(EMPTY_STATE, true);
+        }
+    }
+
+    @Override
+    public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
+        if (animate) {
+            if (enter) {
+                return AnimationUtils.loadAnimation(getActivity(), R.anim.enter_left);
+            }
+            else {
+                return AnimationUtils.loadAnimation(getActivity(), R.anim.exit_left);
+            }
+        }
+
+        return new Animation() { };
+    }
+
 
     private void setUpToolbar() {
         if (toolbar != null) {
@@ -222,7 +304,11 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
                 public boolean onMenuItemClick(MenuItem item) {
                     switch(item.getItemId()) {
                         case R.id.action_add:
-                            listener.onAddPokemonClick();
+
+                            if (!isListLoading) {
+
+                                listener.onAddPokemonClick();
+                            }
                             return true;
                         default:
                             return false;
@@ -310,22 +396,31 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
         );
     }
 
+    private void loadCachedList() {
+
+        pokemonList.addAll(pokemonListDatabase.getPokemons());
+
+        if (pokemonList.size() > 0) {
+            isEmptyState = false;
+        }
+
+        listener.onPokemonListLoad(true);
+
+        if (srlRecyclerContainer != null && srlRecyclerContainer.isRefreshing()) {
+            srlRecyclerContainer.setRefreshing(false);
+        }
+
+        isListLoading = false;
+    }
+
     private void fetchPokemonList() {
         pokemonList.clear();
 
+        isListLoading = true;
+
         if (!NetworkHelper.isNetworkAvailable()) {
-            pokemonList.addAll(pokemonListDatabase.getPokemons());
 
-            if (pokemonList.size() > 0) {
-                isEmptyState = false;
-            }
-
-            listener.onPokemonListLoad(true);
-
-            if (srlRecyclerContainer != null && srlRecyclerContainer.isRefreshing()) {
-                srlRecyclerContainer.setRefreshing(false);
-            }
-
+            loadCachedList();
             return;
         }
 
@@ -338,9 +433,8 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
 
                 listener.onPokemonListLoad(false);
 
-                if (srlRecyclerContainer != null && srlRecyclerContainer.isRefreshing()) {
-                    srlRecyclerContainer.setRefreshing(false);
-                }
+                // If it fails to fetch the list from the API, load the currently cached one
+                loadCachedList();
             }
 
             @Override
@@ -352,77 +446,6 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
                 thread.start();
             }
         });
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-
-        if (context instanceof OnFragmentInteractionListener) {
-            listener = (OnFragmentInteractionListener) context;
-        }
-        else {
-            throw new RuntimeException(context.toString() + " must implement OnFragmentInteractionListener.");
-        }
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
-        if (pokemonListCall != null) {
-            pokemonListCall.cancel();
-        }
-
-        if (logoutUserCall != null) {
-            logoutUserCall.cancel();
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-
-        if (listener != null) {
-            listener = null;
-        }
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-
-        if (unbinder != null) {
-            unbinder.unbind();
-        }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        outState.putParcelableArrayList(POKEMON_LIST_SATE, pokemonList);
-
-        if (pokemonList != null && pokemonList.size() > 0) {
-            outState.putBoolean(EMPTY_STATE, false);
-        }
-        else {
-            outState.putBoolean(EMPTY_STATE, true);
-        }
-    }
-
-    @Override
-    public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
-        if (animate) {
-            if (enter) {
-                return AnimationUtils.loadAnimation(getActivity(), R.anim.enter_left);
-            }
-            else {
-                return AnimationUtils.loadAnimation(getActivity(), R.anim.exit_left);
-            }
-        }
-
-        return new Animation() { };
     }
 
     private void updatePokemonListOverview() {
@@ -468,6 +491,8 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
                 if (srlRecyclerContainer != null && srlRecyclerContainer.isRefreshing()) {
                     srlRecyclerContainer.setRefreshing(false);
                 }
+
+                isListLoading = false;
             }
         });
     }

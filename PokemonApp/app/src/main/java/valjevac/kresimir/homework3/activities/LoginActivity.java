@@ -2,17 +2,16 @@ package valjevac.kresimir.homework3.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.TextUtils;
 
 import butterknife.ButterKnife;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.fragments.LoginFragment;
-import valjevac.kresimir.homework3.fragments.ProgressLoadFragment;
 import valjevac.kresimir.homework3.fragments.SignupFragment;
 import valjevac.kresimir.homework3.helpers.NetworkHelper;
 import valjevac.kresimir.homework3.helpers.SharedPreferencesHelper;

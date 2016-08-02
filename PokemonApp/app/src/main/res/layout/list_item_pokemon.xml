@@ -5,7 +5,7 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="@dimen/padding_10dp"
+    android:padding="@dimen/padding_small"
     android:clickable="true"
     android:focusable="true"
     android:layerType="software"
@@ -14,6 +14,7 @@
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/civ_pokemon_image"
+        android:transitionName="@string/details_transit"
         android:layout_width="@dimen/civ_width_height"
         android:layout_height="@dimen/civ_width_height"
         android:layout_gravity="center"
@@ -25,10 +26,10 @@
         android:id="@+id/tv_pokemon_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/rv_list_item_text_size"
-        android:padding="@dimen/padding_10dp"
-        android:layout_marginLeft="@dimen/margin_10dp"
-        android:layout_marginStart="@dimen/margin_10dp"
+        android:textSize="@dimen/text_size_medium"
+        android:padding="@dimen/padding_small"
+        android:layout_marginLeft="@dimen/margin_small"
+        android:layout_marginStart="@dimen/margin_small"
         android:layout_gravity="center_vertical"
         tools:text="Test"/>
 </LinearLayout>

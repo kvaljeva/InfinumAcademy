@@ -1,43 +1,33 @@
 package valjevac.kresimir.homework3.activities;
 
 import android.content.Intent;
-import android.content.res.Configuration;
+import android.media.Image;
+import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.transition.Transition;
+import android.transition.TransitionInflater;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.TextView;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import retrofit2.Call;
-import retrofit2.Response;
-import valjevac.kresimir.homework3.fragments.ConfirmationDialogFragment;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.fragments.AddPokemonFragment;
+import valjevac.kresimir.homework3.fragments.ConfirmationDialogFragment;
 import valjevac.kresimir.homework3.fragments.PokemonDetailsFragment;
 import valjevac.kresimir.homework3.fragments.PokemonListFragment;
 import valjevac.kresimir.homework3.fragments.ProgressLoadFragment;
 import valjevac.kresimir.homework3.helpers.NetworkHelper;
 import valjevac.kresimir.homework3.helpers.SharedPreferencesHelper;
 import valjevac.kresimir.homework3.models.Pokemon;
-import valjevac.kresimir.homework3.network.ApiManager;
-import valjevac.kresimir.homework3.network.BaseCallback;
 
 public class PokemonListActivity extends AppCompatActivity implements
         PokemonListFragment.OnFragmentInteractionListener, AddPokemonFragment.OnFragmentInteractionListener,
@@ -68,16 +58,12 @@ public class PokemonListActivity extends AppCompatActivity implements
     @BindView(R.id.fl_container_main)
     FrameLayout flContainerMain;
 
-    private boolean isListLoading;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pokemon_list);
 
         ButterKnife.bind(this);
-
-        isListLoading = true;
 
         isDeviceTablet = getResources().getBoolean(R.bool.isDeviceTablet);
         currentOrientation = getCurrentOrientation();
@@ -151,9 +137,31 @@ public class PokemonListActivity extends AppCompatActivity implements
         return !(manager.findFragmentByTag(tag) == null);
     }
 
-    private void loadFragment(Fragment fragment, String tag) {
+    private void loadFragment(Fragment fragment, String tag, ImageView... imageView) {
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
+
+        if (tag.equals(POKEMON_DETAILS_FRAGMENT_TAG)) {
+
+            if (checkIfFragmentExists(POKEMON_LIST_FRAGMENT_TAG)) {
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && imageView != null) {
+
+                    Fragment listFragment = manager.findFragmentByTag(POKEMON_LIST_FRAGMENT_TAG);
+                    Transition changeTransform = TransitionInflater.from(this).inflateTransition(R.transition.change_image_transform);
+
+                    listFragment.setSharedElementReturnTransition(changeTransform);
+                    listFragment.setExitTransition(changeTransform);
+
+                    fragment.setSharedElementEnterTransition(changeTransform);
+                    fragment.setEnterTransition(changeTransform);
+
+                    ImageView ivPokemonImage = (imageView.length > 0) ? imageView[0] : null;
+
+                    transaction.addSharedElement(ivPokemonImage, getString(R.string.details_transit));
+                }
+            }
+        }
 
         if (tag.equals(POKEMON_LIST_FRAGMENT_TAG) || !isDeviceTablet) {
             transaction.replace(R.id.fl_container_main, fragment, tag);
@@ -215,6 +223,11 @@ public class PokemonListActivity extends AppCompatActivity implements
         }
 
         loadFragment(PokemonListFragment.newInstance(isDeviceTablet), POKEMON_LIST_FRAGMENT_TAG);
+
+        if (NetworkHelper.isNetworkAvailable()) {
+            loadFragment(ProgressLoadFragment.newInstance(getString(R.string.progress_load_description),
+                    PROGRESS_LOAD_TITLE), PROGRESS_LOAD_FRAGMENT_TAG);
+        }
     }
 
     @Override
@@ -248,18 +261,13 @@ public class PokemonListActivity extends AppCompatActivity implements
             if (checkIfFragmentExists(PROGRESS_LOAD_FRAGMENT_TAG)) {
                 removeFragmentFromStack(PROGRESS_LOAD_FRAGMENT_TAG);
             }
-
-            isListLoading = false;
         }
         else {
             if (!NetworkHelper.isNetworkAvailable()) {
                 Toast.makeText(PokemonListActivity.this, getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
             }
-            else {
-                Toast.makeText(PokemonListActivity.this, R.string.list_load_error, Toast.LENGTH_SHORT).show();
-            }
 
-            isListLoading = false;
+            removeFragmentFromStack(PROGRESS_LOAD_FRAGMENT_TAG);
         }
     }
 
@@ -269,9 +277,7 @@ public class PokemonListActivity extends AppCompatActivity implements
             removeFragmentFromStack(POKEMON_DETAILS_FRAGMENT_TAG);
         }
 
-        if (!isListLoading) {
-            loadFragment(AddPokemonFragment.newInstance(isDeviceTablet), ADD_POKEMON_FRAGMENT_TAG);
-        }
+        loadFragment(AddPokemonFragment.newInstance(isDeviceTablet), ADD_POKEMON_FRAGMENT_TAG);
     }
 
     @Override

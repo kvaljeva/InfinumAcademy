@@ -26,7 +26,7 @@
             android:id="@+id/ll_signup_email_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="@dimen/margin_high"
             android:orientation="horizontal"
             android:weightSum="20">
 
@@ -34,7 +34,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_mail"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="@dimen/margin_medium"
                 android:layout_weight="3"
                 android:contentDescription="@string/user_email_login_icon"/>
 
@@ -54,7 +54,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/ll_signup_email_container"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="@dimen/margin_small"
             android:orientation="horizontal"
             android:weightSum="20">
 
@@ -62,7 +62,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_person"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="@dimen/margin_medium"
                 android:layout_weight="3"
                 android:contentDescription="@string/user_password_login_icon"/>
 
@@ -82,7 +82,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/ll_signup_nickname_container"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="@dimen/margin_small"
             android:orientation="horizontal"
             android:weightSum="20">
 
@@ -90,7 +90,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_lock"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="@dimen/margin_medium"
                 android:layout_weight="3"
                 android:contentDescription="@string/user_password_login_icon"/>
 
@@ -112,12 +112,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/ll_signup_password_container"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="@dimen/margin_small"
             android:orientation="horizontal"
             android:weightSum="20">
 
             <View
-                android:layout_height="40dp"
+                android:layout_height="@dimen/layout_height_xxx_large"
                 android:layout_width="0dp"
                 android:layout_weight="3"/>
 
@@ -137,7 +137,7 @@
             android:layout_below="@id/ll_signup_password_confirm_container"
             android:gravity="center_horizontal|bottom"
             android:orientation="vertical"
-            android:layout_marginTop="40dp">
+            android:layout_marginTop="@dimen/margin_xxx_high">
 
             <FrameLayout
                 android:id="@+id/fl_btn_log_in_container"
@@ -174,21 +174,21 @@
             android:id="@+id/tv_signup_progress_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Creating your account"
-            android:textSize="23sp"
+            android:text="@string/creating_your_account"
+            android:textSize="@dimen/text_size_xx_large"
             android:layout_centerHorizontal="true"
             android:layout_above="@id/v_signup_anchor"
-            android:layout_marginBottom="10dp"/>
+            android:layout_marginBottom="@dimen/margin_small"/>
 
         <ProgressBar
             android:layout_width="match_parent"
-            android:layout_height="13dp"
+            android:layout_height="@dimen/horizontal_progress_bar_height"
             android:layout_alignStart="@id/tv_signup_progress_text"
             android:layout_alignLeft="@id/tv_signup_progress_text"
             android:layout_alignEnd="@id/tv_signup_progress_text"
             android:layout_alignRight="@id/tv_signup_progress_text"
             android:layout_below="@id/v_signup_anchor"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="@dimen/margin_small"
             android:indeterminate="true"
             style="?android:attr/progressBarStyleHorizontal"/>
     </RelativeLayout>

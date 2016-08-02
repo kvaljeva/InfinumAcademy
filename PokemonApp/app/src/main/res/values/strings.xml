@@ -55,4 +55,9 @@
     <string name="empty_field_warning">This field cannot be empty.</string>
     <string name="list_load_error">Failed to load pokemon list</string>
     <string name="signing_in_progress_text">Signing in</string>
+    <string name="saving_pokemon">Saving your pokemon</string>
+    <string name="details_transit">DetailsTransition</string>
+    <string name="creating_your_account">Creating your account</string>
+    <string name="pokemon_saved">Successfully saved your pokemon.</string>
+    <string name="pokemon_save_failed">Failed to create Pokemon.</string>
 </resources>
