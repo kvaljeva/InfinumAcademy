@@ -17,6 +17,8 @@ public class SharedPreferencesHelper {
 
     public static final String EMAIL = "Email";
 
+    public static final String IS_SESSION_ACTIVE = "IsSessionActive";
+
     private static SharedPreferences sharedPrefs;
 
     private static SharedPreferences getSharedPrefs() {
@@ -41,5 +43,13 @@ public class SharedPreferencesHelper {
 
     public static int getInt(String key) {
         return getSharedPrefs().getInt(key, 0);
+    }
+
+    public static void setBoolean(boolean value, String key) {
+        getSharedPrefs().edit().putBoolean(key, value).apply();
+    }
+
+    public static boolean getBoolean(String key) {
+        return getSharedPrefs().getBoolean(key, false);
     }
 }

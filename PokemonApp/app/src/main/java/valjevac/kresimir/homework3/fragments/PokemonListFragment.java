@@ -1,12 +1,10 @@
 package valjevac.kresimir.homework3.fragments;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -16,7 +14,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.transition.TransitionInflater;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -27,6 +24,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -38,7 +36,7 @@ import retrofit2.Call;
 import retrofit2.Response;
 import valjevac.kresimir.homework3.ProcessPokemonList;
 import valjevac.kresimir.homework3.R;
-import valjevac.kresimir.homework3.activities.PokemonListActivity;
+import valjevac.kresimir.homework3.activities.MainActivity;
 import valjevac.kresimir.homework3.adapters.PokemonAdapter;
 import valjevac.kresimir.homework3.database.SQLitePokemonList;
 import valjevac.kresimir.homework3.helpers.NetworkHelper;
@@ -78,11 +76,11 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
     @BindView(R.id.ll_empty_state_container)
     LinearLayout llEmptyStateContainer;
 
-    @BindView(R.id.ll_list_items_container)
-    LinearLayout llItemsContainer;
-
     @BindView(R.id.srl_recycler_container)
     SwipeRefreshLayout srlRecyclerContainer;
+
+    @BindView(R.id.rl_main_container)
+    RelativeLayout rlMainContainer;
 
     @Nullable
     @BindView(R.id.tb_pokemon_list)
@@ -100,7 +98,13 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
 
     Call<BaseResponse<ArrayList<Data<Pokemon>>>> pokemonListCall;
 
+    BaseCallback<BaseResponse<ArrayList<Data<Pokemon>>>> pokemonListCallback;
+
     PokemonList pokemonListDatabase;
+
+    ProcessPokemonList pokemonListProcessor;
+
+    private Snackbar snackbarProgress;
 
     public PokemonListFragment() { }
 
@@ -109,8 +113,6 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
         void onAddPokemonClick();
 
         void onShowPokemonDetailsClick(Pokemon pokemon);
-
-        void onPokemonListLoad(boolean isSuccess);
 
         void onLogoutClick();
     }
@@ -151,7 +153,7 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
                 pokemonList = new ArrayList<>();
 
                 // Fetch initial list
-                fetchPokemonList();
+                fetchPokemonList(true);
             }
 
         }
@@ -179,10 +181,10 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
             isEmptyState = false;
         }
 
-        updatePokemonListOverview();
-
         setUpToolbar();
         setUpRefreshView();
+
+        updatePokemonListOverview();
 
         return view;
     }
@@ -224,8 +226,16 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
             pokemonListCall.cancel();
         }
 
+        if (pokemonListCallback != null) {
+            pokemonListCallback.cancel();
+        }
+
         if (logoutUserCall != null) {
             logoutUserCall.cancel();
+        }
+
+        if (pokemonListProcessor != null) {
+            pokemonListProcessor.cancel();
         }
     }
 
@@ -274,7 +284,7 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
 
     private void setUpToolbar() {
         if (toolbar != null) {
-            PokemonListActivity activity = (PokemonListActivity) getActivity();
+            MainActivity activity = (MainActivity) getActivity();
 
             activity.setSupportActionBar(toolbar);
 
@@ -374,7 +384,7 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
         srlRecyclerContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                fetchPokemonList();
+                fetchPokemonList(false);
             }
         });
 
@@ -394,19 +404,22 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
             isEmptyState = false;
         }
 
-        listener.onPokemonListLoad(true);
+        srlRecyclerContainer.setRefreshing(false);
 
-        if (srlRecyclerContainer != null && srlRecyclerContainer.isRefreshing()) {
-            srlRecyclerContainer.setRefreshing(false);
-        }
+        showProgress(false, null);
 
         isListLoading = false;
     }
 
-    private void fetchPokemonList() {
+    private void fetchPokemonList(boolean isInitCall) {
         pokemonList.clear();
+        srlRecyclerContainer.setRefreshing(true);
 
         isListLoading = true;
+
+        if (isInitCall) {
+            showProgress(true, "Loading pokemon list...");
+        }
 
         if (!NetworkHelper.isNetworkAvailable()) {
 
@@ -415,41 +428,41 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
         }
 
         pokemonListCall = ApiManager.getService().getPokemons();
-
-        pokemonListCall.enqueue(new BaseCallback<BaseResponse<ArrayList<Data<Pokemon>>>>() {
+        pokemonListCallback = new BaseCallback<BaseResponse<ArrayList<Data<Pokemon>>>>() {
             @Override
             public void onUnknownError(@Nullable String error) {
                 Log.e("API_POKEMON_LIST", error);
 
-                listener.onPokemonListLoad(false);
+                if (!NetworkHelper.isNetworkAvailable()) {
+                    showProgress(true, getString(R.string.no_internet_conn));
+                }
 
-                // If it fails to fetch the list from the API, load the currently cached one
                 loadCachedList();
             }
 
             @Override
             public void onSuccess(BaseResponse<ArrayList<Data<Pokemon>>> body, Response<BaseResponse<ArrayList<Data<Pokemon>>>> response) {
 
-                ProcessPokemonList pokemonListProcessor = new ProcessPokemonList(body, pokemonListDatabase, PokemonListFragment.this);
+                pokemonListProcessor = new ProcessPokemonList(body, pokemonListDatabase, PokemonListFragment.this);
                 Thread thread = new Thread(pokemonListProcessor);
 
                 thread.start();
             }
-        });
+        };
+
+        pokemonListCall.enqueue(pokemonListCallback);
     }
 
     private void updatePokemonListOverview() {
         if (isEmptyState) {
 
             llEmptyStateContainer.setVisibility(View.VISIBLE);
-            llItemsContainer.setVisibility(View.GONE);
             rvPokemonList.setVisibility(View.INVISIBLE);
         }
         else {
             if (llEmptyStateContainer != null && llEmptyStateContainer.getVisibility() == View.VISIBLE) {
 
                 llEmptyStateContainer.setVisibility(View.GONE);
-                llItemsContainer.setVisibility(View.VISIBLE);
                 rvPokemonList.setVisibility(View.VISIBLE);
             }
 
@@ -460,30 +473,44 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
     @Override
     public void onProcessingFinished(final ArrayList<Pokemon> pokemons) {
 
-        Handler handler = new Handler(Looper.getMainLooper());
+        pokemonList.addAll(pokemons);
 
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
+        if (pokemonList.size() > 0) {
+            isEmptyState = false;
+        }
 
-                pokemonList.addAll(pokemons);
+        if (listener != null) {
+            showProgress(false, null);
+        }
 
-                if (pokemonList.size() > 0) {
-                    isEmptyState = false;
+        updatePokemonListOverview();
+
+        if (!isEmptyState) {
+            srlRecyclerContainer.setRefreshing(false);
+        }
+
+        isListLoading = false;
+    }
+
+    private void showProgress(boolean isVisible, final String message) {
+        if (isVisible) {
+
+            rlMainContainer.post(new Runnable() {
+                @Override
+                public void run() {
+                    snackbarProgress = Snackbar.make(rlMainContainer, message, Snackbar.LENGTH_INDEFINITE);
+                    snackbarProgress.show();
                 }
+            });
+        }
+        else {
 
-                if (listener != null) {
-                    listener.onPokemonListLoad(true);
+            rlMainContainer.post(new Runnable() {
+                @Override
+                public void run() {
+                    snackbarProgress.dismiss();
                 }
-
-                updatePokemonListOverview();
-
-                if (srlRecyclerContainer != null && srlRecyclerContainer.isRefreshing()) {
-                    srlRecyclerContainer.setRefreshing(false);
-                }
-
-                isListLoading = false;
-            }
-        });
+            });
+        }
     }
 }

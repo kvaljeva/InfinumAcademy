@@ -4,19 +4,23 @@ import android.net.Uri;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 
+import valjevac.kresimir.homework3.PokemonApplication;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.network.ApiManager;
 
 public class BitmapHelper {
     private static final int MAX_SIZE = 360;
 
-    private static final String BASE_RESOURCE_URI  = "android.resource://valjevac.kresimir.homework3/";
-
     private static final String INTERNAL_CONTENT = "content://";
 
     public static Uri getResourceUri(int resourceId) {
-        return Uri.parse(BASE_RESOURCE_URI + resourceId);
+        String baseResourceUri = PokemonApplication.getAppContext().getPackageName();
+
+        return Uri.parse(baseResourceUri + resourceId);
     }
 
     public static void loadResourceBitmap(ImageView imageView, int resourceId, boolean scale) {
@@ -25,14 +29,20 @@ public class BitmapHelper {
         loadBitmap(imageView, imageUri.toString(), scale);
     }
 
-    public static void loadBitmap(ImageView imageView, String location, boolean scale) {
+    private static void loadDefaultBitmap(ImageView imageView) {
+
+        Glide.with(imageView.getContext())
+                .load(R.drawable.ic_person_details)
+                .crossFade()
+                .fitCenter()
+                .into(imageView);
+    }
+
+    public static void loadBitmap(final ImageView imageView, String location, boolean scale) {
 
         if (location == null) {
-            Glide.with(imageView.getContext())
-                    .load(R.drawable.ic_person_details)
-                    .crossFade()
-                    .into(imageView);
 
+            loadDefaultBitmap(imageView);
             return;
         }
 
@@ -50,6 +60,19 @@ public class BitmapHelper {
         if (scale) {
             Glide.with(imageView.getContext())
                     .load(uri)
+                    .listener(new RequestListener<Uri, GlideDrawable>() {
+                        @Override
+                        public boolean onException(Exception e, Uri model, Target<GlideDrawable> target, boolean isFirstResource) {
+
+                            loadDefaultBitmap(imageView);
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(GlideDrawable resource, Uri model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                            return false;
+                        }
+                    })
                     .override(MAX_SIZE, MAX_SIZE)
                     .crossFade()
                     .fitCenter()
@@ -58,7 +81,21 @@ public class BitmapHelper {
         else {
             Glide.with(imageView.getContext())
                     .load(uri)
+                    .listener(new RequestListener<Uri, GlideDrawable>() {
+                        @Override
+                        public boolean onException(Exception e, Uri model, Target<GlideDrawable> target, boolean isFirstResource) {
+
+                            loadDefaultBitmap(imageView);
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(GlideDrawable resource, Uri model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                            return false;
+                        }
+                    })
                     .crossFade()
+                    .fitCenter()
                     .into(imageView);
         }
     }

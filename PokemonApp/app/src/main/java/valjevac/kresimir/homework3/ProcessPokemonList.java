@@ -1,5 +1,8 @@
 package valjevac.kresimir.homework3;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import java.util.ArrayList;
 
 import valjevac.kresimir.homework3.fragments.PokemonListFragment;
@@ -11,10 +14,16 @@ import valjevac.kresimir.homework3.models.Pokemon;
 public class ProcessPokemonList implements Runnable {
 
     ArrayList<Pokemon> pokemons;
+
     PokemonList pokemonListDatabase;
+
     BaseResponse<ArrayList<Data<Pokemon>>> body;
 
+    Handler handler;
+
     public OnProcessingFinishedListener listener;
+
+    public boolean isCanceled = false;
 
     public interface OnProcessingFinishedListener {
 
@@ -29,6 +38,7 @@ public class ProcessPokemonList implements Runnable {
         this.pokemonListDatabase = pokemonListDatabase;
 
         listener = context;
+        handler = new Handler(Looper.getMainLooper());
     }
 
     @Override
@@ -36,8 +46,12 @@ public class ProcessPokemonList implements Runnable {
 
         for (Data data : body.getData()) {
             if (data.getAttributes() instanceof Pokemon) {
-                Pokemon pokemon = (Pokemon) data.getAttributes();
 
+                if (isCanceled) {
+                    break;
+                }
+
+                Pokemon pokemon = (Pokemon) data.getAttributes();
                 pokemon.setId(data.getId());
 
                 pokemons.add(pokemon);
@@ -45,6 +59,19 @@ public class ProcessPokemonList implements Runnable {
             }
         }
 
-        listener.onProcessingFinished(pokemons);
+        if (isCanceled) {
+            return;
+        }
+
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                listener.onProcessingFinished(pokemons);
+            }
+        });
+    }
+
+    public void cancel() {
+        this.isCanceled = true;
     }
 }

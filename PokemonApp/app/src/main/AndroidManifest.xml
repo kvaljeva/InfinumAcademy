@@ -24,7 +24,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activities.PokemonListActivity"
+        <activity android:name=".activities.MainActivity"
             android:windowSoftInputMode="adjustResize">
 
         </activity>

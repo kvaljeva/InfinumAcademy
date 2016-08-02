@@ -9,11 +9,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.transition.Transition;
-import android.transition.TransitionInflater;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -22,12 +19,10 @@ import valjevac.kresimir.homework3.fragments.AddPokemonFragment;
 import valjevac.kresimir.homework3.fragments.ConfirmationDialogFragment;
 import valjevac.kresimir.homework3.fragments.PokemonDetailsFragment;
 import valjevac.kresimir.homework3.fragments.PokemonListFragment;
-import valjevac.kresimir.homework3.fragments.ProgressLoadFragment;
-import valjevac.kresimir.homework3.helpers.NetworkHelper;
 import valjevac.kresimir.homework3.helpers.SharedPreferencesHelper;
 import valjevac.kresimir.homework3.models.Pokemon;
 
-public class PokemonListActivity extends AppCompatActivity implements
+public class MainActivity extends AppCompatActivity implements
         PokemonListFragment.OnFragmentInteractionListener, AddPokemonFragment.OnFragmentInteractionListener,
         ConfirmationDialogFragment.OnCompleteListener, PokemonDetailsFragment.OnFragmentInteractionListener {
 
@@ -40,10 +35,6 @@ public class PokemonListActivity extends AppCompatActivity implements
     public static final String ADD_POKEMON_FRAGMENT_TAG = "AddPokemonFragment";
 
     private static final String POKEMON_DETAILS_FRAGMENT_TAG = "PokemonDetailsFragment";
-
-    private static final String PROGRESS_LOAD_FRAGMENT_TAG = "ProgressLoadFragment";
-
-    private static final String PROGRESS_LOAD_TITLE = "Pokemon";
 
     private boolean isDeviceTablet;
 
@@ -68,26 +59,14 @@ public class PokemonListActivity extends AppCompatActivity implements
 
         if (!checkIfFragmentExists(POKEMON_LIST_FRAGMENT_TAG) && !isDeviceTablet) {
             loadFragment(PokemonListFragment.newInstance(false), POKEMON_LIST_FRAGMENT_TAG);
-
-            if (NetworkHelper.isNetworkAvailable()) {
-                loadFragment(ProgressLoadFragment.newInstance(getString(R.string.progress_load_description),
-                        PROGRESS_LOAD_TITLE), PROGRESS_LOAD_FRAGMENT_TAG);
-            }
         }
 
-        if (isDeviceTablet) {
-            if (isDeviceTablet && flContainerContent != null && currentOrientation == ORIENTATION_LANDSCAPE) {
-                loadFragment(AddPokemonFragment.newInstance(true), ADD_POKEMON_FRAGMENT_TAG);
-                ViewCompat.setElevation(flContainerMain, 7);
-            }
+        if (isDeviceTablet && flContainerContent != null && currentOrientation == ORIENTATION_LANDSCAPE) {
+            loadFragment(AddPokemonFragment.newInstance(true), ADD_POKEMON_FRAGMENT_TAG);
+            ViewCompat.setElevation(flContainerMain, 7);
 
             // Load initial fragment every time
             loadFragment(PokemonListFragment.newInstance(false), POKEMON_LIST_FRAGMENT_TAG);
-
-            if (NetworkHelper.isNetworkAvailable()) {
-                loadFragment(ProgressLoadFragment.newInstance(getString(R.string.progress_load_description),
-                        PROGRESS_LOAD_TITLE), PROGRESS_LOAD_FRAGMENT_TAG);
-            }
         }
     }
 
@@ -139,11 +118,8 @@ public class PokemonListActivity extends AppCompatActivity implements
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
 
-        if (tag.equals(POKEMON_DETAILS_FRAGMENT_TAG)) {
-
-            if (checkIfFragmentExists(POKEMON_LIST_FRAGMENT_TAG)) {
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && imageView.length > 0) {
+        if (tag.equals(POKEMON_DETAILS_FRAGMENT_TAG) && checkIfFragmentExists(POKEMON_LIST_FRAGMENT_TAG)
+                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && imageView.length > 0) {
 
 //                    Fragment listFragment = manager.findFragmentByTag(POKEMON_LIST_FRAGMENT_TAG);
 //                    Transition changeTransform = TransitionInflater.from(this).inflateTransition(R.transition.change_image_transform);
@@ -157,8 +133,6 @@ public class PokemonListActivity extends AppCompatActivity implements
 //                    ImageView ivPokemonImage = (imageView.length > 0) ? imageView[0] : null;
 //
 //                    transaction.addSharedElement(ivPokemonImage, getString(R.string.details_transit));
-                }
-            }
         }
 
         if (tag.equals(POKEMON_LIST_FRAGMENT_TAG) || !isDeviceTablet) {
@@ -185,10 +159,6 @@ public class PokemonListActivity extends AppCompatActivity implements
     private void removeFragmentFromStack(String tag) {
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
-
-        if (tag.equals(PROGRESS_LOAD_FRAGMENT_TAG)) {
-            transaction.setCustomAnimations(R.anim.fade_out, R.anim.fade_out);
-        }
 
         transaction.remove(manager.findFragmentByTag(tag));
         transaction.commit();
@@ -221,11 +191,6 @@ public class PokemonListActivity extends AppCompatActivity implements
         }
 
         loadFragment(PokemonListFragment.newInstance(isDeviceTablet), POKEMON_LIST_FRAGMENT_TAG);
-
-        if (NetworkHelper.isNetworkAvailable()) {
-            loadFragment(ProgressLoadFragment.newInstance(getString(R.string.progress_load_description),
-                    PROGRESS_LOAD_TITLE), PROGRESS_LOAD_FRAGMENT_TAG);
-        }
     }
 
     @Override
@@ -254,22 +219,6 @@ public class PokemonListActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onPokemonListLoad(boolean isSuccess) {
-        if (isSuccess) {
-            if (checkIfFragmentExists(PROGRESS_LOAD_FRAGMENT_TAG)) {
-                removeFragmentFromStack(PROGRESS_LOAD_FRAGMENT_TAG);
-            }
-        }
-        else {
-            if (!NetworkHelper.isNetworkAvailable()) {
-                Toast.makeText(PokemonListActivity.this, getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
-            }
-
-            removeFragmentFromStack(PROGRESS_LOAD_FRAGMENT_TAG);
-        }
-    }
-
-    @Override
     public void onAddPokemonClick() {
         if (checkIfFragmentExists(POKEMON_DETAILS_FRAGMENT_TAG)) {
             removeFragmentFromStack(POKEMON_DETAILS_FRAGMENT_TAG);
@@ -285,8 +234,9 @@ public class PokemonListActivity extends AppCompatActivity implements
         SharedPreferencesHelper.setString("", SharedPreferencesHelper.AUTH_TOKEN);
         SharedPreferencesHelper.setString("", SharedPreferencesHelper.USER);
         SharedPreferencesHelper.setString("", SharedPreferencesHelper.EMAIL);
+        SharedPreferencesHelper.setBoolean(false, SharedPreferencesHelper.IS_SESSION_ACTIVE);
 
-        Intent intent = new Intent(PokemonListActivity.this, LoginActivity.class);
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(intent);
 
         finish();

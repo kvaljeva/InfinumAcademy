@@ -25,7 +25,7 @@ import retrofit2.Call;
 import retrofit2.Response;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.activities.LoginActivity;
-import valjevac.kresimir.homework3.activities.PokemonListActivity;
+import valjevac.kresimir.homework3.activities.MainActivity;
 import valjevac.kresimir.homework3.helpers.ApiErrorHelper;
 import valjevac.kresimir.homework3.helpers.NetworkHelper;
 import valjevac.kresimir.homework3.helpers.SharedPreferencesHelper;
@@ -295,7 +295,7 @@ public class SignupFragment extends Fragment {
                 SharedPreferencesHelper.setString(body.getData().getAttributes().getUsername(), SharedPreferencesHelper.USER);
                 SharedPreferencesHelper.setString(body.getData().getAttributes().getEmail(), SharedPreferencesHelper.EMAIL);
 
-                Intent intent = new Intent(getActivity(), PokemonListActivity.class);
+                Intent intent = new Intent(getActivity(), MainActivity.class);
                 startActivity(intent);
 
                 listener.onRegisterButtonPressed(SIGNUP_SUCCESSFULL);

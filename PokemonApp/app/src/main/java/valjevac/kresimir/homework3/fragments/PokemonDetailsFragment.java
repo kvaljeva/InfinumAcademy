@@ -2,7 +2,6 @@
 package valjevac.kresimir.homework3.fragments;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
@@ -10,7 +9,6 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
-import android.transition.TransitionInflater;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +23,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import valjevac.kresimir.homework3.R;
-import valjevac.kresimir.homework3.activities.PokemonListActivity;
+import valjevac.kresimir.homework3.activities.MainActivity;
 import valjevac.kresimir.homework3.helpers.BitmapHelper;
 import valjevac.kresimir.homework3.models.Pokemon;
 
@@ -206,16 +204,16 @@ public class PokemonDetailsFragment extends Fragment {
     }
 
     private void setUpToolbar() {
-        final PokemonListActivity pokemonListActivity = (PokemonListActivity) getActivity();
+        final MainActivity mainActivity = (MainActivity) getActivity();
 
         if (toolbar != null) {
-            pokemonListActivity.setSupportActionBar(toolbar);
+            mainActivity.setSupportActionBar(toolbar);
 
             toolbar.setTitle(R.string.add_pokemon_toolbar_title);
 
-            if (pokemonListActivity.getSupportActionBar() != null) {
-                pokemonListActivity.getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
-                pokemonListActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            if (mainActivity.getSupportActionBar() != null) {
+                mainActivity.getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
+                mainActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             }
 
             setToolbarTitle();

@@ -48,7 +48,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import valjevac.kresimir.homework3.R;
-import valjevac.kresimir.homework3.activities.PokemonListActivity;
+import valjevac.kresimir.homework3.activities.MainActivity;
 import valjevac.kresimir.homework3.helpers.BitmapHelper;
 import valjevac.kresimir.homework3.helpers.NetworkHelper;
 import valjevac.kresimir.homework3.models.BaseResponse;
@@ -207,10 +207,10 @@ public class AddPokemonFragment extends Fragment {
                 @Override
                 public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
                     if ((Math.abs(verticalOffset) + 10) >= (appBarLayout.getTotalScrollRange() / 1.5) && !isColorChanged) {
-                        setBackArrowColor(true, (PokemonListActivity) getActivity());
+                        setBackArrowColor(true, (MainActivity) getActivity());
                     }
                     else if (Math.abs(verticalOffset) <= (appBarLayout.getTotalScrollRange() / 1.5)) {
-                        setBackArrowColor(false, (PokemonListActivity) getActivity());
+                        setBackArrowColor(false, (MainActivity) getActivity());
                     }
                 }
             });
@@ -261,7 +261,7 @@ public class AddPokemonFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == SELECT_IMAGE) {
-            if (resultCode == PokemonListActivity.RESULT_OK) {
+            if (resultCode == MainActivity.RESULT_OK) {
                 Uri selectedImage = data.getData();
 
                 BitmapHelper.loadBitmap(ivPokemonImage, selectedImage.toString(), false);
@@ -281,20 +281,20 @@ public class AddPokemonFragment extends Fragment {
     }
 
     private void setUpToolbar() {
-        PokemonListActivity pokemonListActivity = (PokemonListActivity) getActivity();
+        MainActivity mainActivity = (MainActivity) getActivity();
 
         if (toolbar != null) {
-            pokemonListActivity.setSupportActionBar(toolbar);
+            mainActivity.setSupportActionBar(toolbar);
 
             toolbar.setTitle(R.string.add_pokemon_toolbar_title);
 
-            if (pokemonListActivity.getSupportActionBar() != null) {
-                pokemonListActivity.getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
-                pokemonListActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            if (mainActivity.getSupportActionBar() != null) {
+                mainActivity.getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
+                mainActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             }
 
             setToolbarTitle();
-            setBackArrowColor(true, pokemonListActivity);
+            setBackArrowColor(true, mainActivity);
 
             toolbar.setNavigationOnClickListener(new View.OnClickListener() {
                 @Override
@@ -313,7 +313,7 @@ public class AddPokemonFragment extends Fragment {
         }
     }
 
-    private void setBackArrowColor(boolean isDefaultState, PokemonListActivity activity) {
+    private void setBackArrowColor(boolean isDefaultState, MainActivity activity) {
         Drawable upArrow = ContextCompat.getDrawable(getActivity(),
                 R.drawable.ic_arrow_back);
 
@@ -541,23 +541,23 @@ public class AddPokemonFragment extends Fragment {
     private void showProgress(boolean isVisible) {
 
         if (isVisible) {
-            if (ablHeaderAddPokemon != null && svBodyContainer != null) {
+            if (ablHeaderAddPokemon != null && svBodyContainer != null && fabAddImage != null) {
 
                 ablHeaderAddPokemon.setVisibility(View.GONE);
                 svBodyContainer.setVisibility(View.GONE);
+                fabAddImage.setVisibility(View.GONE);
             }
 
-            fabAddImage.setVisibility(View.GONE);
             rlProgressContainer.setVisibility(View.VISIBLE);
         }
         else {
-            if (ablHeaderAddPokemon != null && svBodyContainer != null) {
+            if (ablHeaderAddPokemon != null && svBodyContainer != null && fabAddImage != null) {
 
                 ablHeaderAddPokemon.setVisibility(View.VISIBLE);
                 svBodyContainer.setVisibility(View.VISIBLE);
+                fabAddImage.setVisibility(View.VISIBLE);
             }
 
-            fabAddImage.setVisibility(View.VISIBLE);
             rlProgressContainer.setVisibility(View.GONE);
         }
     }
@@ -565,9 +565,7 @@ public class AddPokemonFragment extends Fragment {
     private void insertPokemon(Pokemon pokemon) {
         int[] moves = new int[0];
         int[] category = new int[0];
-
-        listener.onPokemonAdded();
-
+        
         String filePath = getFilePath(this.imageUri);
         File imageFile;
         RequestBody body = null;
@@ -595,8 +593,8 @@ public class AddPokemonFragment extends Fragment {
             public void onResponse(Call<BaseResponse<Data<Pokemon>>> call, Response<BaseResponse<Data<Pokemon>>> response) {
                 Toast.makeText(getActivity(), R.string.pokemon_saved, Toast.LENGTH_SHORT).show();
 
-                listener.onPokemonAdded();
                 clearInputViews(rlActivityBody);
+                listener.onPokemonAdded();
             }
 
             @Override
