@@ -5,7 +5,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -20,8 +23,12 @@ import valjevac.kresimir.homework3.models.Pokemon;
 
 public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHolder> {
     private List<Pokemon> pokemonList;
+
     private Context context;
+
     private RecyclerViewClickListener<Pokemon> clickListener;
+
+    private final static int MIN_POSITION = -1;
 
     public PokemonAdapter(Context context, List<Pokemon> pokemonList,
                           RecyclerViewClickListener<Pokemon> clickListener) {
@@ -41,11 +48,28 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHold
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.tvPokemonName.setText(pokemonList.get(position).getName());
         BitmapHelper.loadBitmap(holder.civPokemonImage, pokemonList.get(position).getImage(), true);
+
+        setAnimation(holder.llContainer, position);
+    }
+
+    @Override
+    public void onViewDetachedFromWindow(ViewHolder holder) {
+        super.onViewDetachedFromWindow(holder);
+
+        holder.clearAnimation();
     }
 
     @Override
     public int getItemCount() {
         return pokemonList.size();
+    }
+
+    private void setAnimation(View view, int position) {
+
+        if (position > MIN_POSITION) {
+            Animation animation = AnimationUtils.loadAnimation(context, R.anim.recycler_item_anim);
+            view.startAnimation(animation);
+        }
     }
 
     public void update(ArrayList<Pokemon> updateList) {
@@ -67,6 +91,9 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHold
         @BindView(R.id.civ_pokemon_image)
         ImageView civPokemonImage;
 
+        @BindView(R.id.pokemon_list_item_container)
+        LinearLayout llContainer;
+
         public ViewHolder(View view) {
             super(view);
 
@@ -80,6 +107,10 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHold
                     }
                 });
             }
+        }
+
+        public void clearAnimation() {
+            llContainer.clearAnimation();
         }
     }
 }
