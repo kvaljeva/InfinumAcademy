@@ -5,6 +5,8 @@ import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -28,7 +30,9 @@ public class ProgressView extends RelativeLayout {
     @BindView(R.id.tv_text_progress_view)
     TextView tvProgressText;
 
-    @BindView(R.id.pb_progress_view)
+    @BindView(R.id.rl_progress_bar_container)
+    LinearLayout rlProgressBarContainer;
+
     ProgressBar progressBar;
 
     private String text;
@@ -80,6 +84,11 @@ public class ProgressView extends RelativeLayout {
 
         tvProgressText.setText(text);
 
+        createProgressBar();
+    }
+
+    private void createProgressBar() {
+
         if (progressBarStyle != null) {
 
             switch(progressBarStyle) {
@@ -95,10 +104,18 @@ public class ProgressView extends RelativeLayout {
 
         if (offset != DEFAULT_OFFSET) {
 
-            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) progressBar.getLayoutParams();
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) progressBar.getLayoutParams();
+
             params.setMargins(params.leftMargin, offset, params.rightMargin, params.bottomMargin);
+            params.width = LayoutParams.MATCH_PARENT;
+            params.height = LayoutParams.WRAP_CONTENT;
 
             progressBar.setLayoutParams(params);
+        }
+
+        if (progressBar != null) {
+
+            rlProgressBarContainer.addView(progressBar);
         }
     }
 

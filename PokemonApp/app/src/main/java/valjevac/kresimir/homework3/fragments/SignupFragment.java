@@ -26,6 +26,7 @@ import retrofit2.Response;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.activities.LoginActivity;
 import valjevac.kresimir.homework3.activities.MainActivity;
+import valjevac.kresimir.homework3.custom.ProgressView;
 import valjevac.kresimir.homework3.helpers.ApiErrorHelper;
 import valjevac.kresimir.homework3.helpers.NetworkHelper;
 import valjevac.kresimir.homework3.helpers.SharedPreferencesHelper;
@@ -57,8 +58,8 @@ public class SignupFragment extends Fragment {
     @BindView(R.id.rl_signup_form_container)
     RelativeLayout rlSignupFormContainer;
 
-    @BindView(R.id.rl_signup_progress_container)
-    RelativeLayout rlSignupProgressContainer;
+    @BindView(R.id.pv_signup)
+    ProgressView progressView;
 
     Call<BaseResponse<Data<User>>> registerUserCall;
 
@@ -306,11 +307,11 @@ public class SignupFragment extends Fragment {
     private void displayProgress(boolean isVisible) {
         if (isVisible) {
             rlSignupFormContainer.setVisibility(View.GONE);
-            rlSignupProgressContainer.setVisibility(View.VISIBLE);
+            progressView.show();
         }
         else {
             rlSignupFormContainer.setVisibility(View.VISIBLE);
-            rlSignupProgressContainer.setVisibility(View.GONE);
+            progressView.hide();
         }
     }
 }

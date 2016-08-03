@@ -240,32 +240,13 @@
         app:layout_anchorGravity="bottom|right|end"
         app:backgroundTint="@color/colorPrimary"/>
 
-    <RelativeLayout
-        android:id="@+id/rl_add_pokemon_progress_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_anchor="@id/rl_body"
-        app:layout_anchorGravity="center"
+    <valjevac.kresimir.homework3.custom.ProgressView
+        android:id="@+id/pv_add_pokemon"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
         android:visibility="gone"
-        tools:visibility="gone">
-
-        <TextView
-            android:id="@+id/tv_add_pokemon_progress_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/saving_pokemon"
-            android:layout_centerHorizontal="true"
-            android:textSize="@dimen/text_size_large"/>
-
-        <ProgressBar
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/horizontal_progress_bar_height"
-            android:layout_below="@id/tv_add_pokemon_progress_text"
-            android:indeterminate="true"
-            android:layout_alignStart="@id/tv_add_pokemon_progress_text"
-            android:layout_alignLeft="@id/tv_add_pokemon_progress_text"
-            android:layout_alignEnd="@id/tv_add_pokemon_progress_text"
-            android:layout_alignRight="@id/tv_add_pokemon_progress_text"
-            style="?android:attr/progressBarStyleHorizontal" />
-    </RelativeLayout>
+        tools:visibility="gone"
+        app:text="@string/saving_pokemon"
+        app:progressStyle="horizontal"/>
 </android.support.design.widget.CoordinatorLayout>

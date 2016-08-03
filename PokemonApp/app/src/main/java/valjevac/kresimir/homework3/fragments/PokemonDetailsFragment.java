@@ -32,9 +32,9 @@ public class PokemonDetailsFragment extends Fragment {
 
     private OnFragmentInteractionListener listener;
 
-    private static PokemonDetailsFragment instance;
-
     private static final String POKEMON_DETAILS = "PokemonDetails";
+
+    private static final String DECIMAL_FORMAT = "0.00";
 
     @BindView(R.id.tv_details_pokemon_name)
     TextView tvName;
@@ -73,43 +73,17 @@ public class PokemonDetailsFragment extends Fragment {
     public PokemonDetailsFragment() { }
 
     public static PokemonDetailsFragment newInstance() {
-
-        if (instance == null) {
-            instance = new PokemonDetailsFragment();
-            return instance;
-        }
-
-        return instance;
-    }
-
-    public static PokemonDetailsFragment newInstance(Pokemon pokemon) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable(POKEMON_DETAILS, pokemon);
-
-        if (instance == null) {
-            instance = new PokemonDetailsFragment();
-            instance.setArguments(bundle);
-            return instance;
-        }
-
-        instance.setArguments(bundle);
-        return instance;
+        return new PokemonDetailsFragment();
     }
 
     public static PokemonDetailsFragment newInstance(Pokemon pokemon, boolean isDeviceTablet) {
+        PokemonDetailsFragment fragment = new PokemonDetailsFragment();
+
         Bundle bundle = new Bundle();
         bundle.putParcelable(POKEMON_DETAILS, pokemon);
+        fragment.setArguments(bundle);
 
-        if (instance == null) {
-            instance = new PokemonDetailsFragment();
-            instance.setArguments(bundle);
-
-            return instance;
-        }
-
-        instance.getArguments().putAll(bundle);
-
-        return instance;
+        return fragment;
     }
 
     public interface OnFragmentInteractionListener {
@@ -131,13 +105,13 @@ public class PokemonDetailsFragment extends Fragment {
             Pokemon pokemon = arguments.getParcelable(POKEMON_DETAILS);
 
             if (pokemon != null) {
-                DecimalFormat decimalFormat = new DecimalFormat("0.00");
+                DecimalFormat decimalFormat = new DecimalFormat(DECIMAL_FORMAT);
                 double weight = pokemon.getWeight();
                 double height = pokemon.getHeight();
 
                 String heightFixed = transformHeightString(decimalFormat.format(height));
-                String weightFixed = decimalFormat.format(weight);
-                String gender = (pokemon.getGender() == 1) ? "M" : "F";
+                String weightFixed = decimalFormat.format(weight) + R.string.weight_unit;
+                String gender = (pokemon.getGender() == 1) ? getString(R.string.gender_male) : getString(R.string.gender_female);
 
                 tvName.setText(pokemon.getName());
                 tvDescription.setText(pokemon.getDescription());

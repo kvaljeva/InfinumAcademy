@@ -49,6 +49,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.activities.MainActivity;
+import valjevac.kresimir.homework3.custom.ProgressView;
 import valjevac.kresimir.homework3.helpers.BitmapHelper;
 import valjevac.kresimir.homework3.helpers.NetworkHelper;
 import valjevac.kresimir.homework3.models.BaseResponse;
@@ -136,8 +137,8 @@ public class AddPokemonFragment extends Fragment {
     @BindView(R.id.sv_body_container)
     NestedScrollView svBodyContainer;
 
-    @BindView(R.id.rl_add_pokemon_progress_container)
-    RelativeLayout rlProgressContainer;
+    @BindView(R.id.pv_add_pokemon)
+    ProgressView progressView;
 
     Call<BaseResponse<Data<Pokemon>>> insertPokemonCall;
 
@@ -477,7 +478,7 @@ public class AddPokemonFragment extends Fragment {
         }
         else {
 
-            showProgress(true);
+            displayProgress(true);
 
             String pokemonName = etPokemonName.getText().toString();
             String pokemonDesc = etPokemonDescription.getText().toString();
@@ -538,7 +539,7 @@ public class AddPokemonFragment extends Fragment {
         return path;
     }
 
-    private void showProgress(boolean isVisible) {
+    private void displayProgress(boolean isVisible) {
 
         if (isVisible) {
             if (ablHeaderAddPokemon != null && svBodyContainer != null && fabAddImage != null) {
@@ -548,7 +549,7 @@ public class AddPokemonFragment extends Fragment {
                 fabAddImage.setVisibility(View.GONE);
             }
 
-            rlProgressContainer.setVisibility(View.VISIBLE);
+            progressView.show();
         }
         else {
             if (ablHeaderAddPokemon != null && svBodyContainer != null && fabAddImage != null) {
@@ -558,14 +559,14 @@ public class AddPokemonFragment extends Fragment {
                 fabAddImage.setVisibility(View.VISIBLE);
             }
 
-            rlProgressContainer.setVisibility(View.GONE);
+            progressView.hide();
         }
     }
 
     private void insertPokemon(Pokemon pokemon) {
         int[] moves = new int[0];
         int[] category = new int[0];
-        
+
         String filePath = getFilePath(this.imageUri);
         File imageFile;
         RequestBody body = null;
@@ -601,7 +602,7 @@ public class AddPokemonFragment extends Fragment {
             public void onFailure(Call<BaseResponse<Data<Pokemon>>> call, Throwable t) {
                 Toast.makeText(getActivity(), R.string.pokemon_save_failed, Toast.LENGTH_SHORT).show();
 
-                showProgress(false);
+                displayProgress(false);
             }
         });
     }

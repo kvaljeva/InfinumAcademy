@@ -14,16 +14,15 @@
         android:textSize="@dimen/text_size_large"
         tools:text="Loading progress"/>
 
-    <ProgressBar
-        android:id="@+id/pb_progress_view"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/rl_progress_bar_container"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_alignStart="@id/tv_text_progress_view"
-        android:layout_alignLeft="@id/tv_text_progress_view"
-        android:layout_alignEnd="@id/tv_text_progress_view"
-        android:layout_alignRight="@id/tv_text_progress_view"
-        android:layout_marginTop="@dimen/margin_xxx_high"
-        android:indeterminate="true" />
+        android:layout_marginRight="@dimen/margin_xxx_high"
+        android:layout_marginLeft="@dimen/margin_xxx_high"
+        android:layout_below="@id/tv_text_progress_view"
+        android:orientation="vertical">
+
+    </LinearLayout>
 
 </RelativeLayout>

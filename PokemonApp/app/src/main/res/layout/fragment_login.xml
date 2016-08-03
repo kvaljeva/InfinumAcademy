@@ -134,5 +134,6 @@
         android:layout_marginTop="@dimen/margin_xxx_high"
         android:visibility="gone"
         tools:visibility="gone"
-        app:text="Signing in"/>
+        app:text="@string/signing_in_progress_text"
+        app:progressStyle="spinner"/>
 </RelativeLayout>

@@ -342,7 +342,7 @@ public class LoginFragment extends Fragment {
 
         translation = new TranslateAnimation(0, 0, parentCenter, -nextY);
         translation.setInterpolator(new AccelerateInterpolator());
-        translation.setDuration(1500);
+        translation.setDuration(1200);
         translation.setFillAfter(true);
 
         translation.setAnimationListener(new Animation.AnimationListener() {
