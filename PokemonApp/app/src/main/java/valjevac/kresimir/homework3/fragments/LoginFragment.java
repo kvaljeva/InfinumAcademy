@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -215,7 +216,6 @@ public class LoginFragment extends Fragment {
     public void sendLoginInfo() {
 
         if (!NetworkHelper.isNetworkAvailable()) {
-
             Toast.makeText(getActivity(), R.string.no_internet_conn, Toast.LENGTH_SHORT).show();
             return;
         }
@@ -295,6 +295,24 @@ public class LoginFragment extends Fragment {
         return false;
     }
 
+    private boolean validateInputFields() {
+        if (!checkForEmptyFields()) {
+            return false;
+        }
+
+        if (!validateEmailAddress(etUserEmail.getText().toString())) {
+            Toast.makeText(getActivity(), "Wrong email format", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if (etUserPassword.length() < 8) {
+            Toast.makeText(getActivity(), "Password has to be at least 8 characters long", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        return true;
+    }
+
     private EditText validateEditTexts(ViewGroup v) {
 
         EditText invalidEditText = null;
@@ -321,17 +339,11 @@ public class LoginFragment extends Fragment {
         return invalidEditText;
     }
 
-    private boolean validateEmailAddress() {
-        String regex = "\\A[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@\n" +
-                "(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\z";
-
-        Pattern pattern = Pattern.compile(regex);
-        String email = etUserEmail.getText().toString();
-
-        return pattern.matcher(email).matches();
+    private boolean validateEmailAddress(String email) {
+        return !TextUtils.isEmpty(email) && Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
-    private boolean validateInputFields() {
+    private boolean checkForEmptyFields() {
         EditText emptyEditText = validateEditTexts(rlLoginFormContainer);
 
         if (emptyEditText != null) {

@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.text.method.PasswordTransformationMethod;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -189,7 +190,7 @@ public class SignupFragment extends Fragment {
         return password.equals(confirmation);
     }
 
-    private boolean validateInputFields() {
+    private boolean checkForEmptyFields() {
         EditText emptyEditText = validateEditTexts(rlSignupFormContainer);
 
         if (emptyEditText != null) {
@@ -197,14 +198,38 @@ public class SignupFragment extends Fragment {
             emptyEditText.requestFocus();
         }
 
+        return emptyEditText == null;
+    }
+
+    private boolean validateEmailAddress(String email) {
+        return !TextUtils.isEmpty(email) && Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    }
+
+    private boolean validateInputFields() {
+
+        if (!checkForEmptyFields()) {
+            return false;
+        }
+
+        if (!validateEmailAddress(etEmail.getText().toString())) {
+            Toast.makeText(getActivity(), "Wrong email format", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if (etPassword.length() < 8) {
+            Toast.makeText(getActivity(), "Password has to be at least 8 characters long", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
         boolean passwordsMatch = isPasswordMatching(etPassword.getText().toString(), etPasswordConfirm.getText().toString());
 
         if (!TextUtils.isEmpty(etPassword.getText()) && !passwordsMatch) {
             Toast.makeText(getActivity(), "Passwords do not match.", Toast.LENGTH_SHORT).show();
             etPassword.requestFocus();
+            return false;
         }
 
-        return emptyEditText == null && passwordsMatch;
+        return true;
     }
 
     @OnTouch(R.id.et_signup_user_password)

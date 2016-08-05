@@ -256,6 +256,10 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
     public void onStop() {
         super.onStop();
 
+        if (srlRecyclerContainer.isRefreshing()) {
+            srlRecyclerContainer.setRefreshing(false);
+        }
+
         if (pokemonListCall != null) {
             pokemonListCall.cancel();
         }
