@@ -50,15 +50,21 @@ public class Pokemon extends BaseModel implements Parcelable, Serializable {
     private String image;
 
     @Column
+    @SerializedName("gender")
+    private String gender;
+
+    @SerializedName("voted-on")
+    private int vote;
+
     @SerializedName("gender_id")
-    private int gender;
+    private int genderId;
 
     public Pokemon() {
 
     }
 
     public Pokemon(String name, String description, float height, float weight,
-                   String type, String moves, String image, int gender) {
+                   String type, String moves, String image, int genderId) {
 
         this.name = name;
         this.description = description;
@@ -67,7 +73,7 @@ public class Pokemon extends BaseModel implements Parcelable, Serializable {
         this.type = type;
         this.moves = moves;
         this.image = image;
-        this.gender = gender;
+        this.genderId = genderId;
     }
 
     private Pokemon(Parcel parcel) {
@@ -78,7 +84,9 @@ public class Pokemon extends BaseModel implements Parcelable, Serializable {
         this.type = parcel.readString();
         this.moves = parcel.readString();
         this.image = parcel.readParcelable(Uri.class.getClassLoader());
-        this.gender = parcel.readInt();
+        this.gender = parcel.readString();
+        this.vote = parcel.readInt();
+        this.genderId = parcel.readInt();
     }
 
     public int getId() {
@@ -145,12 +153,28 @@ public class Pokemon extends BaseModel implements Parcelable, Serializable {
         this.image = image;
     }
 
-    public int getGender() {
+    public String getGender() {
         return gender;
     }
 
-    public void setGender(int gender) {
+    public void setGender(String gender) {
         this.gender = gender;
+    }
+
+    public int getGenderId() {
+        return genderId;
+    }
+
+    public void setGenderId(int gender) {
+        this.genderId = gender;
+    }
+
+    public int getVote() {
+        return vote;
+    }
+
+    public void setVote(int vote) {
+        this.vote = vote;
     }
 
     @Override
@@ -167,7 +191,9 @@ public class Pokemon extends BaseModel implements Parcelable, Serializable {
         parcel.writeString(type);
         parcel.writeString(moves);
         parcel.writeString(image);
-        parcel.writeInt(gender);
+        parcel.writeString(gender);
+        parcel.writeInt(vote);
+        parcel.writeInt(genderId);
     }
 
     public static final Parcelable.Creator<Pokemon> CREATOR = new Parcelable.Creator<Pokemon>() {

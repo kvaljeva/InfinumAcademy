@@ -592,7 +592,7 @@ public class AddPokemonFragment extends Fragment implements FragmentUtils {
                 pokemon.getName(),
                 pokemon.getHeight(),
                 pokemon.getWeight(),
-                pokemon.getGender(),
+                pokemon.getGenderId(),
                 true,
                 pokemon.getDescription(),
                 category,

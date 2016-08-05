@@ -10,6 +10,7 @@ import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
+import retrofit2.http.Path;
 import valjevac.kresimir.homework3.models.BaseResponse;
 import valjevac.kresimir.homework3.models.Data;
 import valjevac.kresimir.homework3.models.Pokemon;
@@ -46,4 +47,7 @@ public interface PokemonService {
             @Part("data[attributes][move_ids][]") int[] moves,
             @Part("data[attributes][image]\"; filename=\"pokemon.jpg") RequestBody image
     );
+
+    @POST("/api/v1/pokemons/{id}/upvote")
+    Call<BaseResponse<Data<Pokemon>>> votePokemon(@Path("id") int pokemonId);
 }

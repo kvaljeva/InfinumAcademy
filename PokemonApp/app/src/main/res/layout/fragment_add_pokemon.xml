@@ -191,6 +191,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/rb_male_text"
                     android:textColor="@color/secondaryText"
+                    android:checked="true"
                     app:buttonTint="@color/colorPrimary"
                     android:layout_marginRight="@dimen/margin_high"
                     android:layout_marginEnd="@dimen/margin_high"/>

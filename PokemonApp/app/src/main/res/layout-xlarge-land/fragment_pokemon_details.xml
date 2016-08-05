@@ -163,7 +163,7 @@
                     android:layout_weight="1"
                     android:textSize="@dimen/text_size_large"
                     android:textColor="@color/pokemonDetails"
-                    android:text="@string/tv_abilities_heading"/>
+                    android:text="@string/tv_moves_heading"/>
 
                 <TextView
                     android:id="@+id/tv_pokemon_gender"

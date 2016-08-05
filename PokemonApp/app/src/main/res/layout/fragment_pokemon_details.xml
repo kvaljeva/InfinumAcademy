@@ -121,7 +121,7 @@
                     android:layout_weight="1"
                     android:textSize="@dimen/text_size_medium"
                     android:textColor="@color/pokemonDetails"
-                    android:text="@string/et_pokemon_type"/>
+                    android:text="@string/tv_gender_heading"/>
             </LinearLayout>
 
             <LinearLayout
@@ -149,7 +149,7 @@
                     tools:text="Value"/>
 
                 <TextView
-                    android:id="@+id/tv_pokemon_category_value"
+                    android:id="@+id/tv_pokemon_gender_value"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -158,7 +158,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/ll_general_info_value_lower"
+                android:id="@+id/ll_general_info_lower"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -173,7 +173,7 @@
                     android:layout_weight="1"
                     android:textSize="@dimen/text_size_medium"
                     android:textColor="@color/pokemonDetails"
-                    android:text="@string/tv_abilities_heading"/>
+                    android:text="@string/et_pokemon_type"/>
 
                 <TextView
                     android:id="@+id/tv_pokemon_gender"
@@ -182,18 +182,19 @@
                     android:layout_weight="1"
                     android:textSize="@dimen/text_size_medium"
                     android:textColor="@color/pokemonDetails"
-                    android:text="@string/tv_gender_heading"/>
+                    android:text="@string/tv_moves_heading"/>
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/ll_general_info_values_lower"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_below="@id/ll_general_info_value_lower"
+                android:layout_below="@id/ll_general_info_lower"
                 android:weightSum="3">
 
                 <TextView
-                    android:id="@+id/tv_pokemon_abilities_value"
+                    android:id="@+id/tv_pokemon_type_value"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -201,13 +202,94 @@
                     tools:text="Value"/>
 
                 <TextView
-                    android:id="@+id/tv_pokemon_gender_value"
+                    android:id="@+id/tv_pokemon_moves_value"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:textSize="@dimen/text_size_normal"
                     tools:text="Value"/>
             </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_like_dislike_container"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/ll_general_info_values_lower"
+                android:layout_marginTop="@dimen/margin_x_high">
+
+                <ImageButton
+                    android:id="@+id/btn_like"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_like_off"
+                    android:contentDescription="@string/like_pokemon_icon"
+                    android:layout_marginLeft="@dimen/margin_xxx_high"
+                    android:layout_marginStart="@dimen/margin_xxx_high"
+                    android:background="@color/white"
+                    android:layout_weight="1"/>
+
+                <ImageButton
+                    android:id="@+id/btn_dislike"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_dislike_off"
+                    android:contentDescription="@string/dislike_pokemon_icon"
+                    android:layout_marginRight="@dimen/margin_xxx_high"
+                    android:layout_marginEnd="@dimen/margin_xxx_high"
+                    android:background="@color/white"
+                    android:layout_weight="1"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_like_dislike_container_labels"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/ll_like_dislike_container"
+                android:layout_marginLeft="@dimen/margin_xxx_high"
+                android:layout_marginRight="@dimen/margin_xxx_high"
+                android:layout_marginTop="@dimen/margin_small">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/like_pokemon"
+                    android:layout_weight="1"
+                    android:gravity="center"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/dislike_pokemon"
+                    android:layout_weight="1"
+                    android:gravity="center"/>
+            </LinearLayout>
         </RelativeLayout>
     </android.support.v4.widget.NestedScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="end|bottom"
+        android:background="@color/white"
+        android:weightSum="1">
+
+        <EditText
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/enter_comment_hint"
+            android:layout_marginLeft="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_medium"
+            style="@style/EditTextTheme"
+            android:layout_weight="1"/>
+        
+        <ImageButton
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_send"
+            android:background="@color/white"
+            android:layout_marginTop="@dimen/margin_medium"/>
+    </LinearLayout>
 </android.support.design.widget.CoordinatorLayout>

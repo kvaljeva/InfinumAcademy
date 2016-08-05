@@ -19,7 +19,7 @@
     <string name="rb_male_text">Male</string>
     <string name="rb_female_text">Female</string>
     <string name="iv_pokemon_details_image">iv_pokemon_details_image</string>
-    <string name="tv_abilities_heading">Abilities</string>
+    <string name="tv_moves_heading">Moves</string>
     <string name="tv_gender_heading">Gender</string>
     <string name="tv_gender_add_pokemon">Gender:</string>
     <string name="empty_list_state_image">Empty list state image</string>
@@ -62,4 +62,9 @@
     <string name="pokemon_save_failed">Failed to create Pokemon</string>
     <string name="password_short_warning">Password has to be 8 characters long</string>
     <string name="loading_pokemon_list">Loading pokemon list...</string>
+    <string name="like_pokemon_icon">Like pokemon icon</string>
+    <string name="dislike_pokemon_icon">Dislike pokemon icon</string>
+    <string name="like_pokemon">Like</string>
+    <string name="dislike_pokemon">Dislike</string>
+    <string name="enter_comment_hint">Enter your comment</string>
 </resources>
