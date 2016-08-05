@@ -13,6 +13,7 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -28,6 +30,7 @@ import android.widget.Toast;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -38,9 +41,11 @@ import retrofit2.Response;
 import valjevac.kresimir.homework3.BuildConfig;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.activities.MainActivity;
+import valjevac.kresimir.homework3.helpers.ApiErrorHelper;
 import valjevac.kresimir.homework3.helpers.BitmapHelper;
 import valjevac.kresimir.homework3.helpers.NetworkHelper;
 import valjevac.kresimir.homework3.models.BaseResponse;
+import valjevac.kresimir.homework3.models.Comment;
 import valjevac.kresimir.homework3.models.Data;
 import valjevac.kresimir.homework3.models.Pokemon;
 import valjevac.kresimir.homework3.network.ApiManager;
@@ -93,11 +98,20 @@ public class PokemonDetailsFragment extends Fragment {
     @BindView(R.id.btn_dislike)
     ImageButton btnDislike;
 
-    Pokemon pokemon;
+    @BindView(R.id.et_comment_body)
+    EditText etCommentBody;
+
+    private ArrayList<Comment> commentList;
+
+    private Pokemon pokemon;
+
+    ProgressDialog progressDialog;
 
     Call<BaseResponse<Data<Pokemon>>> upvotePokemonCall;
 
-    ProgressDialog progressDialog;
+    Call<BaseResponse<Data<Comment>>> createCommentCall;
+
+    Call<BaseResponse<ArrayList<Data<Comment>>>> getCommentsCall;
 
     public PokemonDetailsFragment() { }
 
@@ -127,6 +141,8 @@ public class PokemonDetailsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_pokemon_details, container, false);
         unbinder = ButterKnife.bind(this, view);
 
+        commentList = new ArrayList<>();
+
         setUpToolbar();
 
         Bundle arguments = getArguments();
@@ -155,6 +171,8 @@ public class PokemonDetailsFragment extends Fragment {
             }
         }
 
+        fetchCommentList();
+
         return view;
     }
 
@@ -164,6 +182,14 @@ public class PokemonDetailsFragment extends Fragment {
 
         if (upvotePokemonCall != null) {
             upvotePokemonCall.cancel();
+        }
+
+        if (createCommentCall != null) {
+            createCommentCall.cancel();
+        }
+
+        if (getCommentsCall != null) {
+            getCommentsCall.cancel();
         }
     }
 
@@ -269,10 +295,90 @@ public class PokemonDetailsFragment extends Fragment {
         setButtonState(-1);
     }
 
-    private void sendUpvoteRequest() {
+    public boolean checkIfNetworkAvailable() {
 
         if (!NetworkHelper.isNetworkAvailable()) {
             Toast.makeText(getActivity(), R.string.no_internet_conn, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        return true;
+    }
+
+    private void fetchCommentList() {
+
+        if (!checkIfNetworkAvailable()) {
+            return;
+        }
+
+        getCommentsCall = ApiManager.getService().getComments(pokemon.getId());
+        getCommentsCall.enqueue(new BaseCallback<BaseResponse<ArrayList<Data<Comment>>>>() {
+            @Override
+            public void onUnknownError(@Nullable String error) {
+
+                if (ApiErrorHelper.createError(error)) {
+                    Toast.makeText(getActivity(), ApiErrorHelper.getFullError(0), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onSuccess(BaseResponse<ArrayList<Data<Comment>>> body, Response<BaseResponse<ArrayList<Data<Comment>>>> response) {
+
+                for (Data data : body.getData()) {
+                    commentList.add((Comment) data.getAttributes());
+                }
+            }
+        });
+    }
+
+    @OnClick(R.id.btn_create_comment)
+    public void createComment() {
+
+        String commentBody = etCommentBody.getText().toString();
+
+        if (TextUtils.isEmpty(commentBody)) {
+            Toast.makeText(getActivity(), R.string.empty_coment_error, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        sendComment(commentBody);
+    }
+
+    private void sendComment(String commentBody) {
+
+        if (!checkIfNetworkAvailable()) {
+            return;
+        }
+
+        showProgressDialog(true);
+
+        Comment comment = new Comment(commentBody);
+        Data<Comment> data = new Data<>(comment);
+        BaseResponse<Data<Comment>> request = new BaseResponse<>(data);
+
+        createCommentCall = ApiManager.getService().insertComment(pokemon.getId(), request);
+        createCommentCall.enqueue(new BaseCallback<BaseResponse<Data<Comment>>>() {
+            @Override
+            public void onUnknownError(@Nullable String error) {
+                showProgressDialog(false);
+
+                if (ApiErrorHelper.createError(error)) {
+                    Toast.makeText(getActivity(), ApiErrorHelper.getFullError(0), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onSuccess(BaseResponse<Data<Comment>> body, Response<BaseResponse<Data<Comment>>> response) {
+                showProgressDialog(false);
+
+                commentList.add(body.getData().getAttributes());
+            }
+        });
+    }
+
+    private void sendUpvoteRequest() {
+
+        if (!checkIfNetworkAvailable()) {
             return;
         }
 

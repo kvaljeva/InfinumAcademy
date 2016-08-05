@@ -26,6 +26,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -39,6 +40,7 @@ import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.activities.MainActivity;
 import valjevac.kresimir.homework3.adapters.PokemonAdapter;
 import valjevac.kresimir.homework3.database.SQLitePokemonList;
+import valjevac.kresimir.homework3.helpers.ApiErrorHelper;
 import valjevac.kresimir.homework3.helpers.NetworkHelper;
 import valjevac.kresimir.homework3.helpers.SharedPreferencesHelper;
 import valjevac.kresimir.homework3.interfaces.PokemonList;
@@ -456,7 +458,10 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
         pokemonListCallback = new BaseCallback<BaseResponse<ArrayList<Data<Pokemon>>>>() {
             @Override
             public void onUnknownError(@Nullable String error) {
-                Log.e("API_POKEMON_LIST", error);
+
+                if (ApiErrorHelper.createError(error)) {
+                    Toast.makeText(getActivity(), ApiErrorHelper.getFullError(0), Toast.LENGTH_SHORT).show();
+                }
 
                 loadCachedList();
             }

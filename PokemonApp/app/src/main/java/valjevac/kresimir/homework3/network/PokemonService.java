@@ -12,6 +12,7 @@ import retrofit2.http.POST;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
 import valjevac.kresimir.homework3.models.BaseResponse;
+import valjevac.kresimir.homework3.models.Comment;
 import valjevac.kresimir.homework3.models.Data;
 import valjevac.kresimir.homework3.models.Pokemon;
 import valjevac.kresimir.homework3.models.User;
@@ -50,4 +51,13 @@ public interface PokemonService {
 
     @POST("/api/v1/pokemons/{id}/upvote")
     Call<BaseResponse<Data<Pokemon>>> votePokemon(@Path("id") int pokemonId);
+
+    @POST("/api/v1/pokemons/{pokemon_id}/comments")
+    Call<BaseResponse<Data<Comment>>> insertComment(
+            @Path("pokemon_id") int pokemonId,
+            @Body BaseResponse<Data<Comment>> request
+    );
+
+    @GET("/api/v1/pokemons/{pokemon_id}/comments")
+    Call<BaseResponse<ArrayList<Data<Comment>>>> getComments(@Path("pokemon_id") int pokemonId);
 }

@@ -26,6 +26,10 @@ public class Data<T> implements Serializable {
         this.attributes = attributes;
     }
 
+    public Data(T attributes) {
+        this.attributes = attributes;
+    }
+
     public int getId() {
         return id;
     }

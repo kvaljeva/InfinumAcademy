@@ -67,4 +67,7 @@
     <string name="like_pokemon">Like</string>
     <string name="dislike_pokemon">Dislike</string>
     <string name="enter_comment_hint">Enter your comment</string>
+    <string name="comments_label">Comments</string>
+    <string name="btn_create_comment_desc">Button create comment icon</string>
+    <string name="empty_coment_error">Cannot send empty comment</string>
 </resources>
