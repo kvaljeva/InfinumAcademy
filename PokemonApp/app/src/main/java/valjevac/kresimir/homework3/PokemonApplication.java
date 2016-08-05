@@ -3,6 +3,9 @@ package valjevac.kresimir.homework3;
 import android.app.Application;
 import android.content.Context;
 
+import com.raizlabs.android.dbflow.config.FlowConfig;
+import com.raizlabs.android.dbflow.config.FlowManager;
+
 public class PokemonApplication extends Application {
     public static Context context;
 
@@ -13,8 +16,9 @@ public class PokemonApplication extends Application {
         super.onCreate();
 
         instance = this;
-
         PokemonApplication.context = getApplicationContext();
+
+        FlowManager.init(new FlowConfig.Builder(this).build());
     }
 
     public static PokemonApplication getInstance() {

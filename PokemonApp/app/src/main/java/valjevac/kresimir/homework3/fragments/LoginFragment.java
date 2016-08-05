@@ -1,19 +1,27 @@
 package valjevac.kresimir.homework3.fragments;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.ScaleAnimation;
+import android.view.animation.TranslateAnimation;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
+
+import java.util.regex.Pattern;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -23,10 +31,12 @@ import butterknife.Unbinder;
 import retrofit2.Call;
 import retrofit2.Response;
 import valjevac.kresimir.homework3.R;
-import valjevac.kresimir.homework3.activities.PokemonListActivity;
+import valjevac.kresimir.homework3.activities.StarterActivity;
+import valjevac.kresimir.homework3.custom.ProgressView;
 import valjevac.kresimir.homework3.helpers.ApiErrorHelper;
 import valjevac.kresimir.homework3.helpers.NetworkHelper;
 import valjevac.kresimir.homework3.helpers.SharedPreferencesHelper;
+import valjevac.kresimir.homework3.interfaces.FragmentUtils;
 import valjevac.kresimir.homework3.models.BaseResponse;
 import valjevac.kresimir.homework3.models.Data;
 import valjevac.kresimir.homework3.models.User;
@@ -35,6 +45,7 @@ import valjevac.kresimir.homework3.network.BaseCallback;
 
 public class LoginFragment extends Fragment {
     private Unbinder unbinder;
+
     public OnFragmentInteractionListener listener;
 
     @BindView(R.id.et_user_email)
@@ -46,11 +57,39 @@ public class LoginFragment extends Fragment {
     @BindView(R.id.rl_login_container)
     RelativeLayout rlLoginContainer;
 
+    @BindView(R.id.rl_login_form_container)
+    RelativeLayout rlLoginFormContainer;
+
+    @BindView(R.id.iv_login_pokemon_logo)
+    ImageView ivPokemonLogo;
+
+    @BindView(R.id.iv_login_pokeball_image)
+    ImageView ivPokeballLogin;
+
+    @BindView(R.id.pv_login)
+    ProgressView progressView;
+
     private boolean isPasswordVisible;
+
+    private boolean animateSplash;
+
+    private boolean argumentsConsumed = false;
+
+    private boolean isUserAuthorized;
 
     private final static int CURRENT_ERROR = 0;
 
     private final static int DRAWABLE_RIGHT_ICON = 2;
+
+    private final static int CENTER_OFFSET = 30;
+
+    private final static int TRANSLATE_DURATION = 1200;
+
+    private final static int SCALE_DURATION = 500;
+
+    private final static int ACTION_DELAY = 150;
+
+    private static final String SPLASH_ANIMATION = "SplashAnimation";
 
     Call<BaseResponse<Data<User>>> loginUserCall;
 
@@ -63,10 +102,36 @@ public class LoginFragment extends Fragment {
         void onLoginButtonClick(boolean isSuccess);
 
         void onSignupButtonClick();
+
+        void onSessionExists();
     }
 
-    public static LoginFragment newInstance() {
-        return new LoginFragment();
+    public static LoginFragment newInstance(boolean animateSplash) {
+        LoginFragment fragment = new LoginFragment();
+
+        Bundle args = new Bundle();
+        args.putBoolean(StarterActivity.SPLASH_ANIMATION, animateSplash);
+        fragment.setArguments(args);
+
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            animateSplash = savedInstanceState.getBoolean(SPLASH_ANIMATION);
+        }
+        else {
+
+            Bundle arguments = getArguments();
+            if (arguments != null && !argumentsConsumed && !animateSplash) {
+
+                animateSplash = arguments.getBoolean(StarterActivity.SPLASH_ANIMATION);
+                argumentsConsumed = true;
+            }
+        }
     }
 
     @Nullable
@@ -77,6 +142,20 @@ public class LoginFragment extends Fragment {
         unbinder = ButterKnife.bind(this, view);
 
         isPasswordVisible = false;
+        isUserAuthorized = false;
+
+        String email = SharedPreferencesHelper.getString(SharedPreferencesHelper.EMAIL);
+        String authToken = SharedPreferencesHelper.getString(SharedPreferencesHelper.AUTH_TOKEN);
+
+        isUserAuthorized = !TextUtils.isEmpty(email) && !TextUtils.isEmpty(authToken);
+
+        view.post(new Runnable() {
+            @Override
+            public void run() {
+
+                loadSplashAnimation();
+            }
+        });
 
         return view;
     }
@@ -120,6 +199,12 @@ public class LoginFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putBoolean(SPLASH_ANIMATION, animateSplash);
+    }
 
     @OnClick(R.id.btn_register)
     public void openRegistrationForm() {
@@ -129,9 +214,17 @@ public class LoginFragment extends Fragment {
     @OnClick(R.id.btn_log_in)
     public void sendLoginInfo() {
 
+        if (!NetworkHelper.isNetworkAvailable()) {
+
+            Toast.makeText(getActivity(), R.string.no_internet_conn, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if (!validateInputFields()) {
             return;
         }
+
+        displayProgress(true);
 
         sendUserData(etUserEmail.getText().toString(), etUserPassword.getText().toString());
     }
@@ -146,6 +239,10 @@ public class LoginFragment extends Fragment {
         loginUserCall.enqueue(new BaseCallback<BaseResponse<Data<User>>>() {
             @Override
             public void onUnknownError(@Nullable String error) {
+                displayProgress(false);
+
+                listener.onLoginButtonClick(false);
+
                 if (!NetworkHelper.isNetworkAvailable()) {
 
                     Toast.makeText(getActivity(), R.string.no_internet_conn, Toast.LENGTH_SHORT).show();
@@ -156,19 +253,12 @@ public class LoginFragment extends Fragment {
 
                     Toast.makeText(getActivity(), ApiErrorHelper.getFullError(CURRENT_ERROR), Toast.LENGTH_SHORT).show();
                 }
-
-                listener.onLoginButtonClick(false);
             }
 
             @Override
             public void onSuccess(BaseResponse<Data<User>> body, Response<BaseResponse<Data<User>>> response) {
-                SharedPreferencesHelper.setInt(body.getData().getId(), SharedPreferencesHelper.USER_ID);
-                SharedPreferencesHelper.setString(body.getData().getAttributes().getAuthToken(), SharedPreferencesHelper.AUTH_TOKEN);
-                SharedPreferencesHelper.setString(body.getData().getAttributes().getUsername(), SharedPreferencesHelper.USER);
-                SharedPreferencesHelper.setString(body.getData().getAttributes().getEmail(), SharedPreferencesHelper.EMAIL);
-
-                Intent intent = new Intent(getActivity(), PokemonListActivity.class);
-                startActivity(intent);
+                SharedPreferencesHelper.login(body.getData().getId(), body.getData().getAttributes().getAuthToken(),
+                        body.getData().getAttributes().getUsername(), body.getData().getAttributes().getEmail());
 
                 listener.onLoginButtonClick(true);
             }
@@ -185,13 +275,15 @@ public class LoginFragment extends Fragment {
 
                 if (isPasswordVisible) {
                     etUserPassword.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_visibility_off, 0);
-                    etUserPassword.setTransformationMethod(new PasswordTransformationMethod());
+                    etUserPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                    etUserPassword.setSelection(etUserPassword.length());
 
                     isPasswordVisible = false;
                 }
                 else {
                     etUserPassword.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_visibility_on, 0);
-                    etUserPassword.setTransformationMethod(null);
+                    etUserPassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                    etUserPassword.setSelection(etUserPassword.length());
 
                     isPasswordVisible = true;
                 }
@@ -229,8 +321,18 @@ public class LoginFragment extends Fragment {
         return invalidEditText;
     }
 
+    private boolean validateEmailAddress() {
+        String regex = "\\A[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@\n" +
+                "(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\z";
+
+        Pattern pattern = Pattern.compile(regex);
+        String email = etUserEmail.getText().toString();
+
+        return pattern.matcher(email).matches();
+    }
+
     private boolean validateInputFields() {
-        EditText emptyEditText = validateEditTexts(rlLoginContainer);
+        EditText emptyEditText = validateEditTexts(rlLoginFormContainer);
 
         if (emptyEditText != null) {
             Toast.makeText(getActivity(), R.string.empty_field_warning, Toast.LENGTH_SHORT).show();
@@ -238,5 +340,106 @@ public class LoginFragment extends Fragment {
         }
 
         return emptyEditText == null;
+    }
+
+    private void displayProgress(boolean isVisible) {
+        if (isVisible) {
+            rlLoginFormContainer.setVisibility(View.GONE);
+            progressView.show();
+        }
+        else {
+            rlLoginFormContainer.setVisibility(View.VISIBLE);
+            progressView.hide();
+        }
+    }
+
+    private void loadSplashAnimation() {
+        if (!animateSplash) {
+            setScreenViewsVisibility(true);
+            return;
+        }
+
+        setScreenViewsVisibility(false);
+
+        TranslateAnimation translation;
+        int nextY = Math.round(ivPokemonLogo.getY()) - CENTER_OFFSET;
+        int parentCenter = (rlLoginContainer.getHeight() / 2) - CENTER_OFFSET;
+
+        translation = new TranslateAnimation(0, 0, parentCenter, -nextY);
+        translation.setInterpolator(new AccelerateInterpolator());
+        translation.setDuration(TRANSLATE_DURATION);
+        translation.setFillAfter(true);
+
+        translation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                ivPokemonLogo.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                final ScaleAnimation scale = new ScaleAnimation(0f, 1f, 0f, 1f,
+                        Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+
+                scale.setDuration(SCALE_DURATION);
+                scale.setFillAfter(true);
+
+                scale.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                        ivPokeballLogin.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+
+                        if (isUserAuthorized) {
+                            final Handler handler = new Handler();
+
+                            handler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    listener.onSessionExists();
+                                }
+                            }, ACTION_DELAY);
+                        }
+                        else {
+                            rlLoginFormContainer.setVisibility(View.VISIBLE);
+                        }
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+
+                ivPokeballLogin.setAnimation(scale);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        ivPokemonLogo.startAnimation(translation);
+
+        animateSplash = false;
+    }
+
+    private void setScreenViewsVisibility(boolean isVisible) {
+        if (isVisible) {
+
+            rlLoginFormContainer.setVisibility(View.VISIBLE);
+            ivPokeballLogin.setVisibility(View.VISIBLE);
+            ivPokemonLogo.setVisibility(View.VISIBLE);
+        }
+        else {
+
+            rlLoginFormContainer.setVisibility(View.INVISIBLE);
+            ivPokeballLogin.setVisibility(View.INVISIBLE);
+            ivPokemonLogo.setVisibility(View.INVISIBLE);
+        }
     }
 }

@@ -1,4 +1,4 @@
-package valjevac.kresimir.homework3.listeners;
+package valjevac.kresimir.homework3.interfaces;
 
 public interface RecyclerViewClickListener<T> {
 

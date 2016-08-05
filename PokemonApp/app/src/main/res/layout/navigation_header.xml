@@ -3,7 +3,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="192dp"
-    android:background="@color/colorPrimaryDark"
+    android:background="@color/colorPrimary"
     android:padding="16dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark"
     android:gravity="bottom">
@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:text="@string/nav_student_name"
         android:textColor="@color/white"
-        android:paddingBottom="@dimen/tv_student_name_padding"
+        android:paddingBottom="@dimen/padding_small"
         android:textSize="17sp"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 
@@ -24,7 +24,7 @@
         android:layout_height="wrap_content"
         android:text="@string/nav_student_mail"
         android:textColor="@color/white"
-        android:paddingBottom="@dimen/tv_student_name_padding"
+        android:paddingBottom="@dimen/padding_small"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 
 </LinearLayout>

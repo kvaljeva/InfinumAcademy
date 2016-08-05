@@ -2,27 +2,30 @@ package valjevac.kresimir.homework3.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.text.TextUtils;
 
 import butterknife.ButterKnife;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.fragments.LoginFragment;
 import valjevac.kresimir.homework3.fragments.SignupFragment;
-import valjevac.kresimir.homework3.helpers.SharedPreferencesHelper;
+import valjevac.kresimir.homework3.helpers.NetworkHelper;
 
-public class LoginActivity extends AppCompatActivity implements LoginFragment.OnFragmentInteractionListener,
+public class StarterActivity extends AppCompatActivity implements LoginFragment.OnFragmentInteractionListener,
         SignupFragment.OnFragmentInteractionListener {
 
     private final static String LOGIN_FRAGMENT_TAG = "LoginFragmentTag";
 
     private final static String SIGNUP_FRAGMENT_TAG = "SignUpFragmentTag";
 
+    public static final String SPLASH_ANIMATION = "SplashAnimation";
+
     private final static int ACTIVITY_RESULT = 420;
+
+    private boolean animateSplash;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,15 +34,15 @@ public class LoginActivity extends AppCompatActivity implements LoginFragment.On
 
         ButterKnife.bind(this);
 
-        String email = SharedPreferencesHelper.getString(SharedPreferencesHelper.EMAIL);
-        String authToken = SharedPreferencesHelper.getString(SharedPreferencesHelper.AUTH_TOKEN);
+        animateSplash = getIntent().getBooleanExtra(SPLASH_ANIMATION, true);
 
-        if (!TextUtils.isEmpty(email) && !TextUtils.isEmpty(authToken)) {
-            openHomeActivity();
+        if (savedInstanceState != null) {
+            animateSplash = savedInstanceState.getBoolean(SPLASH_ANIMATION);
         }
 
         if (!isFragmentActive(LOGIN_FRAGMENT_TAG)) {
-            loadFragment(LoginFragment.newInstance(), LOGIN_FRAGMENT_TAG);
+            loadFragment(LoginFragment.newInstance(animateSplash), LOGIN_FRAGMENT_TAG);
+            animateSplash = false;
         }
     }
 
@@ -55,11 +58,24 @@ public class LoginActivity extends AppCompatActivity implements LoginFragment.On
         }
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putBoolean(SPLASH_ANIMATION, animateSplash);
+    }
+
     private void loadFragment(Fragment fragment, String tag) {
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
 
-        transaction.setCustomAnimations(R.anim.enter_right, R.anim.exit_left, R.anim.enter_left, R.anim.exit_right);
+        if (!tag.equals(LOGIN_FRAGMENT_TAG)) {
+            transaction.setCustomAnimations(R.anim.enter_right, R.anim.exit_left, R.anim.enter_left, R.anim.exit_right);
+        }
+        else {
+            transaction.setCustomAnimations(0, 0, R.anim.enter_left, R.anim.exit_right);
+        }
+
         transaction.replace(R.id.fl_login_container, fragment, tag);
 
         if (!isFragmentActive(tag)) {
@@ -94,6 +110,11 @@ public class LoginActivity extends AppCompatActivity implements LoginFragment.On
         if (isSuccess) {
             openHomeActivity();
         }
+        else {
+            if (!NetworkHelper.isNetworkAvailable()) {
+                openHomeActivity();
+            }
+        }
     }
 
     @Override
@@ -114,10 +135,16 @@ public class LoginActivity extends AppCompatActivity implements LoginFragment.On
         }
     }
 
-    private void openHomeActivity() {
-        Intent intent = new Intent(LoginActivity.this, PokemonListActivity.class);
+    @Override
+    public void onSessionExists() {
+        openHomeActivity();
+    }
 
+    private void openHomeActivity() {
+
+        Intent intent = new Intent(StarterActivity.this, MainActivity.class);
         startActivity(intent);
+
         finish();
     }
 

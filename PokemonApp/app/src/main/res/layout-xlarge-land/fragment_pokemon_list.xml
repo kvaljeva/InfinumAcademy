@@ -23,9 +23,9 @@
             android:layout_height="wrap_content"
             android:text="@string/tv_no_pokemons"
             android:layout_gravity="center"
-            android:padding="@dimen/padding_10dp"
+            android:padding="@dimen/padding_small"
             android:textColor="@color/primaryText"
-            android:textSize="@dimen/tv_no_pokemon_text_size"
+            android:textSize="@dimen/text_size_x_large"
             android:textStyle="bold"/>
 
         <TextView

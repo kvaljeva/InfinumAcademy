@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    tools:context="valjevac.kresimir.homework3.activities.LoginActivity">
+    tools:context=".activities.StarterActivity">
 
     <FrameLayout
         android:id="@+id/fl_login_container"

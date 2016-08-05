@@ -5,37 +5,60 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.google.gson.annotations.SerializedName;
+import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.PrimaryKey;
+import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import java.io.Serializable;
 
-public class PokemonModel implements Parcelable, Serializable {
+import valjevac.kresimir.homework3.database.AppDatabase;
 
+@Table(database = AppDatabase.class)
+public class Pokemon extends BaseModel implements Parcelable, Serializable {
+
+    @PrimaryKey(autoincrement = false)
+    @SerializedName("id")
+    private int id;
+
+    @Column
     @SerializedName("name")
     private String name;
 
+    @Column
     @SerializedName("description")
     private String description;
 
+    @Column
     @SerializedName("height")
-    private double height;
+    private float height;
 
+    @Column
     @SerializedName("weight")
-    private double weight;
+    private float weight;
 
+    @Column
     @SerializedName("types")
     private String type;
 
+    @Column
     @SerializedName("moves")
     private String moves;
 
+    @Column
     @SerializedName("image-url")
     private String image;
 
-    @SerializedName("gender")
-    private String gender;
+    @Column
+    @SerializedName("gender_id")
+    private int gender;
 
-    public PokemonModel(String name, String description, double height, double weight,
-                        String type, String moves, String image, String gender) {
+    public Pokemon() {
+
+    }
+
+    public Pokemon(String name, String description, float height, float weight,
+                   String type, String moves, String image, int gender) {
 
         this.name = name;
         this.description = description;
@@ -47,15 +70,23 @@ public class PokemonModel implements Parcelable, Serializable {
         this.gender = gender;
     }
 
-    private PokemonModel(Parcel parcel) {
+    private Pokemon(Parcel parcel) {
         this.name = parcel.readString();
         this.description = parcel.readString();
-        this.height = parcel.readDouble();
-        this.weight = parcel.readDouble();
+        this.height = parcel.readFloat();
+        this.weight = parcel.readFloat();
         this.type = parcel.readString();
         this.moves = parcel.readString();
         this.image = parcel.readParcelable(Uri.class.getClassLoader());
-        this.gender = parcel.readString();
+        this.gender = parcel.readInt();
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -114,11 +145,11 @@ public class PokemonModel implements Parcelable, Serializable {
         this.image = image;
     }
 
-    public String getGender() {
+    public int getGender() {
         return gender;
     }
 
-    public void setGender(String gender) {
+    public void setGender(int gender) {
         this.gender = gender;
     }
 
@@ -136,16 +167,16 @@ public class PokemonModel implements Parcelable, Serializable {
         parcel.writeString(type);
         parcel.writeString(moves);
         parcel.writeString(image);
-        parcel.writeString(gender);
+        parcel.writeInt(gender);
     }
 
-    public static final Parcelable.Creator<PokemonModel> CREATOR = new Parcelable.Creator<PokemonModel>() {
-        public PokemonModel createFromParcel(Parcel parcel) {
-            return new PokemonModel(parcel);
+    public static final Parcelable.Creator<Pokemon> CREATOR = new Parcelable.Creator<Pokemon>() {
+        public Pokemon createFromParcel(Parcel parcel) {
+            return new Pokemon(parcel);
         }
 
-        public PokemonModel[] newArray(int size) {
-            return new PokemonModel[size];
+        public Pokemon[] newArray(int size) {
+            return new Pokemon[size];
         }
     };
 }

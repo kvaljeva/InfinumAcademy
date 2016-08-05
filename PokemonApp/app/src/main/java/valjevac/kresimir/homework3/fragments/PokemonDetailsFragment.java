@@ -2,9 +2,10 @@
 package valjevac.kresimir.homework3.fragments;
 
 import android.content.Context;
-import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringDef;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
@@ -13,26 +14,34 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import valjevac.kresimir.homework3.BuildConfig;
 import valjevac.kresimir.homework3.R;
-import valjevac.kresimir.homework3.activities.PokemonListActivity;
+import valjevac.kresimir.homework3.activities.MainActivity;
 import valjevac.kresimir.homework3.helpers.BitmapHelper;
-import valjevac.kresimir.homework3.models.PokemonModel;
+import valjevac.kresimir.homework3.models.Pokemon;
 
 public class PokemonDetailsFragment extends Fragment {
     private Unbinder unbinder;
+
     private OnFragmentInteractionListener listener;
 
-    private static PokemonDetailsFragment instance;
     private static final String POKEMON_DETAILS = "PokemonDetails";
-    private boolean isTabletView;
+
+    private static final String DECIMAL_FORMAT = "0.00";
 
     @BindView(R.id.tv_details_pokemon_name)
     TextView tvName;
@@ -71,45 +80,17 @@ public class PokemonDetailsFragment extends Fragment {
     public PokemonDetailsFragment() { }
 
     public static PokemonDetailsFragment newInstance() {
-
-        if (instance == null) {
-            instance = new PokemonDetailsFragment();
-            return instance;
-        }
-
-        return instance;
+        return new PokemonDetailsFragment();
     }
 
-    public static PokemonDetailsFragment newInstance(PokemonModel pokemon) {
+    public static PokemonDetailsFragment newInstance(Pokemon pokemon, boolean isDeviceTablet) {
+        PokemonDetailsFragment fragment = new PokemonDetailsFragment();
+
         Bundle bundle = new Bundle();
         bundle.putParcelable(POKEMON_DETAILS, pokemon);
+        fragment.setArguments(bundle);
 
-        if (instance == null) {
-            instance = new PokemonDetailsFragment();
-            instance.setArguments(bundle);
-            return instance;
-        }
-
-        instance.setArguments(bundle);
-        return instance;
-    }
-
-    public static PokemonDetailsFragment newInstance(PokemonModel pokemon, boolean isDeviceTablet) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable(POKEMON_DETAILS, pokemon);
-
-        if (instance == null) {
-            instance = new PokemonDetailsFragment();
-            instance.setArguments(bundle);
-            instance.isTabletView = isDeviceTablet;
-
-            return instance;
-        }
-
-        instance.getArguments().putAll(bundle);
-        instance.isTabletView = isDeviceTablet;
-
-        return instance;
+        return fragment;
     }
 
     public interface OnFragmentInteractionListener {
@@ -128,19 +109,20 @@ public class PokemonDetailsFragment extends Fragment {
 
         Bundle arguments = getArguments();
         if (arguments != null) {
-            PokemonModel pokemon = arguments.getParcelable(POKEMON_DETAILS);
+            Pokemon pokemon = arguments.getParcelable(POKEMON_DETAILS);
 
             if (pokemon != null) {
-                String height = transformHeightString(String.valueOf(pokemon.getHeight()));
-                String weight = String.valueOf(pokemon.getWeight());
+                String heightFixed = transformHeightString(Double.toString(round(pokemon.getHeight(), 2)));
+                String weightFixed = Double.toString(round(pokemon.getWeight(), 2)) + getString(R.string.weight_unit);
+                String gender = (pokemon.getGender() == 1) ? getString(R.string.gender_male) : getString(R.string.gender_female);
 
                 tvName.setText(pokemon.getName());
                 tvDescription.setText(pokemon.getDescription());
-                tvHeight.setText(height);
-                tvWeight.setText(weight);
+                tvHeight.setText(heightFixed);
+                tvWeight.setText(weightFixed);
                 tvAbilities.setText(pokemon.getMoves());
                 tvCategory.setText(pokemon.getType());
-                tvGender.setText(pokemon.getGender());
+                tvGender.setText(gender);
 
                 BitmapHelper.loadBitmap(ivImage, pokemon.getImage(), false);
             }
@@ -183,25 +165,19 @@ public class PokemonDetailsFragment extends Fragment {
         }
     }
 
-    @Override
-    public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
-        if (enter) {
-            return AnimationUtils.loadAnimation(getActivity(), R.anim.enter_right);
-        }
-        else {
-            if (isTabletView) {
-                return AnimationUtils.loadAnimation(getActivity(), R.anim.exit_left);
-            }
-
-            return AnimationUtils.loadAnimation(getActivity(), R.anim.exit_right);
-        }
-    }
-
     private String transformHeightString(String height) {
         height = height.replace(".", "´ ");
         height += "˝";
 
         return height;
+    }
+
+    public static double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+
+        BigDecimal bd = new BigDecimal(value);
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.doubleValue();
     }
 
     private void setToolbarTitle() {
@@ -213,20 +189,16 @@ public class PokemonDetailsFragment extends Fragment {
     }
 
     private void setUpToolbar() {
-        final PokemonListActivity pokemonListActivity = (PokemonListActivity) getActivity();
-
-        if (pokemonListActivity.getSupportActionBar() != null) {
-            pokemonListActivity.getSupportActionBar().hide();
-        }
+        final MainActivity mainActivity = (MainActivity) getActivity();
 
         if (toolbar != null) {
-            pokemonListActivity.setSupportActionBar(toolbar);
+            mainActivity.setSupportActionBar(toolbar);
 
             toolbar.setTitle(R.string.add_pokemon_toolbar_title);
 
-            if (pokemonListActivity.getSupportActionBar() != null) {
-                pokemonListActivity.getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
-                pokemonListActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            if (mainActivity.getSupportActionBar() != null) {
+                mainActivity.getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
+                mainActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             }
 
             setToolbarTitle();
@@ -237,6 +209,16 @@ public class PokemonDetailsFragment extends Fragment {
                     listener.onDetailsHomePressed();
                 }
             });
+        }
+    }
+
+    @Override
+    public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
+        if (enter) {
+            return AnimationUtils.loadAnimation(getActivity(), R.anim.enter_right);
+        }
+        else {
+            return AnimationUtils.loadAnimation(getActivity(), R.anim.exit_right);
         }
     }
 }

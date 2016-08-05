@@ -1,13 +1,14 @@
 package valjevac.kresimir.homework3.adapters;
 
 import android.content.Context;
-import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -17,17 +18,20 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.helpers.BitmapHelper;
-import valjevac.kresimir.homework3.listeners.RecyclerViewClickListener;
-import valjevac.kresimir.homework3.models.PokemonModel;
-import valjevac.kresimir.homework3.network.ApiManager;
+import valjevac.kresimir.homework3.interfaces.RecyclerViewClickListener;
+import valjevac.kresimir.homework3.models.Pokemon;
 
 public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHolder> {
-    private List<PokemonModel> pokemonList;
-    private Context context;
-    private RecyclerViewClickListener<PokemonModel> clickListener;
+    private List<Pokemon> pokemonList;
 
-    public PokemonAdapter(Context context, List<PokemonModel> pokemonList,
-                          RecyclerViewClickListener<PokemonModel> clickListener) {
+    private Context context;
+
+    private RecyclerViewClickListener<Pokemon> clickListener;
+
+    private final static int MIN_POSITION = -1;
+
+    public PokemonAdapter(Context context, List<Pokemon> pokemonList,
+                          RecyclerViewClickListener<Pokemon> clickListener) {
 
         this.context = context;
         this.pokemonList = new ArrayList<>(pokemonList);
@@ -44,6 +48,15 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHold
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.tvPokemonName.setText(pokemonList.get(position).getName());
         BitmapHelper.loadBitmap(holder.civPokemonImage, pokemonList.get(position).getImage(), true);
+
+        setAnimation(holder.llContainer, position);
+    }
+
+    @Override
+    public void onViewDetachedFromWindow(ViewHolder holder) {
+        super.onViewDetachedFromWindow(holder);
+
+        holder.clearAnimation();
     }
 
     @Override
@@ -51,7 +64,15 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHold
         return pokemonList.size();
     }
 
-    public void update(ArrayList<PokemonModel> updateList) {
+    private void setAnimation(View view, int position) {
+
+        if (position > MIN_POSITION) {
+            Animation animation = AnimationUtils.loadAnimation(context, R.anim.recycler_item_anim);
+            view.startAnimation(animation);
+        }
+    }
+
+    public void update(ArrayList<Pokemon> updateList) {
         if (pokemonList != null) {
             pokemonList.clear();
             pokemonList.addAll(updateList);
@@ -70,6 +91,9 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHold
         @BindView(R.id.civ_pokemon_image)
         ImageView civPokemonImage;
 
+        @BindView(R.id.pokemon_list_item_container)
+        LinearLayout llContainer;
+
         public ViewHolder(View view) {
             super(view);
 
@@ -83,6 +107,10 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHold
                     }
                 });
             }
+        }
+
+        public void clearAnimation() {
+            llContainer.clearAnimation();
         }
     }
 }

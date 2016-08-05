@@ -4,19 +4,23 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -30,6 +34,7 @@ import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import java.io.File;
 import java.util.regex.Pattern;
 
 import butterknife.BindView;
@@ -43,17 +48,21 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import valjevac.kresimir.homework3.R;
-import valjevac.kresimir.homework3.activities.PokemonListActivity;
+import valjevac.kresimir.homework3.activities.MainActivity;
+import valjevac.kresimir.homework3.custom.ProgressView;
 import valjevac.kresimir.homework3.helpers.BitmapHelper;
+import valjevac.kresimir.homework3.helpers.NetworkHelper;
+import valjevac.kresimir.homework3.interfaces.FragmentUtils;
 import valjevac.kresimir.homework3.models.BaseResponse;
 import valjevac.kresimir.homework3.models.Data;
-import valjevac.kresimir.homework3.models.PokemonModel;
+import valjevac.kresimir.homework3.models.Pokemon;
 import valjevac.kresimir.homework3.network.ApiManager;
+import valjevac.kresimir.homework3.network.BaseCallback;
 
-public class AddPokemonFragment extends Fragment {
+public class AddPokemonFragment extends Fragment implements FragmentUtils {
     private Unbinder unbinder;
+
     private OnFragmentInteractionListener listener;
-    private static AddPokemonFragment instance;
 
     private static final int SELECT_IMAGE = 420;
 
@@ -67,11 +76,15 @@ public class AddPokemonFragment extends Fragment {
 
     private static final String IMAGE_LOCATION = "ImageLocation";
 
-    private static final String NO_GENDER = "-";
-
     private static final String FORMAT_TYPE_IMAGE = "image/*";
 
+    private static final String MEDIA_TYPE = "application/image";
+
     private static final String IS_DEVICE_TABLET = "IsTablet";
+
+    private static final int VERTICAL_OFFSET = 10;
+
+    private static final double VERTICAL_OFFSET_CENTER = 1.5;
 
     private boolean changesMade;
 
@@ -111,6 +124,9 @@ public class AddPokemonFragment extends Fragment {
     @BindView(R.id.rb_male)
     RadioButton rbGenderMale;
 
+    @BindView(R.id.fab_add_image)
+    FloatingActionButton fabAddImage;
+
     @Nullable
     @BindView(R.id.tb_add_pokemon)
     Toolbar toolbar;
@@ -123,25 +139,27 @@ public class AddPokemonFragment extends Fragment {
     @BindView(R.id.abl_header_add_pokemon)
     AppBarLayout ablHeaderAddPokemon;
 
-    Call<BaseResponse<Data<PokemonModel>>> insertPokemonCall;
+    @Nullable
+    @BindView(R.id.sv_body_container)
+    NestedScrollView svBodyContainer;
+
+    @BindView(R.id.pv_add_pokemon)
+    ProgressView progressView;
+
+    Call<BaseResponse<Data<Pokemon>>> insertPokemonCall;
 
     public AddPokemonFragment() { }
 
     public interface OnFragmentInteractionListener {
 
-        void onPokemonAdded();
+        void onPokemonAdded(Pokemon pokemon);
 
         void onAddHomePressed();
     }
 
     public static AddPokemonFragment newInstance() {
 
-        if (instance == null) {
-            instance = new AddPokemonFragment();
-            return instance;
-        }
-
-        return instance;
+        return new AddPokemonFragment();
     }
 
     public static AddPokemonFragment newInstance(boolean isDeviceTablet) {
@@ -195,11 +213,13 @@ public class AddPokemonFragment extends Fragment {
             ablHeaderAddPokemon.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
                 @Override
                 public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-                    if ((Math.abs(verticalOffset) + 10) >= (appBarLayout.getTotalScrollRange() / 1.5) && !isColorChanged) {
-                        setBackArrowColor(true, (PokemonListActivity) getActivity());
+                    if ((Math.abs(verticalOffset) + VERTICAL_OFFSET) >= (appBarLayout.getTotalScrollRange() /
+                            VERTICAL_OFFSET_CENTER) && !isColorChanged) {
+
+                        setBackArrowColor(true, (MainActivity) getActivity());
                     }
-                    else if (Math.abs(verticalOffset) <= (appBarLayout.getTotalScrollRange() / 1.5)) {
-                        setBackArrowColor(false, (PokemonListActivity) getActivity());
+                    else if (Math.abs(verticalOffset) <= (appBarLayout.getTotalScrollRange() / VERTICAL_OFFSET_CENTER)) {
+                        setBackArrowColor(false, (MainActivity) getActivity());
                     }
                 }
             });
@@ -250,7 +270,7 @@ public class AddPokemonFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == SELECT_IMAGE) {
-            if (resultCode == PokemonListActivity.RESULT_OK) {
+            if (resultCode == MainActivity.RESULT_OK) {
                 Uri selectedImage = data.getData();
 
                 BitmapHelper.loadBitmap(ivPokemonImage, selectedImage.toString(), false);
@@ -270,24 +290,20 @@ public class AddPokemonFragment extends Fragment {
     }
 
     private void setUpToolbar() {
-        PokemonListActivity pokemonListActivity = (PokemonListActivity) getActivity();
-
-        if (pokemonListActivity.getSupportActionBar() != null) {
-            pokemonListActivity.getSupportActionBar().hide();
-        }
+        MainActivity mainActivity = (MainActivity) getActivity();
 
         if (toolbar != null) {
-            pokemonListActivity.setSupportActionBar(toolbar);
+            mainActivity.setSupportActionBar(toolbar);
 
             toolbar.setTitle(R.string.add_pokemon_toolbar_title);
 
-            if (pokemonListActivity.getSupportActionBar() != null) {
-                pokemonListActivity.getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
-                pokemonListActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            if (mainActivity.getSupportActionBar() != null) {
+                mainActivity.getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
+                mainActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             }
 
             setToolbarTitle();
-            setBackArrowColor(true, pokemonListActivity);
+            setBackArrowColor(true, mainActivity);
 
             toolbar.setNavigationOnClickListener(new View.OnClickListener() {
                 @Override
@@ -306,7 +322,7 @@ public class AddPokemonFragment extends Fragment {
         }
     }
 
-    private void setBackArrowColor(boolean isDefaultState, PokemonListActivity activity) {
+    private void setBackArrowColor(boolean isDefaultState, MainActivity activity) {
         Drawable upArrow = ContextCompat.getDrawable(getActivity(),
                 R.drawable.ic_arrow_back);
 
@@ -449,6 +465,13 @@ public class AddPokemonFragment extends Fragment {
     public void savePokemon() {
         boolean emptyViewsExist = checkForEmptyViews();
 
+        if (!NetworkHelper.isNetworkAvailable()) {
+            Toast.makeText(getActivity(), getString(R.string.no_internet_conn),
+                    Toast.LENGTH_SHORT).show();
+
+            return;
+        }
+
         if (emptyViewsExist || !validateDecimalInput(etPokemonWeight) || !validateDecimalInput(etPokemonHeight)) {
             Toast toast;
 
@@ -462,24 +485,22 @@ public class AddPokemonFragment extends Fragment {
             toast.show();
         }
         else {
+
+            displayProgress(true);
+
             String pokemonName = etPokemonName.getText().toString();
             String pokemonDesc = etPokemonDescription.getText().toString();
-            double pokemonHeight = Double.valueOf(etPokemonHeight.getText().toString());
-            double pokemonWeight = Double.valueOf(etPokemonWeight.getText().toString());
+            float pokemonHeight = Float.valueOf(etPokemonHeight.getText().toString());
+            float pokemonWeight = Float.valueOf(etPokemonWeight.getText().toString());
             String category = etPokemonCategory.getText().toString();
             String abilities = etPokemonAbilities.getText().toString();
             Uri image = (this.imageUri == null) ? BitmapHelper.getResourceUri(R.drawable.ic_person_details) : this.imageUri;
-            String gender = (rbGenderFemale.isChecked()) ? getString(R.string.gender_female) :
-                    (rbGenderMale.isChecked()) ? getString(R.string.gender_male) : NO_GENDER;
+            int gender = (rbGenderFemale.isChecked()) ? 2 : 1;
 
-            PokemonModel pokemon = new PokemonModel(pokemonName, pokemonDesc, pokemonHeight,
+            Pokemon pokemon = new Pokemon(pokemonName, pokemonDesc, pokemonHeight,
                     pokemonWeight, category, abilities, image.toString(), gender);
 
-            clearInputViews(rlActivityBody);
-
-            tryInsertPokemon(pokemon);
-
-            listener.onPokemonAdded();
+            insertPokemon(pokemon);
         }
     }
 
@@ -506,22 +527,72 @@ public class AddPokemonFragment extends Fragment {
         clearInputViews(rlActivityBody);
     }
 
-    private void tryInsertPokemon(PokemonModel pokemon) {
+    private String getFilePath(Uri uri) {
+
+        String[] projection = { MediaStore.Images.Media.DATA };
+        Cursor cursor = getActivity().getContentResolver().query(uri, projection, null, null, null);
+
+        if (cursor == null) {
+            return null;
+        }
+
+        int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+
+        cursor.moveToFirst();
+
+        String path = cursor.getString(columnIndex);
+
+        cursor.close();
+
+        return path;
+    }
+
+    private void displayProgress(boolean isVisible) {
+
+        if (isVisible) {
+            if (ablHeaderAddPokemon != null && svBodyContainer != null && fabAddImage != null) {
+
+                ablHeaderAddPokemon.setVisibility(View.GONE);
+                svBodyContainer.setVisibility(View.GONE);
+                fabAddImage.setVisibility(View.GONE);
+            }
+
+            progressView.show();
+        }
+        else {
+            if (ablHeaderAddPokemon != null && svBodyContainer != null && fabAddImage != null) {
+
+                ablHeaderAddPokemon.setVisibility(View.VISIBLE);
+                svBodyContainer.setVisibility(View.VISIBLE);
+                fabAddImage.setVisibility(View.VISIBLE);
+            }
+
+            progressView.hide();
+        }
+    }
+
+    private void insertPokemon(Pokemon pokemon) {
         int[] moves = new int[0];
         int[] category = new int[0];
-        String imageBase64 = BitmapHelper.getImageBase64(Uri.parse(pokemon.getImage()));
 
+        File imageFile;
         RequestBody body = null;
 
-        if (imageBase64 != null) {
-            body = RequestBody.create(MediaType.parse("application/image"), imageBase64);
+        if (imageUri != null) {
+            String filePath = getFilePath(this.imageUri);
+
+            if (filePath != null) {
+
+                imageFile = new File(filePath);
+                body = RequestBody.create(MediaType.parse(MEDIA_TYPE), imageFile);
+            }
         }
 
         insertPokemonCall = ApiManager.getService().insertPokemon(
                 pokemon.getName(),
                 pokemon.getHeight(),
                 pokemon.getWeight(),
-                1,
+                pokemon.getGender(),
                 true,
                 pokemon.getDescription(),
                 category,
@@ -529,15 +600,20 @@ public class AddPokemonFragment extends Fragment {
                 body
         );
 
-        insertPokemonCall.enqueue(new Callback<BaseResponse<Data<PokemonModel>>>() {
+        insertPokemonCall.enqueue(new BaseCallback<BaseResponse<Data<Pokemon>>>() {
             @Override
-            public void onResponse(Call<BaseResponse<Data<PokemonModel>>> call, Response<BaseResponse<Data<PokemonModel>>> response) {
-                Toast.makeText(getActivity(), "Pokemon created successfully.", Toast.LENGTH_SHORT).show();
+            public void onUnknownError(@Nullable String error) {
+                Toast.makeText(getActivity(), R.string.pokemon_save_failed, Toast.LENGTH_SHORT).show();
+
+                displayProgress(false);
             }
 
             @Override
-            public void onFailure(Call<BaseResponse<Data<PokemonModel>>> call, Throwable t) {
+            public void onSuccess(BaseResponse<Data<Pokemon>> body, Response<BaseResponse<Data<Pokemon>>> response) {
+                Toast.makeText(getActivity(), R.string.pokemon_saved, Toast.LENGTH_SHORT).show();
 
+                clearInputViews(rlActivityBody);
+                listener.onPokemonAdded(body.getData().getAttributes());
             }
         });
     }
