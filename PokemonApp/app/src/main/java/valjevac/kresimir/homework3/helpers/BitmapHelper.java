@@ -56,23 +56,10 @@ public class BitmapHelper {
             uri = Uri.parse(location);
         }
 
-
         if (scale) {
             Glide.with(imageView.getContext())
                     .load(uri)
-                    .listener(new RequestListener<Uri, GlideDrawable>() {
-                        @Override
-                        public boolean onException(Exception e, Uri model, Target<GlideDrawable> target, boolean isFirstResource) {
-
-                            loadDefaultBitmap(imageView);
-                            return false;
-                        }
-
-                        @Override
-                        public boolean onResourceReady(GlideDrawable resource, Uri model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                            return false;
-                        }
-                    })
+                    .error(R.drawable.ic_person_details)
                     .override(MAX_SIZE, MAX_SIZE)
                     .crossFade()
                     .fitCenter()
@@ -81,19 +68,7 @@ public class BitmapHelper {
         else {
             Glide.with(imageView.getContext())
                     .load(uri)
-                    .listener(new RequestListener<Uri, GlideDrawable>() {
-                        @Override
-                        public boolean onException(Exception e, Uri model, Target<GlideDrawable> target, boolean isFirstResource) {
-
-                            loadDefaultBitmap(imageView);
-                            return false;
-                        }
-
-                        @Override
-                        public boolean onResourceReady(GlideDrawable resource, Uri model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                            return false;
-                        }
-                    })
+                    .error(R.drawable.ic_person_details)
                     .crossFade()
                     .fitCenter()
                     .into(imageView);

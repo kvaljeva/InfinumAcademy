@@ -17,8 +17,6 @@ public class SharedPreferencesHelper {
 
     public static final String EMAIL = "Email";
 
-    public static final String IS_SESSION_ACTIVE = "IsSessionActive";
-
     private static SharedPreferences sharedPrefs;
 
     private static SharedPreferences getSharedPrefs() {
@@ -51,5 +49,21 @@ public class SharedPreferencesHelper {
 
     public static boolean getBoolean(String key) {
         return getSharedPrefs().getBoolean(key, false);
+    }
+
+    public static void logout() {
+
+        SharedPreferencesHelper.setInt(0, SharedPreferencesHelper.USER_ID);
+        SharedPreferencesHelper.setString("", SharedPreferencesHelper.AUTH_TOKEN);
+        SharedPreferencesHelper.setString("", SharedPreferencesHelper.USER);
+        SharedPreferencesHelper.setString("", SharedPreferencesHelper.EMAIL);
+    }
+
+    public static void login(int userId, String authToken, String username, String email) {
+
+        SharedPreferencesHelper.setInt(userId, SharedPreferencesHelper.USER_ID);
+        SharedPreferencesHelper.setString(authToken, SharedPreferencesHelper.AUTH_TOKEN);
+        SharedPreferencesHelper.setString(username, SharedPreferencesHelper.USER);
+        SharedPreferencesHelper.setString(email, SharedPreferencesHelper.EMAIL);
     }
 }

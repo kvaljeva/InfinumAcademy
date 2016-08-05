@@ -13,9 +13,8 @@ import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.fragments.LoginFragment;
 import valjevac.kresimir.homework3.fragments.SignupFragment;
 import valjevac.kresimir.homework3.helpers.NetworkHelper;
-import valjevac.kresimir.homework3.helpers.SharedPreferencesHelper;
 
-public class LoginActivity extends AppCompatActivity implements LoginFragment.OnFragmentInteractionListener,
+public class StarterActivity extends AppCompatActivity implements LoginFragment.OnFragmentInteractionListener,
         SignupFragment.OnFragmentInteractionListener {
 
     private final static String LOGIN_FRAGMENT_TAG = "LoginFragmentTag";
@@ -35,14 +34,7 @@ public class LoginActivity extends AppCompatActivity implements LoginFragment.On
 
         ButterKnife.bind(this);
 
-        boolean isSessionActive = SharedPreferencesHelper.getBoolean(SharedPreferencesHelper.IS_SESSION_ACTIVE);
-
-        if (isSessionActive) {
-            openHomeActivity();
-            return;
-        }
-
-        animateSplash = true;
+        animateSplash = getIntent().getBooleanExtra(SPLASH_ANIMATION, true);
 
         if (savedInstanceState != null) {
             animateSplash = savedInstanceState.getBoolean(SPLASH_ANIMATION);
@@ -149,11 +141,10 @@ public class LoginActivity extends AppCompatActivity implements LoginFragment.On
     }
 
     private void openHomeActivity() {
-        SharedPreferencesHelper.setBoolean(true, SharedPreferencesHelper.IS_SESSION_ACTIVE);
 
-        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-
+        Intent intent = new Intent(StarterActivity.this, MainActivity.class);
         startActivity(intent);
+
         finish();
     }
 

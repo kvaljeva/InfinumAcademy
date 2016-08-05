@@ -2,8 +2,10 @@
 package valjevac.kresimir.homework3.fragments;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringDef;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
@@ -12,16 +14,21 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import valjevac.kresimir.homework3.BuildConfig;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.activities.MainActivity;
 import valjevac.kresimir.homework3.helpers.BitmapHelper;
@@ -105,12 +112,8 @@ public class PokemonDetailsFragment extends Fragment {
             Pokemon pokemon = arguments.getParcelable(POKEMON_DETAILS);
 
             if (pokemon != null) {
-                DecimalFormat decimalFormat = new DecimalFormat(DECIMAL_FORMAT);
-                double weight = pokemon.getWeight();
-                double height = pokemon.getHeight();
-
-                String heightFixed = transformHeightString(decimalFormat.format(height));
-                String weightFixed = decimalFormat.format(weight) + R.string.weight_unit;
+                String heightFixed = transformHeightString(Double.toString(round(pokemon.getHeight(), 2)));
+                String weightFixed = Double.toString(round(pokemon.getWeight(), 2)) + getString(R.string.weight_unit);
                 String gender = (pokemon.getGender() == 1) ? getString(R.string.gender_male) : getString(R.string.gender_female);
 
                 tvName.setText(pokemon.getName());
@@ -167,6 +170,14 @@ public class PokemonDetailsFragment extends Fragment {
         height += "˝";
 
         return height;
+    }
+
+    public static double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+
+        BigDecimal bd = new BigDecimal(value);
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.doubleValue();
     }
 
     private void setToolbarTitle() {

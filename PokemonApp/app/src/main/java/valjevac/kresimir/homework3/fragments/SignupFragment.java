@@ -24,7 +24,7 @@ import butterknife.Unbinder;
 import retrofit2.Call;
 import retrofit2.Response;
 import valjevac.kresimir.homework3.R;
-import valjevac.kresimir.homework3.activities.LoginActivity;
+import valjevac.kresimir.homework3.activities.StarterActivity;
 import valjevac.kresimir.homework3.activities.MainActivity;
 import valjevac.kresimir.homework3.custom.ProgressView;
 import valjevac.kresimir.homework3.helpers.ApiErrorHelper;
@@ -139,7 +139,7 @@ public class SignupFragment extends Fragment {
 
     private void setUpToolbar() {
         if (toolbar != null) {
-            LoginActivity activity = (LoginActivity) getActivity();
+            StarterActivity activity = (StarterActivity) getActivity();
 
             activity.setSupportActionBar(toolbar);
 

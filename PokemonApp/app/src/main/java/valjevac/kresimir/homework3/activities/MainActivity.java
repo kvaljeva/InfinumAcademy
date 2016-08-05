@@ -9,6 +9,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.transition.Transition;
+import android.transition.TransitionInflater;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
@@ -20,6 +22,7 @@ import valjevac.kresimir.homework3.fragments.ConfirmationDialogFragment;
 import valjevac.kresimir.homework3.fragments.PokemonDetailsFragment;
 import valjevac.kresimir.homework3.fragments.PokemonListFragment;
 import valjevac.kresimir.homework3.helpers.SharedPreferencesHelper;
+import valjevac.kresimir.homework3.interfaces.FragmentUtils;
 import valjevac.kresimir.homework3.models.Pokemon;
 
 public class MainActivity extends AppCompatActivity implements
@@ -65,7 +68,6 @@ public class MainActivity extends AppCompatActivity implements
             loadFragment(AddPokemonFragment.newInstance(true), ADD_POKEMON_FRAGMENT_TAG);
             ViewCompat.setElevation(flContainerMain, 7);
 
-            // Load initial fragment every time
             loadFragment(PokemonListFragment.newInstance(false), POKEMON_LIST_FRAGMENT_TAG);
         }
     }
@@ -74,25 +76,11 @@ public class MainActivity extends AppCompatActivity implements
     public void onBackPressed() {
         FragmentManager manager = getSupportFragmentManager();
         Fragment fragment = manager.findFragmentByTag(ADD_POKEMON_FRAGMENT_TAG);
-
+        
         int backstackCount = manager.getBackStackEntryCount();
 
-        if (backstackCount == 1 || isDeviceTablet) {
-            if (backstackCount == 1 || currentOrientation == ORIENTATION_LANDSCAPE) {
-                finish();
-            }
-            else {
-                if (fragment instanceof  AddPokemonFragment) {
-                    AddPokemonFragment addPokemonFragment = (AddPokemonFragment) fragment;
-
-                    if (addPokemonFragment.allowBackPressed()) {
-                        removeFragmentFromStack(ADD_POKEMON_FRAGMENT_TAG);
-                    }
-                }
-                else {
-                    removeFragmentFromStack(POKEMON_DETAILS_FRAGMENT_TAG);
-                }
-            }
+        if (backstackCount == 1 || (isDeviceTablet && currentOrientation == ORIENTATION_LANDSCAPE)) {
+            finish();
         }
         else {
             if (fragment instanceof  AddPokemonFragment) {
@@ -121,18 +109,18 @@ public class MainActivity extends AppCompatActivity implements
         if (tag.equals(POKEMON_DETAILS_FRAGMENT_TAG) && checkIfFragmentExists(POKEMON_LIST_FRAGMENT_TAG)
                 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && imageView.length > 0) {
 
-//                    Fragment listFragment = manager.findFragmentByTag(POKEMON_LIST_FRAGMENT_TAG);
-//                    Transition changeTransform = TransitionInflater.from(this).inflateTransition(R.transition.change_image_transform);
-//
-//                    listFragment.setSharedElementReturnTransition(changeTransform);
-//                    listFragment.setExitTransition(changeTransform);
-//
-//                    fragment.setSharedElementEnterTransition(changeTransform);
-//                    fragment.setEnterTransition(changeTransform);
-//
-//                    ImageView ivPokemonImage = (imageView.length > 0) ? imageView[0] : null;
-//
-//                    transaction.addSharedElement(ivPokemonImage, getString(R.string.details_transit));
+            Fragment listFragment = manager.findFragmentByTag(POKEMON_LIST_FRAGMENT_TAG);
+            Transition changeTransform = TransitionInflater.from(this).inflateTransition(R.transition.change_image_transform);
+
+            listFragment.setSharedElementReturnTransition(changeTransform);
+            listFragment.setExitTransition(changeTransform);
+
+            fragment.setSharedElementEnterTransition(changeTransform);
+            fragment.setEnterTransition(changeTransform);
+
+            ImageView ivPokemonImage = (imageView.length > 0) ? imageView[0] : null;
+
+            transaction.addSharedElement(ivPokemonImage, getString(R.string.details_transit));
         }
 
         if (tag.equals(POKEMON_LIST_FRAGMENT_TAG) || !isDeviceTablet) {
@@ -180,7 +168,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onPokemonAdded() {
+    public void onPokemonAdded(Pokemon pokemon) {
         if (!isDeviceTablet) {
             removeFragmentFromStack(ADD_POKEMON_FRAGMENT_TAG);
         }
@@ -190,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements
             }
         }
 
-        loadFragment(PokemonListFragment.newInstance(isDeviceTablet), POKEMON_LIST_FRAGMENT_TAG);
+        loadFragment(PokemonListFragment.newInstance(pokemon, true), POKEMON_LIST_FRAGMENT_TAG);
     }
 
     @Override
@@ -230,13 +218,10 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onLogoutClick() {
 
-        SharedPreferencesHelper.setInt(0, SharedPreferencesHelper.USER_ID);
-        SharedPreferencesHelper.setString("", SharedPreferencesHelper.AUTH_TOKEN);
-        SharedPreferencesHelper.setString("", SharedPreferencesHelper.USER);
-        SharedPreferencesHelper.setString("", SharedPreferencesHelper.EMAIL);
-        SharedPreferencesHelper.setBoolean(false, SharedPreferencesHelper.IS_SESSION_ACTIVE);
+        SharedPreferencesHelper.logout();
 
-        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        Intent intent = new Intent(MainActivity.this, StarterActivity.class);
+        intent.putExtra(StarterActivity.SPLASH_ANIMATION, false);
         startActivity(intent);
 
         finish();

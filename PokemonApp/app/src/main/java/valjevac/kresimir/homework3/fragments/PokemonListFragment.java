@@ -56,9 +56,11 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
 
     public static final String POKEMON_LIST_SATE = "PokemonListState";
 
-    public static final String EMPTY_STATE = "EmptyState";
-
     public static final String LOAD_ANIMATION = "LoadAnimation";
+
+    public static final String POKEMON = "Pokemon";
+
+    public static final String LIST_UPDATE = "ListUpdate";
 
     private ArrayList<Pokemon> pokemonList;
 
@@ -92,7 +94,7 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
     @BindView(R.id.drawer_layout)
     DrawerLayout drawerLayout;
 
-    ActionBarDrawerToggle drawerToggle;
+    private ActionBarDrawerToggle drawerToggle;
 
     Call<Void> logoutUserCall;
 
@@ -100,11 +102,13 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
 
     BaseCallback<BaseResponse<ArrayList<Data<Pokemon>>>> pokemonListCallback;
 
-    PokemonList pokemonListDatabase;
+    private PokemonList pokemonListDatabase;
 
-    ProcessPokemonList pokemonListProcessor;
+    private ProcessPokemonList pokemonListProcessor;
 
     private Snackbar snackbarProgress;
+
+    private boolean isListUpdate;
 
     public PokemonListFragment() { }
 
@@ -128,6 +132,27 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
         return fragment;
     }
 
+    public static PokemonListFragment newInstance(Pokemon pokemon, boolean isUpdate) {
+
+        PokemonListFragment fragment = new PokemonListFragment();
+
+        Bundle args = new Bundle();
+        args.putParcelable(POKEMON, pokemon);
+        args.putBoolean(LIST_UPDATE, isUpdate);
+        fragment.setArguments(args);
+
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            pokemonList = savedInstanceState.getParcelableArrayList(POKEMON_LIST_SATE);
+        }
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -142,28 +167,44 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
         pokemonListDatabase = new SQLitePokemonList();
 
         if (getArguments() != null) {
-            Bundle args = getArguments();
 
+            Bundle args = getArguments();
             animate = args.getBoolean(LOAD_ANIMATION);
         }
 
-        if (savedInstanceState == null) {
+        setUpToolbar();
+        setUpRefreshView();
 
-            if (pokemonList == null) {
-                pokemonList = new ArrayList<>();
+        return view;
+    }
 
-                // Fetch initial list
-                fetchPokemonList(true);
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        Bundle arguments = getArguments();
+        Pokemon pokemon = null;
+
+        if (arguments != null) {
+            isListUpdate = arguments.getBoolean(LIST_UPDATE);
+            pokemon = arguments.getParcelable(POKEMON);
+
+            // "Consume" arguments
+            getArguments().putAll(new Bundle());
+        }
+
+        if (pokemonList == null) {
+            pokemonList = new ArrayList<>();
+
+            // Fetch initial list
+            if (!isListUpdate) {
+                fetchPokemonList(true, getActivity().getString(R.string.loading_pokemon_list));
             }
-
         }
         else {
-            pokemonList = savedInstanceState.getParcelableArrayList(POKEMON_LIST_SATE);
-            isEmptyState = savedInstanceState.getBoolean(EMPTY_STATE);
 
-            // In case that there is something in the save state but that the list isn't initialized, do it here
-            if (pokemonList == null) {
-                pokemonList = new ArrayList<>();
+            if (pokemon != null)  {
+                pokemonList.add(0, pokemon);
             }
         }
 
@@ -177,16 +218,9 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
         rvPokemonList.setAdapter(pokemonAdapter);
         rvPokemonList.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        if (pokemonList != null && pokemonList.size() > 0 && isEmptyState) {
-            isEmptyState = false;
-        }
-
-        setUpToolbar();
-        setUpRefreshView();
+        isEmptyState = pokemonList == null || pokemonList.size() == 0;
 
         updatePokemonListOverview();
-
-        return view;
     }
 
     @Override
@@ -262,13 +296,6 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
         super.onSaveInstanceState(outState);
 
         outState.putParcelableArrayList(POKEMON_LIST_SATE, pokemonList);
-
-        if (pokemonList != null && pokemonList.size() > 0) {
-            outState.putBoolean(EMPTY_STATE, false);
-        }
-        else {
-            outState.putBoolean(EMPTY_STATE, true);
-        }
     }
 
     @Override
@@ -384,7 +411,7 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
         srlRecyclerContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                fetchPokemonList(false);
+                fetchPokemonList(false, null);
             }
         });
 
@@ -397,31 +424,25 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
     }
 
     private void loadCachedList() {
-
+        pokemonList.clear();
         pokemonList.addAll(pokemonListDatabase.getPokemons());
 
-        if (pokemonList.size() > 0) {
-            isEmptyState = false;
-        }
-
         srlRecyclerContainer.setRefreshing(false);
-
         showProgress(false, null);
 
         isListLoading = false;
     }
 
-    private void fetchPokemonList(boolean isInitCall) {
-        pokemonList.clear();
-        srlRecyclerContainer.setRefreshing(true);
-
+    private void fetchPokemonList(boolean showProgress, String message) {
         isListLoading = true;
 
-        if (isInitCall) {
-            showProgress(true, "Loading pokemon list...");
+        if (showProgress) {
+            showProgress(true, message);
         }
 
-        if (!NetworkHelper.isNetworkAvailable()) {
+        srlRecyclerContainer.setRefreshing(true);
+
+        if (!NetworkHelper.isNetworkAvailable() && pokemonList.size() == 0) {
 
             loadCachedList();
             return;
@@ -432,10 +453,6 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
             @Override
             public void onUnknownError(@Nullable String error) {
                 Log.e("API_POKEMON_LIST", error);
-
-                if (!NetworkHelper.isNetworkAvailable()) {
-                    showProgress(true, getString(R.string.no_internet_conn));
-                }
 
                 loadCachedList();
             }
@@ -473,6 +490,7 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
     @Override
     public void onProcessingFinished(final ArrayList<Pokemon> pokemons) {
 
+        pokemonList.clear();
         pokemonList.addAll(pokemons);
 
         if (pokemonList.size() > 0) {
@@ -508,7 +526,9 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
             rlMainContainer.post(new Runnable() {
                 @Override
                 public void run() {
-                    snackbarProgress.dismiss();
+                    if (snackbarProgress != null) {
+                        snackbarProgress.dismiss();
+                    }
                 }
             });
         }

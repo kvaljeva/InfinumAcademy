@@ -1,12 +1,12 @@
 package valjevac.kresimir.homework3.fragments;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -21,6 +21,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import java.util.regex.Pattern;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -29,12 +31,12 @@ import butterknife.Unbinder;
 import retrofit2.Call;
 import retrofit2.Response;
 import valjevac.kresimir.homework3.R;
-import valjevac.kresimir.homework3.activities.LoginActivity;
-import valjevac.kresimir.homework3.activities.MainActivity;
+import valjevac.kresimir.homework3.activities.StarterActivity;
 import valjevac.kresimir.homework3.custom.ProgressView;
 import valjevac.kresimir.homework3.helpers.ApiErrorHelper;
 import valjevac.kresimir.homework3.helpers.NetworkHelper;
 import valjevac.kresimir.homework3.helpers.SharedPreferencesHelper;
+import valjevac.kresimir.homework3.interfaces.FragmentUtils;
 import valjevac.kresimir.homework3.models.BaseResponse;
 import valjevac.kresimir.homework3.models.Data;
 import valjevac.kresimir.homework3.models.User;
@@ -43,6 +45,7 @@ import valjevac.kresimir.homework3.network.BaseCallback;
 
 public class LoginFragment extends Fragment {
     private Unbinder unbinder;
+
     public OnFragmentInteractionListener listener;
 
     @BindView(R.id.et_user_email)
@@ -72,11 +75,19 @@ public class LoginFragment extends Fragment {
 
     private boolean argumentsConsumed = false;
 
-    private boolean isUserSessionActive;
+    private boolean isUserAuthorized;
 
     private final static int CURRENT_ERROR = 0;
 
     private final static int DRAWABLE_RIGHT_ICON = 2;
+
+    private final static int CENTER_OFFSET = 30;
+
+    private final static int TRANSLATE_DURATION = 1200;
+
+    private final static int SCALE_DURATION = 500;
+
+    private final static int ACTION_DELAY = 150;
 
     private static final String SPLASH_ANIMATION = "SplashAnimation";
 
@@ -99,10 +110,28 @@ public class LoginFragment extends Fragment {
         LoginFragment fragment = new LoginFragment();
 
         Bundle args = new Bundle();
-        args.putBoolean(LoginActivity.SPLASH_ANIMATION, animateSplash);
+        args.putBoolean(StarterActivity.SPLASH_ANIMATION, animateSplash);
         fragment.setArguments(args);
 
         return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            animateSplash = savedInstanceState.getBoolean(SPLASH_ANIMATION);
+        }
+        else {
+
+            Bundle arguments = getArguments();
+            if (arguments != null && !argumentsConsumed && !animateSplash) {
+
+                animateSplash = arguments.getBoolean(StarterActivity.SPLASH_ANIMATION);
+                argumentsConsumed = true;
+            }
+        }
     }
 
     @Nullable
@@ -113,32 +142,18 @@ public class LoginFragment extends Fragment {
         unbinder = ButterKnife.bind(this, view);
 
         isPasswordVisible = false;
-        isUserSessionActive = false;
-
-        if (savedInstanceState != null) {
-            animateSplash = savedInstanceState.getBoolean(SPLASH_ANIMATION);
-        }
-        else {
-            if (getArguments() != null && !argumentsConsumed) {
-                Bundle args = getArguments();
-
-                animateSplash = args.getBoolean(LoginActivity.SPLASH_ANIMATION);
-                argumentsConsumed = true;
-            }
-        }
+        isUserAuthorized = false;
 
         String email = SharedPreferencesHelper.getString(SharedPreferencesHelper.EMAIL);
         String authToken = SharedPreferencesHelper.getString(SharedPreferencesHelper.AUTH_TOKEN);
 
-        isUserSessionActive = !TextUtils.isEmpty(email) && !TextUtils.isEmpty(authToken);
+        isUserAuthorized = !TextUtils.isEmpty(email) && !TextUtils.isEmpty(authToken);
 
         view.post(new Runnable() {
             @Override
             public void run() {
 
-                if (animateSplash) {
-                    loadSplashAnimation();
-                }
+                loadSplashAnimation();
             }
         });
 
@@ -242,13 +257,8 @@ public class LoginFragment extends Fragment {
 
             @Override
             public void onSuccess(BaseResponse<Data<User>> body, Response<BaseResponse<Data<User>>> response) {
-                SharedPreferencesHelper.setInt(body.getData().getId(), SharedPreferencesHelper.USER_ID);
-                SharedPreferencesHelper.setString(body.getData().getAttributes().getAuthToken(), SharedPreferencesHelper.AUTH_TOKEN);
-                SharedPreferencesHelper.setString(body.getData().getAttributes().getUsername(), SharedPreferencesHelper.USER);
-                SharedPreferencesHelper.setString(body.getData().getAttributes().getEmail(), SharedPreferencesHelper.EMAIL);
-
-                Intent intent = new Intent(getActivity(), MainActivity.class);
-                startActivity(intent);
+                SharedPreferencesHelper.login(body.getData().getId(), body.getData().getAttributes().getAuthToken(),
+                        body.getData().getAttributes().getUsername(), body.getData().getAttributes().getEmail());
 
                 listener.onLoginButtonClick(true);
             }
@@ -265,13 +275,15 @@ public class LoginFragment extends Fragment {
 
                 if (isPasswordVisible) {
                     etUserPassword.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_visibility_off, 0);
-                    etUserPassword.setTransformationMethod(new PasswordTransformationMethod());
+                    etUserPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                    etUserPassword.setSelection(etUserPassword.length());
 
                     isPasswordVisible = false;
                 }
                 else {
                     etUserPassword.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_visibility_on, 0);
-                    etUserPassword.setTransformationMethod(null);
+                    etUserPassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                    etUserPassword.setSelection(etUserPassword.length());
 
                     isPasswordVisible = true;
                 }
@@ -309,6 +321,16 @@ public class LoginFragment extends Fragment {
         return invalidEditText;
     }
 
+    private boolean validateEmailAddress() {
+        String regex = "\\A[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@\n" +
+                "(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\z";
+
+        Pattern pattern = Pattern.compile(regex);
+        String email = etUserEmail.getText().toString();
+
+        return pattern.matcher(email).matches();
+    }
+
     private boolean validateInputFields() {
         EditText emptyEditText = validateEditTexts(rlLoginFormContainer);
 
@@ -332,17 +354,20 @@ public class LoginFragment extends Fragment {
     }
 
     private void loadSplashAnimation() {
-        rlLoginFormContainer.setVisibility(View.INVISIBLE);
-        ivPokeballLogin.setVisibility(View.INVISIBLE);
-        ivPokemonLogo.setVisibility(View.INVISIBLE);
+        if (!animateSplash) {
+            setScreenViewsVisibility(true);
+            return;
+        }
+
+        setScreenViewsVisibility(false);
 
         TranslateAnimation translation;
-        int nextY = Math.round(ivPokemonLogo.getY()) - 30;
-        int parentCenter = (rlLoginContainer.getHeight() / 2) - 30;
+        int nextY = Math.round(ivPokemonLogo.getY()) - CENTER_OFFSET;
+        int parentCenter = (rlLoginContainer.getHeight() / 2) - CENTER_OFFSET;
 
         translation = new TranslateAnimation(0, 0, parentCenter, -nextY);
         translation.setInterpolator(new AccelerateInterpolator());
-        translation.setDuration(1200);
+        translation.setDuration(TRANSLATE_DURATION);
         translation.setFillAfter(true);
 
         translation.setAnimationListener(new Animation.AnimationListener() {
@@ -356,7 +381,7 @@ public class LoginFragment extends Fragment {
                 final ScaleAnimation scale = new ScaleAnimation(0f, 1f, 0f, 1f,
                         Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
 
-                scale.setDuration(500);
+                scale.setDuration(SCALE_DURATION);
                 scale.setFillAfter(true);
 
                 scale.setAnimationListener(new Animation.AnimationListener() {
@@ -368,7 +393,7 @@ public class LoginFragment extends Fragment {
                     @Override
                     public void onAnimationEnd(Animation animation) {
 
-                        if (isUserSessionActive) {
+                        if (isUserAuthorized) {
                             final Handler handler = new Handler();
 
                             handler.postDelayed(new Runnable() {
@@ -376,7 +401,7 @@ public class LoginFragment extends Fragment {
                                 public void run() {
                                     listener.onSessionExists();
                                 }
-                            }, 100);
+                            }, ACTION_DELAY);
                         }
                         else {
                             rlLoginFormContainer.setVisibility(View.VISIBLE);
@@ -401,5 +426,20 @@ public class LoginFragment extends Fragment {
         ivPokemonLogo.startAnimation(translation);
 
         animateSplash = false;
+    }
+
+    private void setScreenViewsVisibility(boolean isVisible) {
+        if (isVisible) {
+
+            rlLoginFormContainer.setVisibility(View.VISIBLE);
+            ivPokeballLogin.setVisibility(View.VISIBLE);
+            ivPokemonLogo.setVisibility(View.VISIBLE);
+        }
+        else {
+
+            rlLoginFormContainer.setVisibility(View.INVISIBLE);
+            ivPokeballLogin.setVisibility(View.INVISIBLE);
+            ivPokemonLogo.setVisibility(View.INVISIBLE);
+        }
     }
 }

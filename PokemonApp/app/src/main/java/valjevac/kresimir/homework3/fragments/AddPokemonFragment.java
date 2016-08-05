@@ -52,12 +52,14 @@ import valjevac.kresimir.homework3.activities.MainActivity;
 import valjevac.kresimir.homework3.custom.ProgressView;
 import valjevac.kresimir.homework3.helpers.BitmapHelper;
 import valjevac.kresimir.homework3.helpers.NetworkHelper;
+import valjevac.kresimir.homework3.interfaces.FragmentUtils;
 import valjevac.kresimir.homework3.models.BaseResponse;
 import valjevac.kresimir.homework3.models.Data;
 import valjevac.kresimir.homework3.models.Pokemon;
 import valjevac.kresimir.homework3.network.ApiManager;
+import valjevac.kresimir.homework3.network.BaseCallback;
 
-public class AddPokemonFragment extends Fragment {
+public class AddPokemonFragment extends Fragment implements FragmentUtils {
     private Unbinder unbinder;
 
     private OnFragmentInteractionListener listener;
@@ -79,6 +81,10 @@ public class AddPokemonFragment extends Fragment {
     private static final String MEDIA_TYPE = "application/image";
 
     private static final String IS_DEVICE_TABLET = "IsTablet";
+
+    private static final int VERTICAL_OFFSET = 10;
+
+    private static final double VERTICAL_OFFSET_CENTER = 1.5;
 
     private boolean changesMade;
 
@@ -146,7 +152,7 @@ public class AddPokemonFragment extends Fragment {
 
     public interface OnFragmentInteractionListener {
 
-        void onPokemonAdded();
+        void onPokemonAdded(Pokemon pokemon);
 
         void onAddHomePressed();
     }
@@ -207,10 +213,12 @@ public class AddPokemonFragment extends Fragment {
             ablHeaderAddPokemon.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
                 @Override
                 public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-                    if ((Math.abs(verticalOffset) + 10) >= (appBarLayout.getTotalScrollRange() / 1.5) && !isColorChanged) {
+                    if ((Math.abs(verticalOffset) + VERTICAL_OFFSET) >= (appBarLayout.getTotalScrollRange() /
+                            VERTICAL_OFFSET_CENTER) && !isColorChanged) {
+
                         setBackArrowColor(true, (MainActivity) getActivity());
                     }
-                    else if (Math.abs(verticalOffset) <= (appBarLayout.getTotalScrollRange() / 1.5)) {
+                    else if (Math.abs(verticalOffset) <= (appBarLayout.getTotalScrollRange() / VERTICAL_OFFSET_CENTER)) {
                         setBackArrowColor(false, (MainActivity) getActivity());
                     }
                 }
@@ -567,14 +575,17 @@ public class AddPokemonFragment extends Fragment {
         int[] moves = new int[0];
         int[] category = new int[0];
 
-        String filePath = getFilePath(this.imageUri);
         File imageFile;
         RequestBody body = null;
 
-        if (filePath != null) {
+        if (imageUri != null) {
+            String filePath = getFilePath(this.imageUri);
 
-            imageFile = new File(filePath);
-            body = RequestBody.create(MediaType.parse(MEDIA_TYPE), imageFile);
+            if (filePath != null) {
+
+                imageFile = new File(filePath);
+                body = RequestBody.create(MediaType.parse(MEDIA_TYPE), imageFile);
+            }
         }
 
         insertPokemonCall = ApiManager.getService().insertPokemon(
@@ -589,20 +600,20 @@ public class AddPokemonFragment extends Fragment {
                 body
         );
 
-        insertPokemonCall.enqueue(new Callback<BaseResponse<Data<Pokemon>>>() {
+        insertPokemonCall.enqueue(new BaseCallback<BaseResponse<Data<Pokemon>>>() {
             @Override
-            public void onResponse(Call<BaseResponse<Data<Pokemon>>> call, Response<BaseResponse<Data<Pokemon>>> response) {
-                Toast.makeText(getActivity(), R.string.pokemon_saved, Toast.LENGTH_SHORT).show();
-
-                clearInputViews(rlActivityBody);
-                listener.onPokemonAdded();
-            }
-
-            @Override
-            public void onFailure(Call<BaseResponse<Data<Pokemon>>> call, Throwable t) {
+            public void onUnknownError(@Nullable String error) {
                 Toast.makeText(getActivity(), R.string.pokemon_save_failed, Toast.LENGTH_SHORT).show();
 
                 displayProgress(false);
+            }
+
+            @Override
+            public void onSuccess(BaseResponse<Data<Pokemon>> body, Response<BaseResponse<Data<Pokemon>>> response) {
+                Toast.makeText(getActivity(), R.string.pokemon_saved, Toast.LENGTH_SHORT).show();
+
+                clearInputViews(rlActivityBody);
+                listener.onPokemonAdded(body.getData().getAttributes());
             }
         });
     }

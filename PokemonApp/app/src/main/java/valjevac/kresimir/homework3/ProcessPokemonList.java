@@ -47,10 +47,6 @@ public class ProcessPokemonList implements Runnable {
         for (Data data : body.getData()) {
             if (data.getAttributes() instanceof Pokemon) {
 
-                if (isCanceled) {
-                    break;
-                }
-
                 Pokemon pokemon = (Pokemon) data.getAttributes();
                 pokemon.setId(data.getId());
 
@@ -59,14 +55,12 @@ public class ProcessPokemonList implements Runnable {
             }
         }
 
-        if (isCanceled) {
-            return;
-        }
-
         handler.post(new Runnable() {
             @Override
             public void run() {
-                listener.onProcessingFinished(pokemons);
+                if (!isCanceled) {
+                    listener.onProcessingFinished(pokemons);
+                }
             }
         });
     }

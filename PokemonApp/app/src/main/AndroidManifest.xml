@@ -15,7 +15,7 @@
         android:name=".PokemonApplication"
         android:theme="@style/AppTheme.NoActionBar">
 
-        <activity android:name=".activities.LoginActivity"
+        <activity android:name=".activities.StarterActivity"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
