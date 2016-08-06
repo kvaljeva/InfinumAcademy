@@ -52,6 +52,9 @@ public interface PokemonService {
     @POST("/api/v1/pokemons/{id}/upvote")
     Call<BaseResponse<Data<Pokemon>>> votePokemon(@Path("id") int pokemonId);
 
+    @POST("/api/v1/pokemons/{id}/downvote")
+    Call<BaseResponse<Data<Pokemon>>> downvotePokemon(@Path("id") int pokemonId);
+
     @POST("/api/v1/pokemons/{pokemon_id}/comments")
     Call<BaseResponse<Data<Comment>>> insertComment(
             @Path("pokemon_id") int pokemonId,

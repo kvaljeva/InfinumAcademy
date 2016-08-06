@@ -266,12 +266,13 @@
                     android:gravity="center"/>
             </LinearLayout>
 
-            <RelativeLayout
-                android:id="@+id/rl_comments_container"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:id="@+id/ll_comments_container"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_high"
-                android:layout_below="@id/ll_like_dislike_container_labels">
+                android:layout_below="@id/ll_like_dislike_container_labels"
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/tv_comments_label"
@@ -280,13 +281,35 @@
                     android:text="@string/comments_label"
                     android:textSize="@dimen/text_size_large"/>
 
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/rv_comments"
+                <include
+                    android:id="@+id/first_comment_container"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="@dimen/margin_small"
+                    layout="@layout/list_item_comment" />
+
+                <include
+                    android:id="@+id/second_comment_container"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    layout="@layout/list_item_comment"/>
+
+                <FrameLayout
+                    android:id="@+id/fl_show_comments_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/tv_comments_label"
-                    android:layout_marginTop="@dimen/margin_small"/>
-            </RelativeLayout>
+                    android:background="@color/colorPrimary"
+                    android:visibility="gone">
+
+                    <Button
+                        android:id="@+id/btn_show_comments"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:text="@string/btn_show_all_comments"
+                        android:textColor="@color/white"/>
+                </FrameLayout>
+            </LinearLayout>
         </RelativeLayout>
     </android.support.v4.widget.NestedScrollView>
 
@@ -295,8 +318,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_gravity="end|bottom"
-        android:background="@color/white"
-        android:weightSum="1">
+        android:background="@color/white">
 
         <EditText
             android:id="@+id/et_comment_body"

@@ -10,7 +10,7 @@ public class BaseResponse<T> {
     private T data;
 
     @SerializedName("included")
-    private ArrayList<User> included;
+    private ArrayList<Data<User>> included;
 
     public BaseResponse(T data) {
         this.data = data;
@@ -24,11 +24,11 @@ public class BaseResponse<T> {
         this.data = data;
     }
 
-    public ArrayList<User> getIncluded() {
+    public ArrayList<Data<User>> getIncluded() {
         return included;
     }
 
-    public void setIncluded(ArrayList<User> included) {
+    public void setIncluded(ArrayList<Data<User>> included) {
         this.included = included;
     }
 }

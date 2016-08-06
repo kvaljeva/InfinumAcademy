@@ -12,6 +12,9 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.NestedScrollView;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -21,9 +24,14 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,13 +49,16 @@ import retrofit2.Response;
 import valjevac.kresimir.homework3.BuildConfig;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.activities.MainActivity;
+import valjevac.kresimir.homework3.adapters.CommentAdapter;
 import valjevac.kresimir.homework3.helpers.ApiErrorHelper;
 import valjevac.kresimir.homework3.helpers.BitmapHelper;
 import valjevac.kresimir.homework3.helpers.NetworkHelper;
+import valjevac.kresimir.homework3.interfaces.RecyclerViewClickListener;
 import valjevac.kresimir.homework3.models.BaseResponse;
 import valjevac.kresimir.homework3.models.Comment;
 import valjevac.kresimir.homework3.models.Data;
 import valjevac.kresimir.homework3.models.Pokemon;
+import valjevac.kresimir.homework3.models.User;
 import valjevac.kresimir.homework3.network.ApiManager;
 import valjevac.kresimir.homework3.network.BaseCallback;
 
@@ -101,6 +112,16 @@ public class PokemonDetailsFragment extends Fragment {
     @BindView(R.id.et_comment_body)
     EditText etCommentBody;
 
+    @BindView(R.id.ll_comments_container)
+    LinearLayout llCommentsContainer;
+
+    @BindView(R.id.first_comment_container)
+    View vFirstComment;
+
+    @BindView(R.id.second_comment_container)
+    View vSecondComment;
+
+
     private ArrayList<Comment> commentList;
 
     private Pokemon pokemon;
@@ -108,6 +129,8 @@ public class PokemonDetailsFragment extends Fragment {
     ProgressDialog progressDialog;
 
     Call<BaseResponse<Data<Pokemon>>> upvotePokemonCall;
+
+    Call<BaseResponse<Data<Pokemon>>> downvotePokemonCall;
 
     Call<BaseResponse<Data<Comment>>> createCommentCall;
 
@@ -182,6 +205,10 @@ public class PokemonDetailsFragment extends Fragment {
 
         if (upvotePokemonCall != null) {
             upvotePokemonCall.cancel();
+        }
+
+        if (downvotePokemonCall != null) {
+            downvotePokemonCall.cancel();
         }
 
         if (createCommentCall != null) {
@@ -290,7 +317,7 @@ public class PokemonDetailsFragment extends Fragment {
     @OnClick(R.id.btn_dislike)
     public void dislikePokemon() {
 
-        sendUpvoteRequest();
+        sendDownvoteRequest();
 
         setButtonState(-1);
     }
@@ -324,8 +351,44 @@ public class PokemonDetailsFragment extends Fragment {
             @Override
             public void onSuccess(BaseResponse<ArrayList<Data<Comment>>> body, Response<BaseResponse<ArrayList<Data<Comment>>>> response) {
 
+                ArrayList<Data<User>> includedList = body.getIncluded();
+                ArrayList<Comment> visibleCommentsList = new ArrayList<>();
+
                 for (Data data : body.getData()) {
-                    commentList.add((Comment) data.getAttributes());
+                    Comment comment = (Comment) data.getAttributes();
+
+                    comment.setId(data.getId());
+                    comment.setUsername(includedList.get(0).getAttributes().getUsername());
+
+                    commentList.add(comment);
+
+                    if (visibleCommentsList.size() < 2) {
+                        visibleCommentsList.add(comment);
+                    }
+                }
+
+                if (visibleCommentsList.size() > 0) {
+                    TextView tvFirstUsername = (TextView) vFirstComment.findViewById(R.id.tv_comment_username);
+                    TextView tvFirstBody = (TextView) vFirstComment.findViewById(R.id.tv_comment_body);
+                    TextView tvFirstDate = (TextView) vFirstComment.findViewById(R.id.tv_comment_date);
+
+                    tvFirstUsername.setText(commentList.get(0).getUsername());
+                    tvFirstBody.setText(commentList.get(0).getContent());
+                    tvFirstDate.setText(commentList.get(0).getDate());
+                }
+
+                if (visibleCommentsList.size() > 1) {
+                    TextView tvSecondUsername = (TextView) vSecondComment.findViewById(R.id.tv_comment_username);
+                    TextView tvSecondBody = (TextView) vSecondComment.findViewById(R.id.tv_comment_body);
+                    TextView tvSecondDate = (TextView) vSecondComment.findViewById(R.id.tv_comment_date);
+
+                    tvSecondUsername.setText(commentList.get(1).getUsername());
+                    tvSecondBody.setText(commentList.get(1).getContent());
+                    tvSecondDate.setText(commentList.get(1).getDate());
+                }
+
+                if (commentList.size() > 2) {
+                    //flShowCommentsButtonContainer.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -372,6 +435,30 @@ public class PokemonDetailsFragment extends Fragment {
                 showProgressDialog(false);
 
                 commentList.add(body.getData().getAttributes());
+            }
+        });
+    }
+
+    private void sendDownvoteRequest() {
+
+        if (!checkIfNetworkAvailable()) {
+            return;
+        }
+
+        showProgressDialog(true);
+
+        downvotePokemonCall = ApiManager.getService().downvotePokemon(pokemon.getId());
+        downvotePokemonCall.enqueue(new BaseCallback<BaseResponse<Data<Pokemon>>>() {
+            @Override
+            public void onUnknownError(@Nullable String error) {
+
+                showProgressDialog(false);
+            }
+
+            @Override
+            public void onSuccess(BaseResponse<Data<Pokemon>> body, Response<BaseResponse<Data<Pokemon>>> response) {
+
+                showProgressDialog(false);
             }
         });
     }

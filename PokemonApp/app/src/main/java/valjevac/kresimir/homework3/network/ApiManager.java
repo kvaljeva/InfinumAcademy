@@ -5,12 +5,15 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.util.Date;
+
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
 import valjevac.kresimir.homework3.BuildConfig;
+import valjevac.kresimir.homework3.network.deserializers.DateDeserializer;
 
 public class ApiManager {
 
@@ -18,7 +21,9 @@ public class ApiManager {
 
     public static final String TYPE_SESSION = "session";
 
-    private static final Gson GSON = new GsonBuilder().create();
+    private static final Gson GSON = new GsonBuilder()
+            .registerTypeAdapter(Date.class, new DateDeserializer())
+            .create();
 
     private static HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
         @Override
