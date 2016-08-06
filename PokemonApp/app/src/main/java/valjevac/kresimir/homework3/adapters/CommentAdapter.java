@@ -25,7 +25,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
 
     public CommentAdapter(Context context, List<Comment> comments, RecyclerViewClickListener<Comment> listener) {
         this.context = context;
-        this.commentList = new ArrayList<>();
+        this.commentList = new ArrayList<>(comments);
         this.listener = listener;
     }
 

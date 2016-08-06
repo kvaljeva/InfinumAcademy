@@ -14,20 +14,26 @@ import android.transition.TransitionInflater;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import java.util.ArrayList;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.fragments.AddPokemonFragment;
+import valjevac.kresimir.homework3.fragments.CommentsFragment;
 import valjevac.kresimir.homework3.fragments.ConfirmationDialogFragment;
 import valjevac.kresimir.homework3.fragments.PokemonDetailsFragment;
 import valjevac.kresimir.homework3.fragments.PokemonListFragment;
+import valjevac.kresimir.homework3.helpers.PokemonHelper;
 import valjevac.kresimir.homework3.helpers.SharedPreferencesHelper;
 import valjevac.kresimir.homework3.interfaces.FragmentUtils;
+import valjevac.kresimir.homework3.models.Comment;
 import valjevac.kresimir.homework3.models.Pokemon;
 
 public class MainActivity extends AppCompatActivity implements
         PokemonListFragment.OnFragmentInteractionListener, AddPokemonFragment.OnFragmentInteractionListener,
-        ConfirmationDialogFragment.OnCompleteListener, PokemonDetailsFragment.OnFragmentInteractionListener {
+        ConfirmationDialogFragment.OnCompleteListener, PokemonDetailsFragment.OnFragmentInteractionListener,
+        CommentsFragment.OnFragmentInteractionListener {
 
     private static final int ORIENTATION_PORTRAIT = 1;
 
@@ -38,6 +44,8 @@ public class MainActivity extends AppCompatActivity implements
     public static final String ADD_POKEMON_FRAGMENT_TAG = "AddPokemonFragment";
 
     private static final String POKEMON_DETAILS_FRAGMENT_TAG = "PokemonDetailsFragment";
+
+    private static final String COMMENTS_FRAGMENT_TAG = "CommentsFragment";
 
     private boolean isDeviceTablet;
 
@@ -57,6 +65,8 @@ public class MainActivity extends AppCompatActivity implements
 
         ButterKnife.bind(this);
 
+        PokemonHelper.init();
+
         isDeviceTablet = getResources().getBoolean(R.bool.isDeviceTablet);
         currentOrientation = getCurrentOrientation();
 
@@ -69,6 +79,15 @@ public class MainActivity extends AppCompatActivity implements
             ViewCompat.setElevation(flContainerMain, 7);
 
             loadFragment(PokemonListFragment.newInstance(false), POKEMON_LIST_FRAGMENT_TAG);
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        if (PokemonHelper.isCallActive()) {
+            PokemonHelper.cancelRequests();
         }
     }
 
@@ -216,6 +235,11 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
+    public void onShowAllCommentsPressed(String pokemonName, ArrayList<Comment> comments) {
+        loadFragment(CommentsFragment.newInstance(pokemonName, comments), COMMENTS_FRAGMENT_TAG);
+    }
+
+    @Override
     public void onLogoutClick() {
 
         SharedPreferencesHelper.logout();
@@ -225,5 +249,10 @@ public class MainActivity extends AppCompatActivity implements
         startActivity(intent);
 
         finish();
+    }
+
+    @Override
+    public void onCommentsHomePressed() {
+        removeFragmentFromStack(COMMENTS_FRAGMENT_TAG);
     }
 }

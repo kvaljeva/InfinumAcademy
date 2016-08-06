@@ -13,7 +13,7 @@
     <string name="alert_dialog_message">Are you sure that you want to abandon your data?</string>
     <string name="alert_dialog_title">Warning</string>
     <string name="iv_pokemon_empty_state">iv_pokemon_empty_state</string>
-    <string name="et_pokemon_type">Type</string>
+    <string name="et_pokemon_type">Types</string>
     <string name="et_pokemon_weight">Weight</string>
     <string name="et_pokemon_height">Height</string>
     <string name="rb_male_text">Male</string>
@@ -71,4 +71,6 @@
     <string name="btn_create_comment_desc">Button create comment icon</string>
     <string name="empty_coment_error">Cannot send empty comment</string>
     <string name="btn_show_all_comments">Show all comments</string>
+    <string name="comments_fragment_default_title">Pokemon comments</string>
+    <string name="comments">comments</string>
 </resources>

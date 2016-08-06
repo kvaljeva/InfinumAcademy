@@ -121,6 +121,8 @@ public class PokemonDetailsFragment extends Fragment {
     @BindView(R.id.second_comment_container)
     View vSecondComment;
 
+    @BindView(R.id.fl_show_comments_container)
+    FrameLayout flShowCommentsContainer;
 
     private ArrayList<Comment> commentList;
 
@@ -155,6 +157,8 @@ public class PokemonDetailsFragment extends Fragment {
     public interface OnFragmentInteractionListener {
 
         void onDetailsHomePressed();
+
+        void onShowAllCommentsPressed(String title, ArrayList<Comment> comments);
     }
 
     @Nullable
@@ -308,18 +312,20 @@ public class PokemonDetailsFragment extends Fragment {
 
     @OnClick(R.id.btn_like)
     public void likePokemon() {
+        if (pokemon.getVote() != 1) {
+            sendUpvoteRequest();
 
-        sendUpvoteRequest();
-
-        setButtonState(1);
+            setButtonState(1);
+        }
     }
 
     @OnClick(R.id.btn_dislike)
     public void dislikePokemon() {
+        if (pokemon.getVote() != -1) {
+            sendDownvoteRequest();
 
-        sendDownvoteRequest();
-
-        setButtonState(-1);
+            setButtonState(-1);
+        }
     }
 
     public boolean checkIfNetworkAvailable() {
@@ -388,7 +394,7 @@ public class PokemonDetailsFragment extends Fragment {
                 }
 
                 if (commentList.size() > 2) {
-                    //flShowCommentsButtonContainer.setVisibility(View.VISIBLE);
+                    flShowCommentsContainer.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -405,6 +411,11 @@ public class PokemonDetailsFragment extends Fragment {
         }
 
         sendComment(commentBody);
+    }
+
+    @OnClick(R.id.btn_show_comments)
+    public void showAllComments() {
+        listener.onShowAllCommentsPressed(pokemon.getName() ,commentList);
     }
 
     private void sendComment(String commentBody) {
@@ -452,12 +463,18 @@ public class PokemonDetailsFragment extends Fragment {
             @Override
             public void onUnknownError(@Nullable String error) {
 
+                setButtonState(pokemon.getVote());
                 showProgressDialog(false);
+
+                if (ApiErrorHelper.createError(error)) {
+                    Toast.makeText(getActivity(), ApiErrorHelper.getFullError(0), Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
             public void onSuccess(BaseResponse<Data<Pokemon>> body, Response<BaseResponse<Data<Pokemon>>> response) {
 
+                pokemon.setVote(-1);
                 showProgressDialog(false);
             }
         });
@@ -476,12 +493,18 @@ public class PokemonDetailsFragment extends Fragment {
             @Override
             public void onUnknownError(@Nullable String error) {
 
+                setButtonState(pokemon.getVote());
                 showProgressDialog(false);
+
+                if (ApiErrorHelper.createError(error)) {
+                    Toast.makeText(getActivity(), ApiErrorHelper.getFullError(0), Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
             public void onSuccess(BaseResponse<Data<Pokemon>> body, Response<BaseResponse<Data<Pokemon>>> response) {
 
+                pokemon.setVote(1);
                 showProgressDialog(false);
             }
         });

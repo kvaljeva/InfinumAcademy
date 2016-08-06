@@ -1,5 +1,6 @@
 package valjevac.kresimir.homework3.network;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import okhttp3.RequestBody;
@@ -14,7 +15,9 @@ import retrofit2.http.Path;
 import valjevac.kresimir.homework3.models.BaseResponse;
 import valjevac.kresimir.homework3.models.Comment;
 import valjevac.kresimir.homework3.models.Data;
+import valjevac.kresimir.homework3.models.Move;
 import valjevac.kresimir.homework3.models.Pokemon;
+import valjevac.kresimir.homework3.models.Type;
 import valjevac.kresimir.homework3.models.User;
 
 public interface PokemonService {
@@ -63,4 +66,10 @@ public interface PokemonService {
 
     @GET("/api/v1/pokemons/{pokemon_id}/comments")
     Call<BaseResponse<ArrayList<Data<Comment>>>> getComments(@Path("pokemon_id") int pokemonId);
+
+    @GET("/api/v1/moves")
+    Call<BaseResponse<ArrayList<Data<Move>>>> getMoves();
+
+    @GET("/api/v1/types")
+    Call<BaseResponse<ArrayList<Data<Type>>>> getTypes();
 }

@@ -1,10 +1,13 @@
 package valjevac.kresimir.homework3.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 
-public class Comment implements Serializable {
+public class Comment implements Serializable, Parcelable {
 
     @SerializedName("content")
     private String content;
@@ -51,4 +54,37 @@ public class Comment implements Serializable {
     public void setDate(String date) {
         this.date = date;
     }
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.content);
+        dest.writeString(this.date);
+        dest.writeString(this.username);
+        dest.writeInt(this.id);
+    }
+
+    protected Comment(Parcel in) {
+        this.content = in.readString();
+        this.date = in.readString();
+        this.username = in.readString();
+        this.id = in.readInt();
+    }
+
+    public static final Creator<Comment> CREATOR = new Creator<Comment>() {
+        @Override
+        public Comment createFromParcel(Parcel source) {
+            return new Comment(source);
+        }
+
+        @Override
+        public Comment[] newArray(int size) {
+            return new Comment[size];
+        }
+    };
 }
