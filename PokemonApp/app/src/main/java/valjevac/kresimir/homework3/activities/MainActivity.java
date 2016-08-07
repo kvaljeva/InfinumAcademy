@@ -26,7 +26,6 @@ import valjevac.kresimir.homework3.fragments.PokemonDetailsFragment;
 import valjevac.kresimir.homework3.fragments.PokemonListFragment;
 import valjevac.kresimir.homework3.helpers.PokemonHelper;
 import valjevac.kresimir.homework3.helpers.SharedPreferencesHelper;
-import valjevac.kresimir.homework3.interfaces.FragmentUtils;
 import valjevac.kresimir.homework3.models.Comment;
 import valjevac.kresimir.homework3.models.Pokemon;
 

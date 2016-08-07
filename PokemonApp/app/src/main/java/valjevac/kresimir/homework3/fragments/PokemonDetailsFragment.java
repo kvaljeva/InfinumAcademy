@@ -3,42 +3,35 @@ package valjevac.kresimir.homework3.fragments;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.annotation.StringDef;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.NestedScrollView;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -46,14 +39,11 @@ import butterknife.OnClick;
 import butterknife.Unbinder;
 import retrofit2.Call;
 import retrofit2.Response;
-import valjevac.kresimir.homework3.BuildConfig;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.activities.MainActivity;
-import valjevac.kresimir.homework3.adapters.CommentAdapter;
 import valjevac.kresimir.homework3.helpers.ApiErrorHelper;
 import valjevac.kresimir.homework3.helpers.BitmapHelper;
 import valjevac.kresimir.homework3.helpers.NetworkHelper;
-import valjevac.kresimir.homework3.interfaces.RecyclerViewClickListener;
 import valjevac.kresimir.homework3.models.BaseResponse;
 import valjevac.kresimir.homework3.models.Comment;
 import valjevac.kresimir.homework3.models.Data;
@@ -68,6 +58,8 @@ public class PokemonDetailsFragment extends Fragment {
     private OnFragmentInteractionListener listener;
 
     private static final String POKEMON_DETAILS = "PokemonDetails";
+
+    private static final String DATE_FORMAT = "MMM dd, yyyy";
 
     @BindView(R.id.tv_details_pokemon_name)
     TextView tvName;
@@ -124,6 +116,9 @@ public class PokemonDetailsFragment extends Fragment {
     @BindView(R.id.fl_show_comments_container)
     FrameLayout flShowCommentsContainer;
 
+    @BindView(R.id.sv_details_body_container)
+    NestedScrollView nsvDetailsBody;
+
     private ArrayList<Comment> commentList;
 
     private Pokemon pokemon;
@@ -137,6 +132,8 @@ public class PokemonDetailsFragment extends Fragment {
     Call<BaseResponse<Data<Comment>>> createCommentCall;
 
     Call<BaseResponse<ArrayList<Data<Comment>>>> getCommentsCall;
+
+    BaseCallback<BaseResponse<ArrayList<Data<Comment>>>> getCommentsCallback;
 
     public PokemonDetailsFragment() { }
 
@@ -200,6 +197,9 @@ public class PokemonDetailsFragment extends Fragment {
 
         fetchCommentList();
 
+        // Reset focus so that we're always on the top when the view gets created
+        nsvDetailsBody.smoothScrollTo(0, 0);
+
         return view;
     }
 
@@ -217,6 +217,10 @@ public class PokemonDetailsFragment extends Fragment {
 
         if (createCommentCall != null) {
             createCommentCall.cancel();
+        }
+
+        if (getCommentsCallback != null) {
+            getCommentsCallback.cancel();
         }
 
         if (getCommentsCall != null) {
@@ -344,10 +348,10 @@ public class PokemonDetailsFragment extends Fragment {
             return;
         }
 
-        getCommentsCall = ApiManager.getService().getComments(pokemon.getId());
-        getCommentsCall.enqueue(new BaseCallback<BaseResponse<ArrayList<Data<Comment>>>>() {
+        getCommentsCallback = new BaseCallback<BaseResponse<ArrayList<Data<Comment>>>>() {
             @Override
             public void onUnknownError(@Nullable String error) {
+                Log.e("UNKNOWN ERROR COMMENTS", error);
 
                 if (ApiErrorHelper.createError(error)) {
                     Toast.makeText(getActivity(), ApiErrorHelper.getFullError(0), Toast.LENGTH_SHORT).show();
@@ -374,30 +378,33 @@ public class PokemonDetailsFragment extends Fragment {
                 }
 
                 if (visibleCommentsList.size() > 0) {
-                    TextView tvFirstUsername = (TextView) vFirstComment.findViewById(R.id.tv_comment_username);
-                    TextView tvFirstBody = (TextView) vFirstComment.findViewById(R.id.tv_comment_body);
-                    TextView tvFirstDate = (TextView) vFirstComment.findViewById(R.id.tv_comment_date);
+                    setCommenData(vFirstComment, 0);
 
-                    tvFirstUsername.setText(commentList.get(0).getUsername());
-                    tvFirstBody.setText(commentList.get(0).getContent());
-                    tvFirstDate.setText(commentList.get(0).getDate());
-                }
-
-                if (visibleCommentsList.size() > 1) {
-                    TextView tvSecondUsername = (TextView) vSecondComment.findViewById(R.id.tv_comment_username);
-                    TextView tvSecondBody = (TextView) vSecondComment.findViewById(R.id.tv_comment_body);
-                    TextView tvSecondDate = (TextView) vSecondComment.findViewById(R.id.tv_comment_date);
-
-                    tvSecondUsername.setText(commentList.get(1).getUsername());
-                    tvSecondBody.setText(commentList.get(1).getContent());
-                    tvSecondDate.setText(commentList.get(1).getDate());
+                    if (visibleCommentsList.size() > 1) {
+                        setCommenData(vSecondComment, 1);
+                    }
                 }
 
                 if (commentList.size() > 2) {
                     flShowCommentsContainer.setVisibility(View.VISIBLE);
                 }
             }
-        });
+        };
+
+        getCommentsCall = ApiManager.getService().getComments(pokemon.getId());
+        getCommentsCall.enqueue(getCommentsCallback);
+    }
+
+    private void setCommenData(View commentView, int position) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT, Locale.ENGLISH);
+
+        TextView tvUsername = (TextView) commentView.findViewById(R.id.tv_comment_username);
+        TextView tvBody = (TextView) commentView.findViewById(R.id.tv_comment_body);
+        TextView tvDate = (TextView) commentView.findViewById(R.id.tv_comment_date);
+
+        tvUsername.setText(commentList.get(position).getUsername());
+        tvBody.setText(commentList.get(position).getContent());
+        tvDate.setText(dateFormat.format(commentList.get(position).getDate()));
     }
 
     @OnClick(R.id.btn_create_comment)
@@ -446,6 +453,7 @@ public class PokemonDetailsFragment extends Fragment {
                 showProgressDialog(false);
 
                 commentList.add(body.getData().getAttributes());
+                etCommentBody.setText("");
             }
         });
     }
@@ -532,7 +540,7 @@ public class PokemonDetailsFragment extends Fragment {
         if (showProgress) {
             progressDialog = new ProgressDialog(getActivity());
             progressDialog.setIndeterminate(true);
-            progressDialog.setMessage("Hang on a sec...");
+            progressDialog.setMessage(getActivity().getString(R.string.progress_dialog_hang_on));
 
             progressDialog.show();
         }

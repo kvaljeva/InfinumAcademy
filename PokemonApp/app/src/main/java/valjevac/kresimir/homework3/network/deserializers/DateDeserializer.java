@@ -16,7 +16,7 @@ import java.util.Locale;
 
 public class DateDeserializer implements JsonDeserializer<Date>, JsonSerializer<Date> {
 
-    private static final SimpleDateFormat formatter = new SimpleDateFormat("EE, MMM dd, yyyy", Locale.GERMAN);
+    private static final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.GERMAN);
 
     @Override
     public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {

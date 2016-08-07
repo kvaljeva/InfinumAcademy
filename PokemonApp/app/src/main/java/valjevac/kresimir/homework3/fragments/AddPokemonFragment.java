@@ -2,6 +2,7 @@ package valjevac.kresimir.homework3.fragments;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -21,6 +22,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.NestedScrollView;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -32,9 +34,11 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 import butterknife.BindView;
@@ -45,17 +49,19 @@ import butterknife.Unbinder;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.activities.MainActivity;
 import valjevac.kresimir.homework3.custom.ProgressView;
 import valjevac.kresimir.homework3.helpers.BitmapHelper;
 import valjevac.kresimir.homework3.helpers.NetworkHelper;
+import valjevac.kresimir.homework3.helpers.PokemonHelper;
 import valjevac.kresimir.homework3.interfaces.FragmentUtils;
 import valjevac.kresimir.homework3.models.BaseResponse;
 import valjevac.kresimir.homework3.models.Data;
+import valjevac.kresimir.homework3.models.Move;
 import valjevac.kresimir.homework3.models.Pokemon;
+import valjevac.kresimir.homework3.models.PokemonType;
 import valjevac.kresimir.homework3.network.ApiManager;
 import valjevac.kresimir.homework3.network.BaseCallback;
 
@@ -106,12 +112,6 @@ public class AddPokemonFragment extends Fragment implements FragmentUtils {
     @BindView(R.id.et_pokemon_weight)
     EditText etPokemonWeight;
 
-    @BindView(R.id.et_pokemon_category)
-    EditText etPokemonCategory;
-
-    @BindView(R.id.et_pokemon_abilities)
-    EditText etPokemonAbilities;
-
     @BindView(R.id.rl_body)
     RelativeLayout rlActivityBody;
 
@@ -145,6 +145,20 @@ public class AddPokemonFragment extends Fragment implements FragmentUtils {
 
     @BindView(R.id.pv_add_pokemon)
     ProgressView progressView;
+
+    @BindView(R.id.tv_types_list)
+    TextView tvTypeList;
+
+    @BindView(R.id.tv_moves_list)
+    TextView tvMovesList;
+
+    private ArrayList<PokemonType> typesList;
+
+    private ArrayList<Move> movesList;
+
+    private boolean[] checkedMoves;
+
+    private boolean[] checkedTypes;
 
     Call<BaseResponse<Data<Pokemon>>> insertPokemonCall;
 
@@ -196,6 +210,8 @@ public class AddPokemonFragment extends Fragment implements FragmentUtils {
                 BitmapHelper.loadBitmap(ivPokemonImage, imageUri.toString(), false);
             }
         }
+
+        initializeValues();
 
         return view;
     }
@@ -492,8 +508,8 @@ public class AddPokemonFragment extends Fragment implements FragmentUtils {
             String pokemonDesc = etPokemonDescription.getText().toString();
             float pokemonHeight = Float.valueOf(etPokemonHeight.getText().toString());
             float pokemonWeight = Float.valueOf(etPokemonWeight.getText().toString());
-            String category = etPokemonCategory.getText().toString();
-            String abilities = etPokemonAbilities.getText().toString();
+            String category = "";
+            String abilities = "";
             Uri image = (this.imageUri == null) ? BitmapHelper.getResourceUri(R.drawable.ic_person_details) : this.imageUri;
             int gender = (rbGenderFemale.isChecked()) ? 2 : 1;
 
@@ -512,6 +528,92 @@ public class AddPokemonFragment extends Fragment implements FragmentUtils {
     @OnTextChanged(R.id.et_pokemon_name)
     public void notifyNameChange(CharSequence charSequence) {
         changesMade = !TextUtils.isEmpty(charSequence);
+    }
+
+    @OnClick(R.id.tv_moves_list)
+    public void selectPokemonMoves() {
+
+        final String[] movesArray = new String[movesList.size()];
+
+        for (int i = 0; i < movesList.size(); i++) {
+            movesArray[i] = movesList.get(i).getName();
+        }
+
+        createSelectionDialog(movesArray, checkedMoves, tvMovesList, "Moves");
+    }
+
+    @OnClick(R.id.tv_types_list)
+    public void selectPokemonType() {
+
+        final String[] typesArray = new String[typesList.size()];
+
+        for (int i = 0; i < typesList.size(); i++) {
+            typesArray[i] = typesList.get(i).getName();
+        }
+
+        createSelectionDialog(typesArray, checkedTypes, tvTypeList, "Type");
+    }
+
+    private void createSelectionDialog(final String[] itemsArray, final boolean[] checkedItems, final TextView textView, String title) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.DialogTheme);
+
+        builder.setMultiChoiceItems(itemsArray, checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+
+                checkedItems[which] = isChecked;
+            }
+        });
+
+        builder.setTitle(title);
+
+        builder.setPositiveButton(R.string.dialog_done, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+                setSelectedItems(itemsArray, checkedItems, textView);
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void setSelectedItems(String[] itemsArray, boolean[] checkedItems, TextView textView) {
+        String moves = "";
+        textView.setText("");
+
+        for (int i = 0; i < checkedItems.length; i++) {
+            if (checkedItems[i]) {
+                moves = moves + itemsArray[i] + ", ";
+            }
+        }
+
+        if (!TextUtils.isEmpty(moves)) {
+            moves = moves.substring(0, moves.length() - 2);
+            textView.setText(moves);
+        }
+        else {
+            textView.setText(getString(R.string.not_assigned));
+        }
+    }
+
+    private <T> int[] getSelectedItemIds (boolean[] checkedItems, boolean isMoveIds) {
+        int[] itemIds = new int[checkedItems.length];
+
+        for (int i = 0; i < checkedItems.length; i++) {
+            if (checkedItems[i]) {
+                if (isMoveIds) {
+                    itemIds[i] = movesList.get(i).getId();
+                }
+                else {
+                    itemIds[i] = typesList.get(i).getId();
+                }
+            }
+        }
+
+        return itemIds;
     }
 
     public boolean allowBackPressed() {
@@ -616,5 +718,22 @@ public class AddPokemonFragment extends Fragment implements FragmentUtils {
                 listener.onPokemonAdded(body.getData().getAttributes());
             }
         });
+    }
+
+    private void initializeValues() {
+
+        typesList = PokemonHelper.getTypes();
+        movesList = PokemonHelper.getMoves();
+
+        checkedMoves = new boolean[movesList.size()];
+        checkedTypes = new boolean[typesList.size()];
+
+        for (int i = 0; i < checkedMoves.length; i++) {
+            checkedMoves[i] = false;
+        }
+
+        for (int i = 0; i < checkedMoves.length; i++) {
+            checkedTypes[i] = false;
+        }
     }
 }

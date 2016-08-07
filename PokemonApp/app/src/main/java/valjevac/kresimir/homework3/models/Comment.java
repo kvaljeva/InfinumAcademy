@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class Comment implements Serializable, Parcelable {
 
@@ -13,7 +14,7 @@ public class Comment implements Serializable, Parcelable {
     private String content;
 
     @SerializedName("created-at")
-    private String date;
+    private Date date;
 
     private String username;
 
@@ -47,11 +48,11 @@ public class Comment implements Serializable, Parcelable {
         this.content = content;
     }
 
-    public String getDate() {
+    public Date getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(Date date) {
         this.date = date;
     }
 
@@ -64,14 +65,15 @@ public class Comment implements Serializable, Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.content);
-        dest.writeString(this.date);
+        dest.writeLong(this.date != null ? this.date.getTime() : -1);
         dest.writeString(this.username);
         dest.writeInt(this.id);
     }
 
     protected Comment(Parcel in) {
         this.content = in.readString();
-        this.date = in.readString();
+        long tmpDate = in.readLong();
+        this.date = tmpDate == -1 ? null : new Date(tmpDate);
         this.username = in.readString();
         this.id = in.readInt();
     }

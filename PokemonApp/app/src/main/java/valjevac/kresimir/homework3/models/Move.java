@@ -6,6 +6,9 @@ import java.io.Serializable;
 
 public class Move implements Serializable {
 
+    @SerializedName("id")
+    private int id;
+
     @SerializedName("name")
     private String name;
 
@@ -23,6 +26,14 @@ public class Move implements Serializable {
 
     public Move() {
 
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {

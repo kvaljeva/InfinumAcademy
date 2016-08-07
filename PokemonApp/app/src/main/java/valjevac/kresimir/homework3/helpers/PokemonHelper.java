@@ -9,7 +9,7 @@ import retrofit2.Response;
 import valjevac.kresimir.homework3.models.BaseResponse;
 import valjevac.kresimir.homework3.models.Data;
 import valjevac.kresimir.homework3.models.Move;
-import valjevac.kresimir.homework3.models.Type;
+import valjevac.kresimir.homework3.models.PokemonType;
 import valjevac.kresimir.homework3.network.ApiManager;
 import valjevac.kresimir.homework3.network.BaseCallback;
 
@@ -22,11 +22,11 @@ public class PokemonHelper {
 
     private static Call<BaseResponse<ArrayList<Data<Move>>>> pokemonMovesCall;
 
-    private static Call<BaseResponse<ArrayList<Data<Type>>>> pokemonTypesCall;
+    private static Call<BaseResponse<ArrayList<Data<PokemonType>>>> pokemonTypesCall;
 
     private static ArrayList<Move> moves;
 
-    private static ArrayList<Type> types;
+    private static ArrayList<PokemonType> types;
 
     public static void init() {
 
@@ -38,6 +38,7 @@ public class PokemonHelper {
         }
 
         moves = new ArrayList<>();
+        types = new ArrayList<>();
 
         if (!instance.typesLoaded) {
             loadPokemonTypes();
@@ -52,7 +53,7 @@ public class PokemonHelper {
         return moves;
     }
 
-    public static ArrayList<Type> getTypes() {
+    public static ArrayList<PokemonType> getTypes() {
         return types;
     }
 
@@ -63,7 +64,7 @@ public class PokemonHelper {
         }
 
         pokemonTypesCall = ApiManager.getService().getTypes();
-        pokemonTypesCall.enqueue(new BaseCallback<BaseResponse<ArrayList<Data<Type>>>>() {
+        pokemonTypesCall.enqueue(new BaseCallback<BaseResponse<ArrayList<Data<PokemonType>>>>() {
             @Override
             public void onUnknownError(@Nullable String error) {
 
@@ -71,10 +72,10 @@ public class PokemonHelper {
             }
 
             @Override
-            public void onSuccess(BaseResponse<ArrayList<Data<Type>>> body, Response<BaseResponse<ArrayList<Data<Type>>>> response) {
+            public void onSuccess(BaseResponse<ArrayList<Data<PokemonType>>> body, Response<BaseResponse<ArrayList<Data<PokemonType>>>> response) {
 
                 for (Data data : body.getData()) {
-                    moves.add((Move) data.getAttributes());
+                    types.add((PokemonType) data.getAttributes());
                 }
 
                 instance.typesLoaded = true;

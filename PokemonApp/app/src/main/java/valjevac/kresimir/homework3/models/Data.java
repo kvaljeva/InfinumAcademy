@@ -15,6 +15,9 @@ public class Data<T> implements Serializable {
     @SerializedName("attributes")
     private T attributes;
 
+    @SerializedName("relationships")
+    Relationships relationships;
+
     public Data(int id, String type, T attributes) {
         this.id = id;
         this.type = type;
@@ -52,5 +55,13 @@ public class Data<T> implements Serializable {
 
     public void setAttributes(T attributes) {
         this.attributes = attributes;
+    }
+
+    public Relationships getRelationships() {
+        return relationships;
+    }
+
+    public void setRelationships(Relationships relationships) {
+        this.relationships = relationships;
     }
 }

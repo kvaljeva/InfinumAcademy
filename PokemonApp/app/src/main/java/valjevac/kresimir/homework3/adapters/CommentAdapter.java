@@ -7,8 +7,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -38,9 +40,11 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.ENGLISH);
+
         holder.tvCommentUsername.setText(commentList.get(position).getUsername());
         holder.tvCommentBody.setText(commentList.get(position).getContent());
-        holder.tvCommentDate.setText(commentList.get(position).getDate());
+        holder.tvCommentDate.setText(dateFormat.format(commentList.get(position).getDate()));
     }
 
     @Override

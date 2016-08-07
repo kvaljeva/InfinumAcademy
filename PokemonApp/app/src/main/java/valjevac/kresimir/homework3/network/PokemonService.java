@@ -1,6 +1,5 @@
 package valjevac.kresimir.homework3.network;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import okhttp3.RequestBody;
@@ -17,7 +16,7 @@ import valjevac.kresimir.homework3.models.Comment;
 import valjevac.kresimir.homework3.models.Data;
 import valjevac.kresimir.homework3.models.Move;
 import valjevac.kresimir.homework3.models.Pokemon;
-import valjevac.kresimir.homework3.models.Type;
+import valjevac.kresimir.homework3.models.PokemonType;
 import valjevac.kresimir.homework3.models.User;
 
 public interface PokemonService {
@@ -71,5 +70,5 @@ public interface PokemonService {
     Call<BaseResponse<ArrayList<Data<Move>>>> getMoves();
 
     @GET("/api/v1/types")
-    Call<BaseResponse<ArrayList<Data<Type>>>> getTypes();
+    Call<BaseResponse<ArrayList<Data<PokemonType>>>> getTypes();
 }

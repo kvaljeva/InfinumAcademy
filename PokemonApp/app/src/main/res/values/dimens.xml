@@ -25,7 +25,7 @@
     <dimen name="text_size_xxx_large">25sp</dimen>
     <dimen name="layout_height_xxx_large">40dp</dimen>
     <dimen name="iv_image_container_height">170dp</dimen>
-    <dimen name="iv_name_icon_margin_top">33dp</dimen>
+    <dimen name="iv_name_icon_margin_top">36dp</dimen>
     <dimen name="details_vertical_line_width">6dp</dimen>
     <dimen name="iv_add_image_top_margin">80dp</dimen>
     <dimen name="fab_xlarge_width_height">70dp</dimen>

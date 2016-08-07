@@ -1,13 +1,9 @@
 package valjevac.kresimir.homework3.helpers;
 
 import android.net.Uri;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 
 import valjevac.kresimir.homework3.PokemonApplication;
 import valjevac.kresimir.homework3.R;
