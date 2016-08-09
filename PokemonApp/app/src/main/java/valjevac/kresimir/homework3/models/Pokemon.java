@@ -1,6 +1,5 @@
 package valjevac.kresimir.homework3.models;
 
-import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -37,11 +36,9 @@ public class Pokemon extends BaseModel implements Parcelable, Serializable {
     @SerializedName("weight")
     private float weight;
 
-    @Column
     @SerializedName("types")
-    private String type;
+    private String types;
 
-    @Column
     @SerializedName("moves")
     private String moves;
 
@@ -63,30 +60,14 @@ public class Pokemon extends BaseModel implements Parcelable, Serializable {
 
     }
 
-    public Pokemon(String name, String description, float height, float weight,
-                   String type, String moves, String image, int genderId) {
+    public Pokemon(String name, String description, float height, float weight, String image, int genderId) {
 
         this.name = name;
         this.description = description;
         this.height = height;
         this.weight = weight;
-        this.type = type;
-        this.moves = moves;
         this.image = image;
         this.genderId = genderId;
-    }
-
-    private Pokemon(Parcel parcel) {
-        this.name = parcel.readString();
-        this.description = parcel.readString();
-        this.height = parcel.readFloat();
-        this.weight = parcel.readFloat();
-        this.type = parcel.readString();
-        this.moves = parcel.readString();
-        this.image = parcel.readParcelable(Uri.class.getClassLoader());
-        this.gender = parcel.readString();
-        this.vote = parcel.readInt();
-        this.genderId = parcel.readInt();
     }
 
     public int getId() {
@@ -129,20 +110,20 @@ public class Pokemon extends BaseModel implements Parcelable, Serializable {
         this.weight = weight;
     }
 
-    public String getType() {
-        return type;
+    public String getTypes() {
+        return types;
     }
 
-    public void setType(String category) {
-        this.type = category;
+    public void setTypes(String types) {
+        this.types = types;
     }
 
     public String getMoves() {
         return moves;
     }
 
-    public void setMoves(String abilities) {
-        this.moves = abilities;
+    public void setMoves(String moves) {
+        this.moves = moves;
     }
 
     public String getImage() {
@@ -183,24 +164,41 @@ public class Pokemon extends BaseModel implements Parcelable, Serializable {
     }
 
     @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(name);
-        parcel.writeString(description);
-        parcel.writeDouble(height);
-        parcel.writeDouble(weight);
-        parcel.writeString(type);
-        parcel.writeString(moves);
-        parcel.writeString(image);
-        parcel.writeString(gender);
-        parcel.writeInt(vote);
-        parcel.writeInt(genderId);
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.id);
+        dest.writeString(this.name);
+        dest.writeString(this.description);
+        dest.writeFloat(this.height);
+        dest.writeFloat(this.weight);
+        dest.writeString(this.types);
+        dest.writeString(this.moves);
+        dest.writeString(this.image);
+        dest.writeString(this.gender);
+        dest.writeInt(this.vote);
+        dest.writeInt(this.genderId);
     }
 
-    public static final Parcelable.Creator<Pokemon> CREATOR = new Parcelable.Creator<Pokemon>() {
-        public Pokemon createFromParcel(Parcel parcel) {
-            return new Pokemon(parcel);
+    protected Pokemon(Parcel in) {
+        this.id = in.readInt();
+        this.name = in.readString();
+        this.description = in.readString();
+        this.height = in.readFloat();
+        this.weight = in.readFloat();
+        this.types = in.readString();
+        this.moves = in.readString();
+        this.image = in.readString();
+        this.gender = in.readString();
+        this.vote = in.readInt();
+        this.genderId = in.readInt();
+    }
+
+    public static final Creator<Pokemon> CREATOR = new Creator<Pokemon>() {
+        @Override
+        public Pokemon createFromParcel(Parcel source) {
+            return new Pokemon(source);
         }
 
+        @Override
         public Pokemon[] newArray(int size) {
             return new Pokemon[size];
         }

@@ -11,13 +11,14 @@ import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
+import retrofit2.http.Url;
 import valjevac.kresimir.homework3.models.AuthorData;
-import valjevac.kresimir.homework3.models.RelationshipType;
+import valjevac.kresimir.homework3.models.BaseData;
 import valjevac.kresimir.homework3.models.BaseResponse;
 import valjevac.kresimir.homework3.models.Comment;
-import valjevac.kresimir.homework3.models.BaseData;
 import valjevac.kresimir.homework3.models.ExtendedData;
 import valjevac.kresimir.homework3.models.Move;
+import valjevac.kresimir.homework3.models.MoveData;
 import valjevac.kresimir.homework3.models.Pokemon;
 import valjevac.kresimir.homework3.models.PokemonType;
 import valjevac.kresimir.homework3.models.User;
@@ -38,7 +39,7 @@ public interface PokemonService {
     Call<Void> logoutUser();
 
     @GET("/api/v1/pokemons")
-    Call<BaseResponse<ArrayList<BaseData<Pokemon>>>> getPokemons();
+    Call<BaseResponse<ArrayList<ExtendedData<Pokemon, ArrayList<PokemonType>>>>> getPokemons();
 
     @Multipart
     @POST("/api/v1/pokemons")
@@ -69,8 +70,8 @@ public interface PokemonService {
     @GET("/api/v1/pokemons/{pokemon_id}/comments")
     Call<BaseResponse<ArrayList<ExtendedData<Comment, AuthorData>>>> getComments(@Path("pokemon_id") int pokemonId);
 
-    @GET("/api/v1/moves")
-    Call<BaseResponse<ArrayList<BaseData<Move>>>> getMoves();
+    @GET
+    Call<BaseResponse<ArrayList<ExtendedData<Move, MoveData>>>> getMoves(@Url String path);
 
     @GET("/api/v1/types")
     Call<BaseResponse<ArrayList<BaseData<PokemonType>>>> getTypes();

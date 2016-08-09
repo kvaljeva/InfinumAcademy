@@ -1,14 +1,17 @@
 package valjevac.kresimir.homework3.helpers;
 
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 
 import java.util.ArrayList;
 
 import retrofit2.Call;
 import retrofit2.Response;
-import valjevac.kresimir.homework3.models.BaseResponse;
 import valjevac.kresimir.homework3.models.BaseData;
+import valjevac.kresimir.homework3.models.BaseResponse;
+import valjevac.kresimir.homework3.models.ExtendedData;
 import valjevac.kresimir.homework3.models.Move;
+import valjevac.kresimir.homework3.models.MoveData;
 import valjevac.kresimir.homework3.models.PokemonType;
 import valjevac.kresimir.homework3.network.ApiManager;
 import valjevac.kresimir.homework3.network.BaseCallback;
@@ -20,7 +23,9 @@ public class PokemonHelper {
 
     private boolean movesLoaded = false;
 
-    private static Call<BaseResponse<ArrayList<BaseData<Move>>>> pokemonMovesCall;
+    private static final String movesUrl = "/api/v1/moves";
+
+    private static Call<BaseResponse<ArrayList<ExtendedData<Move, MoveData>>>> pokemonMovesCall;
 
     private static Call<BaseResponse<ArrayList<BaseData<PokemonType>>>> pokemonTypesCall;
 
@@ -45,7 +50,7 @@ public class PokemonHelper {
         }
 
         if (!instance.movesLoaded) {
-            loadPokemonMoves();
+            loadPokemonMoves(movesUrl);
         }
     }
 
@@ -75,7 +80,11 @@ public class PokemonHelper {
             public void onSuccess(BaseResponse<ArrayList<BaseData<PokemonType>>> body, Response<BaseResponse<ArrayList<BaseData<PokemonType>>>> response) {
 
                 for (BaseData data : body.getData()) {
-                    types.add((PokemonType) data.getAttributes());
+                    PokemonType pokemonType = (PokemonType) data.getAttributes();
+
+                    pokemonType.setId(data.getId());
+
+                    types.add(pokemonType);
                 }
 
                 instance.typesLoaded = true;
@@ -83,14 +92,14 @@ public class PokemonHelper {
         });
     }
 
-    private static void loadPokemonMoves() {
+    private static void loadPokemonMoves(String page) {
 
         if (!NetworkHelper.isNetworkAvailable()) {
             return;
         }
 
-        pokemonMovesCall = ApiManager.getService().getMoves();
-        pokemonMovesCall.enqueue(new BaseCallback<BaseResponse<ArrayList<BaseData<Move>>>>() {
+        pokemonMovesCall = ApiManager.getService().getMoves(page);
+        pokemonMovesCall.enqueue(new BaseCallback<BaseResponse<ArrayList<ExtendedData<Move, MoveData>>>>() {
             @Override
             public void onUnknownError(@Nullable String error) {
 
@@ -98,13 +107,26 @@ public class PokemonHelper {
             }
 
             @Override
-            public void onSuccess(BaseResponse<ArrayList<BaseData<Move>>> body, Response<BaseResponse<ArrayList<BaseData<Move>>>> response) {
+            public void onSuccess(BaseResponse<ArrayList<ExtendedData<Move, MoveData>>> body, Response<BaseResponse<ArrayList<ExtendedData<Move, MoveData>>>> response) {
 
-                for (BaseData data : body.getData()) {
-                    moves.add((Move) data.getAttributes());
+                for (ExtendedData data : body.getData()) {
+                    MoveData moveData = (MoveData) data.getRelationships().getModel().getData();
+                    Move move = (Move) data.getAttributes();
+
+                    move.setId(data.getId());
+                    move.setType(moveData.getName());
+
+                    moves.add(move);
                 }
 
-                instance.movesLoaded = true;
+                String nextPage = body.getLinks().getNext();
+
+                if (!TextUtils.isEmpty(nextPage)) {
+                    loadPokemonMoves(nextPage);
+                }
+                else {
+                    instance.movesLoaded = true;
+                }
             }
         });
     }

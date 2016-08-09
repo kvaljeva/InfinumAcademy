@@ -9,6 +9,9 @@ public class BaseResponse<T> {
     @SerializedName("data")
     private T data;
 
+    @SerializedName("links")
+    private Links links;
+
     @SerializedName("included")
     private ArrayList<BaseData<User>> included;
 
@@ -30,5 +33,13 @@ public class BaseResponse<T> {
 
     public void setIncluded(ArrayList<BaseData<User>> included) {
         this.included = included;
+    }
+
+    public Links getLinks() {
+        return links;
+    }
+
+    public void setLinks(Links links) {
+        this.links = links;
     }
 }

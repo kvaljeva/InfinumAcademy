@@ -45,8 +45,9 @@ import valjevac.kresimir.homework3.helpers.SharedPreferencesHelper;
 import valjevac.kresimir.homework3.interfaces.PokemonList;
 import valjevac.kresimir.homework3.interfaces.RecyclerViewClickListener;
 import valjevac.kresimir.homework3.models.BaseResponse;
-import valjevac.kresimir.homework3.models.BaseData;
+import valjevac.kresimir.homework3.models.ExtendedData;
 import valjevac.kresimir.homework3.models.Pokemon;
+import valjevac.kresimir.homework3.models.PokemonType;
 import valjevac.kresimir.homework3.network.ApiManager;
 import valjevac.kresimir.homework3.network.BaseCallback;
 
@@ -97,9 +98,9 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
 
     Call<Void> logoutUserCall;
 
-    Call<BaseResponse<ArrayList<BaseData<Pokemon>>>> pokemonListCall;
+    Call<BaseResponse<ArrayList<ExtendedData<Pokemon, ArrayList<PokemonType>>>>> pokemonListCall;
 
-    BaseCallback<BaseResponse<ArrayList<BaseData<Pokemon>>>> pokemonListCallback;
+    BaseCallback<BaseResponse<ArrayList<ExtendedData<Pokemon, ArrayList<PokemonType>>>>> pokemonListCallback;
 
     private PokemonList pokemonListDatabase;
 
@@ -428,7 +429,7 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
         }
 
         pokemonListCall = ApiManager.getService().getPokemons();
-        pokemonListCallback = new BaseCallback<BaseResponse<ArrayList<BaseData<Pokemon>>>>() {
+        pokemonListCallback = new BaseCallback<BaseResponse<ArrayList<ExtendedData<Pokemon, ArrayList<PokemonType>>>>>() {
             @Override
             public void onUnknownError(@Nullable String error) {
 
@@ -440,7 +441,8 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
             }
 
             @Override
-            public void onSuccess(BaseResponse<ArrayList<BaseData<Pokemon>>> body, Response<BaseResponse<ArrayList<BaseData<Pokemon>>>> response) {
+            public void onSuccess(BaseResponse<ArrayList<ExtendedData<Pokemon, ArrayList<PokemonType>>>> body,
+                                  Response<BaseResponse<ArrayList<ExtendedData<Pokemon, ArrayList<PokemonType>>>>> response) {
 
                 pokemonListProcessor = new ProcessPokemonList(body, pokemonListDatabase, PokemonListFragment.this);
                 Thread thread = new Thread(pokemonListProcessor);

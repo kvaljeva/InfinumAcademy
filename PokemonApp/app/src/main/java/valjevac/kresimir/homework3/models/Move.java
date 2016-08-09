@@ -24,6 +24,8 @@ public class Move implements Serializable {
     @SerializedName("generation")
     private String generation;
 
+    private String type;
+
     public Move() {
 
     }
@@ -74,5 +76,13 @@ public class Move implements Serializable {
 
     public void setGeneration(String generation) {
         this.generation = generation;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

@@ -12,7 +12,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,10 +43,9 @@ import valjevac.kresimir.homework3.helpers.ApiErrorHelper;
 import valjevac.kresimir.homework3.helpers.BitmapHelper;
 import valjevac.kresimir.homework3.helpers.NetworkHelper;
 import valjevac.kresimir.homework3.models.AuthorData;
-import valjevac.kresimir.homework3.models.RelationshipType;
+import valjevac.kresimir.homework3.models.BaseData;
 import valjevac.kresimir.homework3.models.BaseResponse;
 import valjevac.kresimir.homework3.models.Comment;
-import valjevac.kresimir.homework3.models.BaseData;
 import valjevac.kresimir.homework3.models.ExtendedData;
 import valjevac.kresimir.homework3.models.Pokemon;
 import valjevac.kresimir.homework3.models.User;
@@ -182,8 +180,8 @@ public class PokemonDetailsFragment extends Fragment {
                 String weightFixed = Double.toString(round(pokemon.getWeight(), 2)) + getString(R.string.weight_unit);
                 String gender = (pokemon.getGender().equals(GENDER_UNKNOWN)) ? getActivity().getString(R.string.not_available) : pokemon.getGender().substring(0, 1);
 
-                String moves = (pokemon.getMoves() != null) ? pokemon.getMoves() : getActivity().getString(R.string.not_available);
-                String types = (pokemon.getType() != null) ? pokemon.getType() : getActivity().getString(R.string.not_available);
+                String moves = (!TextUtils.isEmpty(pokemon.getMoves())) ? pokemon.getMoves() : getActivity().getString(R.string.not_available);
+                String types = (!TextUtils.isEmpty(pokemon.getTypes())) ? pokemon.getTypes() : getActivity().getString(R.string.not_available);
 
                 tvName.setText(pokemon.getName());
                 tvDescription.setText(pokemon.getDescription());

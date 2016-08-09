@@ -8,8 +8,10 @@ import java.util.ArrayList;
 import valjevac.kresimir.homework3.fragments.PokemonListFragment;
 import valjevac.kresimir.homework3.interfaces.PokemonList;
 import valjevac.kresimir.homework3.models.BaseResponse;
-import valjevac.kresimir.homework3.models.BaseData;
+import valjevac.kresimir.homework3.models.ExtendedData;
+import valjevac.kresimir.homework3.models.Move;
 import valjevac.kresimir.homework3.models.Pokemon;
+import valjevac.kresimir.homework3.models.PokemonType;
 
 public class ProcessPokemonList implements Runnable {
 
@@ -17,7 +19,7 @@ public class ProcessPokemonList implements Runnable {
 
     PokemonList pokemonListDatabase;
 
-    BaseResponse<ArrayList<BaseData<Pokemon>>> body;
+    BaseResponse<ArrayList<ExtendedData<Pokemon, ArrayList<PokemonType>>>> body;
 
     Handler handler;
 
@@ -30,7 +32,7 @@ public class ProcessPokemonList implements Runnable {
         void onProcessingFinished(ArrayList<Pokemon> pokemons);
     }
 
-    public ProcessPokemonList(BaseResponse<ArrayList<BaseData<Pokemon>>> body, PokemonList pokemonListDatabase, PokemonListFragment context) {
+    public ProcessPokemonList(BaseResponse<ArrayList<ExtendedData<Pokemon, ArrayList<PokemonType>>>> body, PokemonList pokemonListDatabase, PokemonListFragment context) {
 
         this.pokemons = new ArrayList<>();
 
@@ -44,11 +46,22 @@ public class ProcessPokemonList implements Runnable {
     @Override
     public void run() {
 
-        for (BaseData data : body.getData()) {
+        for (ExtendedData data : body.getData()) {
             if (data.getAttributes() instanceof Pokemon) {
 
                 Pokemon pokemon = (Pokemon) data.getAttributes();
                 pokemon.setId(data.getId());
+
+                @SuppressWarnings("unchecked")
+                ArrayList<Move> movesList = (ArrayList<Move>) data.getRelationships().getMoves().getData();
+                String moves = processInnerListItems(movesList);
+
+                @SuppressWarnings("unchecked")
+                ArrayList<PokemonType> typesList = (ArrayList<PokemonType>) data.getRelationships().getModel().getData();
+                String types = processInnerListItems(typesList);
+
+                pokemon.setMoves(moves);
+                pokemon.setTypes(types);
 
                 pokemons.add(pokemon);
                 pokemonListDatabase.addPokemon(pokemon);
@@ -63,6 +76,21 @@ public class ProcessPokemonList implements Runnable {
                 }
             }
         });
+    }
+
+    private <T> String processInnerListItems(ArrayList<T> list) {
+        String items = "";
+
+        for (Object object : list) {
+            if (object instanceof Move) {
+                items += ((Move) object).getName().substring(0, 1).toUpperCase() + ((Move) object).getName().substring(1) + "\n";
+            }
+            else if (object instanceof PokemonType) {
+                items += ((PokemonType) object).getName().substring(0, 1).toUpperCase() + ((PokemonType) object).getName().substring(1) + "\n";
+            }
+        }
+
+        return items;
     }
 
     public void cancel() {

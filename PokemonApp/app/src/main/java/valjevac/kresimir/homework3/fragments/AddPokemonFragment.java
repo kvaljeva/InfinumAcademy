@@ -58,8 +58,8 @@ import valjevac.kresimir.homework3.helpers.BitmapHelper;
 import valjevac.kresimir.homework3.helpers.NetworkHelper;
 import valjevac.kresimir.homework3.helpers.PokemonHelper;
 import valjevac.kresimir.homework3.interfaces.FragmentUtils;
-import valjevac.kresimir.homework3.models.BaseResponse;
 import valjevac.kresimir.homework3.models.BaseData;
+import valjevac.kresimir.homework3.models.BaseResponse;
 import valjevac.kresimir.homework3.models.Move;
 import valjevac.kresimir.homework3.models.Pokemon;
 import valjevac.kresimir.homework3.models.PokemonType;
@@ -507,13 +507,11 @@ public class AddPokemonFragment extends Fragment implements FragmentUtils {
             String pokemonDesc = etPokemonDescription.getText().toString();
             float pokemonHeight = Float.valueOf(etPokemonHeight.getText().toString());
             float pokemonWeight = Float.valueOf(etPokemonWeight.getText().toString());
-            String category = "";
-            String abilities = "";
             Uri image = (this.imageUri == null) ? BitmapHelper.getResourceUri(R.drawable.ic_person_details) : this.imageUri;
             int gender = (rbGenderFemale.isChecked()) ? 2 : 1;
 
             Pokemon pokemon = new Pokemon(pokemonName, pokemonDesc, pokemonHeight,
-                    pokemonWeight, category, abilities, image.toString(), gender);
+                    pokemonWeight, image.toString(), gender);
 
             insertPokemon(pokemon);
         }
@@ -598,16 +596,26 @@ public class AddPokemonFragment extends Fragment implements FragmentUtils {
         }
     }
 
-    private <T> int[] getSelectedItemIds (boolean[] checkedItems, boolean isMoveIds) {
-        int[] itemIds = new int[checkedItems.length];
+    private int[] getSelectedItemIds (boolean[] checkedItems, boolean isMoveIds) {
+        int itemsCount = 0;
 
-        for (int i = 0; i < checkedItems.length; i++) {
+        for (int k = 0; k < checkedItems.length; k++) {
+            if (checkedItems[k]) {
+                itemsCount++;
+            }
+        }
+
+        int[] itemIds = new int[itemsCount];
+
+        for (int i = 0, j = 0; i < checkedItems.length; i++) {
             if (checkedItems[i]) {
                 if (isMoveIds) {
-                    itemIds[i] = movesList.get(i).getId();
+                    itemIds[j] = movesList.get(i).getId();
+                    j++;
                 }
                 else {
-                    itemIds[i] = typesList.get(i).getId();
+                    itemIds[j] = typesList.get(i).getId();
+                    j++;
                 }
             }
         }
@@ -673,8 +681,8 @@ public class AddPokemonFragment extends Fragment implements FragmentUtils {
     }
 
     private void insertPokemon(Pokemon pokemon) {
-        int[] moves = new int[0];
-        int[] category = new int[0];
+        int[] moves = getSelectedItemIds(checkedMoves, true);
+        int[] types = getSelectedItemIds(checkedTypes, false);
 
         File imageFile;
         RequestBody body = null;
@@ -696,7 +704,7 @@ public class AddPokemonFragment extends Fragment implements FragmentUtils {
                 pokemon.getGenderId(),
                 true,
                 pokemon.getDescription(),
-                category,
+                types,
                 moves,
                 body
         );
@@ -738,7 +746,7 @@ public class AddPokemonFragment extends Fragment implements FragmentUtils {
             checkedMoves[i] = false;
         }
 
-        for (int i = 0; i < checkedMoves.length; i++) {
+        for (int i = 0; i < checkedTypes.length; i++) {
             checkedTypes[i] = false;
         }
     }
