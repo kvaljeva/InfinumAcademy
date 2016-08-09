@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import valjevac.kresimir.homework3.fragments.PokemonListFragment;
 import valjevac.kresimir.homework3.interfaces.PokemonList;
 import valjevac.kresimir.homework3.models.BaseResponse;
-import valjevac.kresimir.homework3.models.Data;
+import valjevac.kresimir.homework3.models.BaseData;
 import valjevac.kresimir.homework3.models.Pokemon;
 
 public class ProcessPokemonList implements Runnable {
@@ -17,7 +17,7 @@ public class ProcessPokemonList implements Runnable {
 
     PokemonList pokemonListDatabase;
 
-    BaseResponse<ArrayList<Data<Pokemon>>> body;
+    BaseResponse<ArrayList<BaseData<Pokemon>>> body;
 
     Handler handler;
 
@@ -30,7 +30,7 @@ public class ProcessPokemonList implements Runnable {
         void onProcessingFinished(ArrayList<Pokemon> pokemons);
     }
 
-    public ProcessPokemonList(BaseResponse<ArrayList<Data<Pokemon>>> body, PokemonList pokemonListDatabase, PokemonListFragment context) {
+    public ProcessPokemonList(BaseResponse<ArrayList<BaseData<Pokemon>>> body, PokemonList pokemonListDatabase, PokemonListFragment context) {
 
         this.pokemons = new ArrayList<>();
 
@@ -44,7 +44,7 @@ public class ProcessPokemonList implements Runnable {
     @Override
     public void run() {
 
-        for (Data data : body.getData()) {
+        for (BaseData data : body.getData()) {
             if (data.getAttributes() instanceof Pokemon) {
 
                 Pokemon pokemon = (Pokemon) data.getAttributes();

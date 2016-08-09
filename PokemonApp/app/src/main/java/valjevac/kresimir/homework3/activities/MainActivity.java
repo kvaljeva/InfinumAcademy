@@ -190,13 +190,14 @@ public class MainActivity extends AppCompatActivity implements
         if (!isDeviceTablet) {
             removeFragmentFromStack(ADD_POKEMON_FRAGMENT_TAG);
         }
-        else {
-            if (currentOrientation == ORIENTATION_LANDSCAPE) {
-                removeFragmentFromStack(POKEMON_LIST_FRAGMENT_TAG);
-            }
-        }
 
-        loadFragment(PokemonListFragment.newInstance(pokemon, true), POKEMON_LIST_FRAGMENT_TAG);
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(POKEMON_LIST_FRAGMENT_TAG);
+
+        Bundle args = new Bundle();
+        args.putParcelable(PokemonListFragment.POKEMON, pokemon);
+        fragment.getArguments().putAll(args);
+
+        loadFragment(fragment, POKEMON_LIST_FRAGMENT_TAG);
     }
 
     @Override

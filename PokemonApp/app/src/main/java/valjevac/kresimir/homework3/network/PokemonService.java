@@ -11,9 +11,12 @@ import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
+import valjevac.kresimir.homework3.models.AuthorData;
+import valjevac.kresimir.homework3.models.RelationshipType;
 import valjevac.kresimir.homework3.models.BaseResponse;
 import valjevac.kresimir.homework3.models.Comment;
-import valjevac.kresimir.homework3.models.Data;
+import valjevac.kresimir.homework3.models.BaseData;
+import valjevac.kresimir.homework3.models.ExtendedData;
 import valjevac.kresimir.homework3.models.Move;
 import valjevac.kresimir.homework3.models.Pokemon;
 import valjevac.kresimir.homework3.models.PokemonType;
@@ -22,24 +25,24 @@ import valjevac.kresimir.homework3.models.User;
 public interface PokemonService {
 
     @POST("/api/v1/users")
-    Call<BaseResponse<Data<User>>> insertUser(
-            @Body BaseResponse<Data<User>> request
+    Call<BaseResponse<BaseData<User>>> insertUser(
+            @Body BaseResponse<BaseData<User>> request
     );
 
     @POST("api/v1/users/login")
-    Call<BaseResponse<Data<User>>> loginUser(
-            @Body BaseResponse<Data<User>> request
+    Call<BaseResponse<BaseData<User>>> loginUser(
+            @Body BaseResponse<BaseData<User>> request
     );
 
     @DELETE("/api/v1/users/logout")
     Call<Void> logoutUser();
 
     @GET("/api/v1/pokemons")
-    Call<BaseResponse<ArrayList<Data<Pokemon>>>> getPokemons();
+    Call<BaseResponse<ArrayList<BaseData<Pokemon>>>> getPokemons();
 
     @Multipart
     @POST("/api/v1/pokemons")
-    Call<BaseResponse<Data<Pokemon>>> insertPokemon(
+    Call<BaseResponse<BaseData<Pokemon>>> insertPokemon(
             @Part(value = "data[attributes][name]", encoding = "text/plain") String name,
             @Part("data[attributes][height]") double height,
             @Part("data[attributes][weight]") double weight,
@@ -52,23 +55,23 @@ public interface PokemonService {
     );
 
     @POST("/api/v1/pokemons/{id}/upvote")
-    Call<BaseResponse<Data<Pokemon>>> votePokemon(@Path("id") int pokemonId);
+    Call<BaseResponse<BaseData<Pokemon>>> votePokemon(@Path("id") int pokemonId);
 
     @POST("/api/v1/pokemons/{id}/downvote")
-    Call<BaseResponse<Data<Pokemon>>> downvotePokemon(@Path("id") int pokemonId);
+    Call<BaseResponse<BaseData<Pokemon>>> downvotePokemon(@Path("id") int pokemonId);
 
     @POST("/api/v1/pokemons/{pokemon_id}/comments")
-    Call<BaseResponse<Data<Comment>>> insertComment(
+    Call<BaseResponse<BaseData<Comment>>> insertComment(
             @Path("pokemon_id") int pokemonId,
-            @Body BaseResponse<Data<Comment>> request
+            @Body BaseResponse<BaseData<Comment>> request
     );
 
     @GET("/api/v1/pokemons/{pokemon_id}/comments")
-    Call<BaseResponse<ArrayList<Data<Comment>>>> getComments(@Path("pokemon_id") int pokemonId);
+    Call<BaseResponse<ArrayList<ExtendedData<Comment, AuthorData>>>> getComments(@Path("pokemon_id") int pokemonId);
 
     @GET("/api/v1/moves")
-    Call<BaseResponse<ArrayList<Data<Move>>>> getMoves();
+    Call<BaseResponse<ArrayList<BaseData<Move>>>> getMoves();
 
     @GET("/api/v1/types")
-    Call<BaseResponse<ArrayList<Data<PokemonType>>>> getTypes();
+    Call<BaseResponse<ArrayList<BaseData<PokemonType>>>> getTypes();
 }

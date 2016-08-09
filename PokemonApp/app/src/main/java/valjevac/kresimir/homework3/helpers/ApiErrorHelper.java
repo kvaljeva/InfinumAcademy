@@ -18,9 +18,17 @@ public class ApiErrorHelper {
         }
 
         Gson gson = new Gson();
-        errorResponse = gson.fromJson(error, ErrorResponse.class);
 
-        return true;
+        try {
+            errorResponse = gson.fromJson(error, ErrorResponse.class);
+            return true;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+
+            errorResponse.setError(error);
+            return false;
+        }
     }
 
     public static ArrayList<Error> getErrorList() {

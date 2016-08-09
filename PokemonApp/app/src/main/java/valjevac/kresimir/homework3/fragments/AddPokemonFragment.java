@@ -53,12 +53,13 @@ import retrofit2.Response;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.activities.MainActivity;
 import valjevac.kresimir.homework3.custom.ProgressView;
+import valjevac.kresimir.homework3.helpers.ApiErrorHelper;
 import valjevac.kresimir.homework3.helpers.BitmapHelper;
 import valjevac.kresimir.homework3.helpers.NetworkHelper;
 import valjevac.kresimir.homework3.helpers.PokemonHelper;
 import valjevac.kresimir.homework3.interfaces.FragmentUtils;
 import valjevac.kresimir.homework3.models.BaseResponse;
-import valjevac.kresimir.homework3.models.Data;
+import valjevac.kresimir.homework3.models.BaseData;
 import valjevac.kresimir.homework3.models.Move;
 import valjevac.kresimir.homework3.models.Pokemon;
 import valjevac.kresimir.homework3.models.PokemonType;
@@ -88,9 +89,7 @@ public class AddPokemonFragment extends Fragment implements FragmentUtils {
 
     private static final String IS_DEVICE_TABLET = "IsTablet";
 
-    private static final int VERTICAL_OFFSET = 10;
-
-    private static final double VERTICAL_OFFSET_CENTER = 1.5;
+    private static final double VERTICAL_OFFSET_CENTER = 1.55;
 
     private boolean changesMade;
 
@@ -160,7 +159,7 @@ public class AddPokemonFragment extends Fragment implements FragmentUtils {
 
     private boolean[] checkedTypes;
 
-    Call<BaseResponse<Data<Pokemon>>> insertPokemonCall;
+    Call<BaseResponse<BaseData<Pokemon>>> insertPokemonCall;
 
     public AddPokemonFragment() { }
 
@@ -229,7 +228,7 @@ public class AddPokemonFragment extends Fragment implements FragmentUtils {
             ablHeaderAddPokemon.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
                 @Override
                 public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-                    if ((Math.abs(verticalOffset) + VERTICAL_OFFSET) >= (appBarLayout.getTotalScrollRange() /
+                    if (Math.abs(verticalOffset) >= (appBarLayout.getTotalScrollRange() /
                             VERTICAL_OFFSET_CENTER) && !isColorChanged) {
 
                         setBackArrowColor(true, (MainActivity) getActivity());
@@ -702,20 +701,27 @@ public class AddPokemonFragment extends Fragment implements FragmentUtils {
                 body
         );
 
-        insertPokemonCall.enqueue(new BaseCallback<BaseResponse<Data<Pokemon>>>() {
+        insertPokemonCall.enqueue(new BaseCallback<BaseResponse<BaseData<Pokemon>>>() {
             @Override
             public void onUnknownError(@Nullable String error) {
-                Toast.makeText(getActivity(), R.string.pokemon_save_failed, Toast.LENGTH_SHORT).show();
+
+                if (ApiErrorHelper.createError(error)) {
+                    Toast.makeText(getActivity(), ApiErrorHelper.getFullError(0), Toast.LENGTH_SHORT).show();
+                }
 
                 displayProgress(false);
             }
 
             @Override
-            public void onSuccess(BaseResponse<Data<Pokemon>> body, Response<BaseResponse<Data<Pokemon>>> response) {
+            public void onSuccess(BaseResponse<BaseData<Pokemon>> body, Response<BaseResponse<BaseData<Pokemon>>> response) {
                 Toast.makeText(getActivity(), R.string.pokemon_saved, Toast.LENGTH_SHORT).show();
 
                 clearInputViews(rlActivityBody);
-                listener.onPokemonAdded(body.getData().getAttributes());
+
+                Pokemon newPokemon = body.getData().getAttributes();
+                newPokemon.setId(body.getData().getId());
+
+                listener.onPokemonAdded(newPokemon);
             }
         });
     }

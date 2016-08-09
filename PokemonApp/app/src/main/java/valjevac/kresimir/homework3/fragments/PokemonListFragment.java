@@ -45,7 +45,7 @@ import valjevac.kresimir.homework3.helpers.SharedPreferencesHelper;
 import valjevac.kresimir.homework3.interfaces.PokemonList;
 import valjevac.kresimir.homework3.interfaces.RecyclerViewClickListener;
 import valjevac.kresimir.homework3.models.BaseResponse;
-import valjevac.kresimir.homework3.models.Data;
+import valjevac.kresimir.homework3.models.BaseData;
 import valjevac.kresimir.homework3.models.Pokemon;
 import valjevac.kresimir.homework3.network.ApiManager;
 import valjevac.kresimir.homework3.network.BaseCallback;
@@ -61,8 +61,6 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
 
     public static final String POKEMON = "Pokemon";
 
-    public static final String LIST_UPDATE = "ListUpdate";
-
     private ArrayList<Pokemon> pokemonList;
 
     private PokemonAdapter pokemonAdapter;
@@ -71,7 +69,7 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
 
     private boolean isListLoading;
 
-    boolean isEmptyState;
+    private boolean isEmptyState;
 
     @BindView(R.id.recycler_view_pokemon_list)
     RecyclerView rvPokemonList;
@@ -95,21 +93,19 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
     @BindView(R.id.drawer_layout)
     DrawerLayout drawerLayout;
 
-    private ActionBarDrawerToggle drawerToggle;
+    ActionBarDrawerToggle drawerToggle;
 
     Call<Void> logoutUserCall;
 
-    Call<BaseResponse<ArrayList<Data<Pokemon>>>> pokemonListCall;
+    Call<BaseResponse<ArrayList<BaseData<Pokemon>>>> pokemonListCall;
 
-    BaseCallback<BaseResponse<ArrayList<Data<Pokemon>>>> pokemonListCallback;
+    BaseCallback<BaseResponse<ArrayList<BaseData<Pokemon>>>> pokemonListCallback;
 
     private PokemonList pokemonListDatabase;
 
     private ProcessPokemonList pokemonListProcessor;
 
     private Snackbar snackbarProgress;
-
-    private boolean isListUpdate;
 
     public PokemonListFragment() { }
 
@@ -133,18 +129,6 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
         return fragment;
     }
 
-    public static PokemonListFragment newInstance(Pokemon pokemon, boolean isUpdate) {
-
-        PokemonListFragment fragment = new PokemonListFragment();
-
-        Bundle args = new Bundle();
-        args.putParcelable(POKEMON, pokemon);
-        args.putBoolean(LIST_UPDATE, isUpdate);
-        fragment.setArguments(args);
-
-        return fragment;
-    }
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -163,15 +147,7 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
         View view = inflater.inflate(R.layout.fragment_pokemon_list, container, false);
         unbinder = ButterKnife.bind(this, view);
 
-        isEmptyState = true;
-
         pokemonListDatabase = new SQLitePokemonList();
-
-        if (getArguments() != null) {
-
-            Bundle args = getArguments();
-            animate = args.getBoolean(LOAD_ANIMATION);
-        }
 
         setUpToolbar();
         setUpRefreshView();
@@ -187,20 +163,18 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
         Pokemon pokemon = null;
 
         if (arguments != null) {
-            isListUpdate = arguments.getBoolean(LIST_UPDATE);
+            animate = arguments.getBoolean(LOAD_ANIMATION);
             pokemon = arguments.getParcelable(POKEMON);
 
-            // "Consume" arguments
-            getArguments().putAll(new Bundle());
+            // Clear arguments to avoid duplication
+            arguments.clear();
         }
 
         if (pokemonList == null) {
             pokemonList = new ArrayList<>();
 
             // Fetch initial list
-            if (!isListUpdate) {
-                fetchPokemonList(true, getActivity().getString(R.string.loading_pokemon_list));
-            }
+            fetchPokemonList(true, getActivity().getString(R.string.loading_pokemon_list));
         }
         else {
 
@@ -454,7 +428,7 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
         }
 
         pokemonListCall = ApiManager.getService().getPokemons();
-        pokemonListCallback = new BaseCallback<BaseResponse<ArrayList<Data<Pokemon>>>>() {
+        pokemonListCallback = new BaseCallback<BaseResponse<ArrayList<BaseData<Pokemon>>>>() {
             @Override
             public void onUnknownError(@Nullable String error) {
 
@@ -466,7 +440,7 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
             }
 
             @Override
-            public void onSuccess(BaseResponse<ArrayList<Data<Pokemon>>> body, Response<BaseResponse<ArrayList<Data<Pokemon>>>> response) {
+            public void onSuccess(BaseResponse<ArrayList<BaseData<Pokemon>>> body, Response<BaseResponse<ArrayList<BaseData<Pokemon>>>> response) {
 
                 pokemonListProcessor = new ProcessPokemonList(body, pokemonListDatabase, PokemonListFragment.this);
                 Thread thread = new Thread(pokemonListProcessor);

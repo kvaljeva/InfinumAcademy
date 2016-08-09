@@ -32,7 +32,7 @@ import valjevac.kresimir.homework3.helpers.ApiErrorHelper;
 import valjevac.kresimir.homework3.helpers.NetworkHelper;
 import valjevac.kresimir.homework3.helpers.SharedPreferencesHelper;
 import valjevac.kresimir.homework3.models.BaseResponse;
-import valjevac.kresimir.homework3.models.Data;
+import valjevac.kresimir.homework3.models.BaseData;
 import valjevac.kresimir.homework3.models.User;
 import valjevac.kresimir.homework3.network.ApiManager;
 import valjevac.kresimir.homework3.network.BaseCallback;
@@ -62,7 +62,7 @@ public class SignupFragment extends Fragment {
     @BindView(R.id.pv_signup)
     ProgressView progressView;
 
-    Call<BaseResponse<Data<User>>> registerUserCall;
+    Call<BaseResponse<BaseData<User>>> registerUserCall;
 
     private boolean isPasswordVisible;
 
@@ -287,12 +287,12 @@ public class SignupFragment extends Fragment {
 
     private void sendUserData(String username, String email, String password, String confirmationPassword) {
         User user = new User(username, email, password, confirmationPassword);
-        Data<User> data = new Data<>(ApiManager.TYPE_SESSION, user);
-        BaseResponse<Data<User>> request = new BaseResponse<>(data);
+        BaseData<User> data = new BaseData<>(ApiManager.TYPE_SESSION, user);
+        BaseResponse<BaseData<User>> request = new BaseResponse<>(data);
 
         registerUserCall = ApiManager.getService().insertUser(request);
 
-        registerUserCall.enqueue(new BaseCallback<BaseResponse<Data<User>>>() {
+        registerUserCall.enqueue(new BaseCallback<BaseResponse<BaseData<User>>>() {
             @Override
             public void onUnknownError(@Nullable String error) {
 
@@ -313,7 +313,7 @@ public class SignupFragment extends Fragment {
             }
 
             @Override
-            public void onSuccess(BaseResponse<Data<User>> body, Response<BaseResponse<Data<User>>> response) {
+            public void onSuccess(BaseResponse<BaseData<User>> body, Response<BaseResponse<BaseData<User>>> response) {
                 Toast.makeText(getActivity(), "Registered successfully!", Toast.LENGTH_SHORT).show();
 
                 SharedPreferencesHelper.setInt(body.getData().getId(), SharedPreferencesHelper.USER_ID);

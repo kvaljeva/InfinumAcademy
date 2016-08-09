@@ -76,4 +76,5 @@
     <string name="not_assigned">Not assigned</string>
     <string name="progress_dialog_hang_on">Hang on a sec...</string>
     <string name="dialog_done">Done</string>
+    <string name="not_available">N/A</string>
 </resources>

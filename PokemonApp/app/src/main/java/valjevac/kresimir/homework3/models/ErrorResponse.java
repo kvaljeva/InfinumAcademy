@@ -16,4 +16,13 @@ public class ErrorResponse {
     public void setErrors(ArrayList<Error> errors) {
         this.errors = errors;
     }
+
+    public void setError(String details) {
+        if (this.errors != null) {
+            Error error = new Error();
+            error.setDetail(details);
+
+            this.errors.add(error);
+        }
+    }
 }

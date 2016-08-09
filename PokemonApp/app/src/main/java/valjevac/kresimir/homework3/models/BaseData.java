@@ -4,32 +4,32 @@ import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 
-public class Data<T> implements Serializable {
+public class BaseData<T> implements Serializable {
 
     @SerializedName("id")
-    private int id;
+    protected int id;
 
     @SerializedName("type")
-    private String type;
+    protected String type;
 
     @SerializedName("attributes")
-    private T attributes;
+    protected T attributes;
 
-    @SerializedName("relationships")
-    Relationships relationships;
+    protected BaseData() {
+    }
 
-    public Data(int id, String type, T attributes) {
+    public BaseData(int id, String type, T attributes) {
         this.id = id;
         this.type = type;
         this.attributes = attributes;
     }
 
-    public Data(String type, T attributes) {
+    public BaseData(String type, T attributes) {
         this.type = type;
         this.attributes = attributes;
     }
 
-    public Data(T attributes) {
+    public BaseData(T attributes) {
         this.attributes = attributes;
     }
 
@@ -55,13 +55,5 @@ public class Data<T> implements Serializable {
 
     public void setAttributes(T attributes) {
         this.attributes = attributes;
-    }
-
-    public Relationships getRelationships() {
-        return relationships;
-    }
-
-    public void setRelationships(Relationships relationships) {
-        this.relationships = relationships;
     }
 }

@@ -36,7 +36,7 @@ import valjevac.kresimir.homework3.helpers.ApiErrorHelper;
 import valjevac.kresimir.homework3.helpers.NetworkHelper;
 import valjevac.kresimir.homework3.helpers.SharedPreferencesHelper;
 import valjevac.kresimir.homework3.models.BaseResponse;
-import valjevac.kresimir.homework3.models.Data;
+import valjevac.kresimir.homework3.models.BaseData;
 import valjevac.kresimir.homework3.models.User;
 import valjevac.kresimir.homework3.network.ApiManager;
 import valjevac.kresimir.homework3.network.BaseCallback;
@@ -89,7 +89,7 @@ public class LoginFragment extends Fragment {
 
     private static final String SPLASH_ANIMATION = "SplashAnimation";
 
-    Call<BaseResponse<Data<User>>> loginUserCall;
+    Call<BaseResponse<BaseData<User>>> loginUserCall;
 
     public LoginFragment() {
 
@@ -228,12 +228,12 @@ public class LoginFragment extends Fragment {
 
     private void sendUserData(String email, String password) {
         User user = new User(email, password);
-        Data<User> data = new Data<>(ApiManager.TYPE_SESSION, user);
-        BaseResponse<Data<User>> request = new BaseResponse<>(data);
+        BaseData<User> data = new BaseData<>(ApiManager.TYPE_SESSION, user);
+        BaseResponse<BaseData<User>> request = new BaseResponse<>(data);
 
         loginUserCall = ApiManager.getService().loginUser(request);
 
-        loginUserCall.enqueue(new BaseCallback<BaseResponse<Data<User>>>() {
+        loginUserCall.enqueue(new BaseCallback<BaseResponse<BaseData<User>>>() {
             @Override
             public void onUnknownError(@Nullable String error) {
                 displayProgress(false);
@@ -253,7 +253,7 @@ public class LoginFragment extends Fragment {
             }
 
             @Override
-            public void onSuccess(BaseResponse<Data<User>> body, Response<BaseResponse<Data<User>>> response) {
+            public void onSuccess(BaseResponse<BaseData<User>> body, Response<BaseResponse<BaseData<User>>> response) {
                 SharedPreferencesHelper.login(body.getData().getId(), body.getData().getAttributes().getAuthToken(),
                         body.getData().getAttributes().getUsername(), body.getData().getAttributes().getEmail());
 

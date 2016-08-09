@@ -23,7 +23,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,9 +43,12 @@ import valjevac.kresimir.homework3.activities.MainActivity;
 import valjevac.kresimir.homework3.helpers.ApiErrorHelper;
 import valjevac.kresimir.homework3.helpers.BitmapHelper;
 import valjevac.kresimir.homework3.helpers.NetworkHelper;
+import valjevac.kresimir.homework3.models.AuthorData;
+import valjevac.kresimir.homework3.models.RelationshipType;
 import valjevac.kresimir.homework3.models.BaseResponse;
 import valjevac.kresimir.homework3.models.Comment;
-import valjevac.kresimir.homework3.models.Data;
+import valjevac.kresimir.homework3.models.BaseData;
+import valjevac.kresimir.homework3.models.ExtendedData;
 import valjevac.kresimir.homework3.models.Pokemon;
 import valjevac.kresimir.homework3.models.User;
 import valjevac.kresimir.homework3.network.ApiManager;
@@ -60,6 +62,8 @@ public class PokemonDetailsFragment extends Fragment {
     private static final String POKEMON_DETAILS = "PokemonDetails";
 
     private static final String DATE_FORMAT = "MMM dd, yyyy";
+
+    private static final String GENDER_UNKNOWN = "Unknown";
 
     @BindView(R.id.tv_details_pokemon_name)
     TextView tvName;
@@ -125,15 +129,15 @@ public class PokemonDetailsFragment extends Fragment {
 
     ProgressDialog progressDialog;
 
-    Call<BaseResponse<Data<Pokemon>>> upvotePokemonCall;
+    Call<BaseResponse<BaseData<Pokemon>>> upvotePokemonCall;
 
-    Call<BaseResponse<Data<Pokemon>>> downvotePokemonCall;
+    Call<BaseResponse<BaseData<Pokemon>>> downvotePokemonCall;
 
-    Call<BaseResponse<Data<Comment>>> createCommentCall;
+    Call<BaseResponse<BaseData<Comment>>> createCommentCall;
 
-    Call<BaseResponse<ArrayList<Data<Comment>>>> getCommentsCall;
+    Call<BaseResponse<ArrayList<ExtendedData<Comment, AuthorData>>>> getCommentsCall;
 
-    BaseCallback<BaseResponse<ArrayList<Data<Comment>>>> getCommentsCallback;
+    BaseCallback<BaseResponse<ArrayList<ExtendedData<Comment, AuthorData>>>> getCommentsCallback;
 
     public PokemonDetailsFragment() { }
 
@@ -176,10 +180,10 @@ public class PokemonDetailsFragment extends Fragment {
             if (pokemon != null) {
                 String heightFixed = transformHeightString(Double.toString(round(pokemon.getHeight(), 2)));
                 String weightFixed = Double.toString(round(pokemon.getWeight(), 2)) + getString(R.string.weight_unit);
-                String gender = (pokemon.getGender().equals("Unknown")) ? "N/A" : pokemon.getGender().substring(0, 1);
+                String gender = (pokemon.getGender().equals(GENDER_UNKNOWN)) ? getActivity().getString(R.string.not_available) : pokemon.getGender().substring(0, 1);
 
-                String moves = (pokemon.getMoves() != null) ? pokemon.getMoves() : "N/A";
-                String types = (pokemon.getType() != null) ? pokemon.getType() : "N/A";
+                String moves = (pokemon.getMoves() != null) ? pokemon.getMoves() : getActivity().getString(R.string.not_available);
+                String types = (pokemon.getType() != null) ? pokemon.getType() : getActivity().getString(R.string.not_available);
 
                 tvName.setText(pokemon.getName());
                 tvDescription.setText(pokemon.getDescription());
@@ -265,11 +269,14 @@ public class PokemonDetailsFragment extends Fragment {
     }
 
     public static double round(double value, int places) {
-        if (places < 0) throw new IllegalArgumentException();
+        if (places < 0) {
+            throw new IllegalArgumentException();
+        }
 
-        BigDecimal bd = new BigDecimal(value);
-        bd = bd.setScale(places, RoundingMode.HALF_UP);
-        return bd.doubleValue();
+        BigDecimal bigDecimal = new BigDecimal(value);
+        bigDecimal = bigDecimal.setScale(places, RoundingMode.HALF_UP);
+
+        return bigDecimal.doubleValue();
     }
 
     private void setToolbarTitle() {
@@ -348,10 +355,9 @@ public class PokemonDetailsFragment extends Fragment {
             return;
         }
 
-        getCommentsCallback = new BaseCallback<BaseResponse<ArrayList<Data<Comment>>>>() {
+        getCommentsCallback = new BaseCallback<BaseResponse<ArrayList<ExtendedData<Comment, AuthorData>>>>() {
             @Override
             public void onUnknownError(@Nullable String error) {
-                Log.e("UNKNOWN ERROR COMMENTS", error);
 
                 if (ApiErrorHelper.createError(error)) {
                     Toast.makeText(getActivity(), ApiErrorHelper.getFullError(0), Toast.LENGTH_SHORT).show();
@@ -359,17 +365,25 @@ public class PokemonDetailsFragment extends Fragment {
             }
 
             @Override
-            public void onSuccess(BaseResponse<ArrayList<Data<Comment>>> body, Response<BaseResponse<ArrayList<Data<Comment>>>> response) {
+            public void onSuccess(BaseResponse<ArrayList<ExtendedData<Comment, AuthorData>>> body, Response<BaseResponse<ArrayList<ExtendedData<Comment, AuthorData>>>> response) {
 
-                ArrayList<Data<User>> includedList = body.getIncluded();
+                ArrayList<BaseData<User>> includedList = body.getIncluded();
                 ArrayList<Comment> visibleCommentsList = new ArrayList<>();
 
-                for (Data data : body.getData()) {
+                for (ExtendedData data : body.getData()) {
+                    AuthorData author = (AuthorData) data.getRelationships().getModel().getData();
                     Comment comment = (Comment) data.getAttributes();
 
-                    comment.setId(data.getId());
-                    comment.setUsername(includedList.get(0).getAttributes().getUsername());
+                    String username = "";
+                    for (BaseData<User> user : includedList) {
 
+                        if (user.getId() == author.getId()) {
+                            username = user.getAttributes().getUsername();
+                        }
+                    }
+
+                    comment.setId(data.getId());
+                    comment.setUsername(username);
                     commentList.add(comment);
 
                     if (visibleCommentsList.size() < 2) {
@@ -434,11 +448,11 @@ public class PokemonDetailsFragment extends Fragment {
         showProgressDialog(true);
 
         Comment comment = new Comment(commentBody);
-        Data<Comment> data = new Data<>(comment);
-        BaseResponse<Data<Comment>> request = new BaseResponse<>(data);
+        BaseData<Comment> data = new BaseData<>(comment);
+        BaseResponse<BaseData<Comment>> request = new BaseResponse<>(data);
 
         createCommentCall = ApiManager.getService().insertComment(pokemon.getId(), request);
-        createCommentCall.enqueue(new BaseCallback<BaseResponse<Data<Comment>>>() {
+        createCommentCall.enqueue(new BaseCallback<BaseResponse<BaseData<Comment>>>() {
             @Override
             public void onUnknownError(@Nullable String error) {
                 showProgressDialog(false);
@@ -449,7 +463,7 @@ public class PokemonDetailsFragment extends Fragment {
             }
 
             @Override
-            public void onSuccess(BaseResponse<Data<Comment>> body, Response<BaseResponse<Data<Comment>>> response) {
+            public void onSuccess(BaseResponse<BaseData<Comment>> body, Response<BaseResponse<BaseData<Comment>>> response) {
                 showProgressDialog(false);
 
                 commentList.add(body.getData().getAttributes());
@@ -467,7 +481,7 @@ public class PokemonDetailsFragment extends Fragment {
         showProgressDialog(true);
 
         downvotePokemonCall = ApiManager.getService().downvotePokemon(pokemon.getId());
-        downvotePokemonCall.enqueue(new BaseCallback<BaseResponse<Data<Pokemon>>>() {
+        downvotePokemonCall.enqueue(new BaseCallback<BaseResponse<BaseData<Pokemon>>>() {
             @Override
             public void onUnknownError(@Nullable String error) {
 
@@ -480,7 +494,7 @@ public class PokemonDetailsFragment extends Fragment {
             }
 
             @Override
-            public void onSuccess(BaseResponse<Data<Pokemon>> body, Response<BaseResponse<Data<Pokemon>>> response) {
+            public void onSuccess(BaseResponse<BaseData<Pokemon>> body, Response<BaseResponse<BaseData<Pokemon>>> response) {
 
                 pokemon.setVote(-1);
                 showProgressDialog(false);
@@ -497,7 +511,7 @@ public class PokemonDetailsFragment extends Fragment {
         showProgressDialog(true);
 
         upvotePokemonCall = ApiManager.getService().votePokemon(pokemon.getId());
-        upvotePokemonCall.enqueue(new BaseCallback<BaseResponse<Data<Pokemon>>>() {
+        upvotePokemonCall.enqueue(new BaseCallback<BaseResponse<BaseData<Pokemon>>>() {
             @Override
             public void onUnknownError(@Nullable String error) {
 
@@ -510,7 +524,7 @@ public class PokemonDetailsFragment extends Fragment {
             }
 
             @Override
-            public void onSuccess(BaseResponse<Data<Pokemon>> body, Response<BaseResponse<Data<Pokemon>>> response) {
+            public void onSuccess(BaseResponse<BaseData<Pokemon>> body, Response<BaseResponse<BaseData<Pokemon>>> response) {
 
                 pokemon.setVote(1);
                 showProgressDialog(false);

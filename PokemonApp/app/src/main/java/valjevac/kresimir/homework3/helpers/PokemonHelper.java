@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import retrofit2.Call;
 import retrofit2.Response;
 import valjevac.kresimir.homework3.models.BaseResponse;
-import valjevac.kresimir.homework3.models.Data;
+import valjevac.kresimir.homework3.models.BaseData;
 import valjevac.kresimir.homework3.models.Move;
 import valjevac.kresimir.homework3.models.PokemonType;
 import valjevac.kresimir.homework3.network.ApiManager;
@@ -20,9 +20,9 @@ public class PokemonHelper {
 
     private boolean movesLoaded = false;
 
-    private static Call<BaseResponse<ArrayList<Data<Move>>>> pokemonMovesCall;
+    private static Call<BaseResponse<ArrayList<BaseData<Move>>>> pokemonMovesCall;
 
-    private static Call<BaseResponse<ArrayList<Data<PokemonType>>>> pokemonTypesCall;
+    private static Call<BaseResponse<ArrayList<BaseData<PokemonType>>>> pokemonTypesCall;
 
     private static ArrayList<Move> moves;
 
@@ -64,7 +64,7 @@ public class PokemonHelper {
         }
 
         pokemonTypesCall = ApiManager.getService().getTypes();
-        pokemonTypesCall.enqueue(new BaseCallback<BaseResponse<ArrayList<Data<PokemonType>>>>() {
+        pokemonTypesCall.enqueue(new BaseCallback<BaseResponse<ArrayList<BaseData<PokemonType>>>>() {
             @Override
             public void onUnknownError(@Nullable String error) {
 
@@ -72,9 +72,9 @@ public class PokemonHelper {
             }
 
             @Override
-            public void onSuccess(BaseResponse<ArrayList<Data<PokemonType>>> body, Response<BaseResponse<ArrayList<Data<PokemonType>>>> response) {
+            public void onSuccess(BaseResponse<ArrayList<BaseData<PokemonType>>> body, Response<BaseResponse<ArrayList<BaseData<PokemonType>>>> response) {
 
-                for (Data data : body.getData()) {
+                for (BaseData data : body.getData()) {
                     types.add((PokemonType) data.getAttributes());
                 }
 
@@ -90,7 +90,7 @@ public class PokemonHelper {
         }
 
         pokemonMovesCall = ApiManager.getService().getMoves();
-        pokemonMovesCall.enqueue(new BaseCallback<BaseResponse<ArrayList<Data<Move>>>>() {
+        pokemonMovesCall.enqueue(new BaseCallback<BaseResponse<ArrayList<BaseData<Move>>>>() {
             @Override
             public void onUnknownError(@Nullable String error) {
 
@@ -98,9 +98,9 @@ public class PokemonHelper {
             }
 
             @Override
-            public void onSuccess(BaseResponse<ArrayList<Data<Move>>> body, Response<BaseResponse<ArrayList<Data<Move>>>> response) {
+            public void onSuccess(BaseResponse<ArrayList<BaseData<Move>>> body, Response<BaseResponse<ArrayList<BaseData<Move>>>> response) {
 
-                for (Data data : body.getData()) {
+                for (BaseData data : body.getData()) {
                     moves.add((Move) data.getAttributes());
                 }
 
