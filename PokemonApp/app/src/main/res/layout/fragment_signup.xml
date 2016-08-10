@@ -164,5 +164,5 @@
         android:visibility="gone"
         tools:visibility="gone"
         app:text="@string/creating_your_account"
-        app:progressStyle="horizontal"/>
+        app:progressBarType="horizontal"/>
 </RelativeLayout>

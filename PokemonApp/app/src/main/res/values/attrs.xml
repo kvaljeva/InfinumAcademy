@@ -2,8 +2,12 @@
 <resources>
     <declare-styleable name="ProgressView">
         <attr name="text" format="string" />
-        <attr name="progressStyle" format="string" />
+        <attr name="progressTextSize" format="integer" />
+        <attr name="progressBarType" format="string" />
         <attr name="indeterminate" format="boolean" />
         <attr name="progressBarOffset" format="integer" />
+        <attr name="progressBarSizeStyle" format="string" />
+        <attr name="progressBarHeight" format="integer" />
+        <attr name="progressBarWidth" format="integer" />
     </declare-styleable>
 </resources>

@@ -25,8 +25,6 @@ public class ApiErrorHelper {
         }
         catch (Exception e) {
             e.printStackTrace();
-
-            errorResponse.setError(error);
             return false;
         }
     }

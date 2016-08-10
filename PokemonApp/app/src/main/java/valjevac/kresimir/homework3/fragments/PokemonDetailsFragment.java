@@ -9,6 +9,7 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -39,6 +40,7 @@ import retrofit2.Call;
 import retrofit2.Response;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.activities.MainActivity;
+import valjevac.kresimir.homework3.custom.ProgressView;
 import valjevac.kresimir.homework3.helpers.ApiErrorHelper;
 import valjevac.kresimir.homework3.helpers.BitmapHelper;
 import valjevac.kresimir.homework3.helpers.NetworkHelper;
@@ -47,6 +49,7 @@ import valjevac.kresimir.homework3.models.BaseData;
 import valjevac.kresimir.homework3.models.BaseResponse;
 import valjevac.kresimir.homework3.models.Comment;
 import valjevac.kresimir.homework3.models.ExtendedData;
+import valjevac.kresimir.homework3.models.Links;
 import valjevac.kresimir.homework3.models.Pokemon;
 import valjevac.kresimir.homework3.models.User;
 import valjevac.kresimir.homework3.network.ApiManager;
@@ -62,6 +65,10 @@ public class PokemonDetailsFragment extends Fragment {
     private static final String DATE_FORMAT = "MMM dd, yyyy";
 
     private static final String GENDER_UNKNOWN = "Unknown";
+
+    private static final int COMMENT_AUTHOR = 0;
+
+    private static final int ELEVATION = 15;
 
     @BindView(R.id.tv_details_pokemon_name)
     TextView tvName;
@@ -121,9 +128,17 @@ public class PokemonDetailsFragment extends Fragment {
     @BindView(R.id.sv_details_body_container)
     NestedScrollView nsvDetailsBody;
 
+    @BindView(R.id.pv_comments)
+    ProgressView pvComments;
+
+    @BindView(R.id.ll_comment_input_container)
+    LinearLayout llCommentInputContainer;
+
     private ArrayList<Comment> commentList;
 
     private Pokemon pokemon;
+
+    private Links links;
 
     ProgressDialog progressDialog;
 
@@ -157,7 +172,7 @@ public class PokemonDetailsFragment extends Fragment {
 
         void onDetailsHomePressed();
 
-        void onShowAllCommentsPressed(String title, ArrayList<Comment> comments);
+        void onShowAllCommentsPressed(String title, ArrayList<Comment> comments, String nextPage);
     }
 
     @Nullable
@@ -201,6 +216,8 @@ public class PokemonDetailsFragment extends Fragment {
 
         // Reset focus so that we're always on the top when the view gets created
         nsvDetailsBody.smoothScrollTo(0, 0);
+
+        ViewCompat.setElevation(llCommentInputContainer, ELEVATION);
 
         return view;
     }
@@ -353,6 +370,8 @@ public class PokemonDetailsFragment extends Fragment {
             return;
         }
 
+        showProgressLoader(true);
+
         getCommentsCallback = new BaseCallback<BaseResponse<ArrayList<ExtendedData<Comment, AuthorData>>>>() {
             @Override
             public void onUnknownError(@Nullable String error) {
@@ -366,7 +385,9 @@ public class PokemonDetailsFragment extends Fragment {
             public void onSuccess(BaseResponse<ArrayList<ExtendedData<Comment, AuthorData>>> body, Response<BaseResponse<ArrayList<ExtendedData<Comment, AuthorData>>>> response) {
 
                 ArrayList<BaseData<User>> includedList = body.getIncluded();
-                ArrayList<Comment> visibleCommentsList = new ArrayList<>();
+
+                // Store links for the CommentsFragment
+                links = body.getLinks();
 
                 for (ExtendedData data : body.getData()) {
                     AuthorData author = (AuthorData) data.getRelationships().getModel().getData();
@@ -383,40 +404,16 @@ public class PokemonDetailsFragment extends Fragment {
                     comment.setId(data.getId());
                     comment.setUsername(username);
                     commentList.add(comment);
-
-                    if (visibleCommentsList.size() < 2) {
-                        visibleCommentsList.add(comment);
-                    }
                 }
 
-                if (visibleCommentsList.size() > 0) {
-                    setCommenData(vFirstComment, 0);
+                updateCommentsOverview();
 
-                    if (visibleCommentsList.size() > 1) {
-                        setCommenData(vSecondComment, 1);
-                    }
-                }
-
-                if (commentList.size() > 2) {
-                    flShowCommentsContainer.setVisibility(View.VISIBLE);
-                }
+                showProgressLoader(false);
             }
         };
 
         getCommentsCall = ApiManager.getService().getComments(pokemon.getId());
         getCommentsCall.enqueue(getCommentsCallback);
-    }
-
-    private void setCommenData(View commentView, int position) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT, Locale.ENGLISH);
-
-        TextView tvUsername = (TextView) commentView.findViewById(R.id.tv_comment_username);
-        TextView tvBody = (TextView) commentView.findViewById(R.id.tv_comment_body);
-        TextView tvDate = (TextView) commentView.findViewById(R.id.tv_comment_date);
-
-        tvUsername.setText(commentList.get(position).getUsername());
-        tvBody.setText(commentList.get(position).getContent());
-        tvDate.setText(dateFormat.format(commentList.get(position).getDate()));
     }
 
     @OnClick(R.id.btn_create_comment)
@@ -434,7 +431,7 @@ public class PokemonDetailsFragment extends Fragment {
 
     @OnClick(R.id.btn_show_comments)
     public void showAllComments() {
-        listener.onShowAllCommentsPressed(pokemon.getName() ,commentList);
+        listener.onShowAllCommentsPressed(pokemon.getName() ,commentList, links.getNext());
     }
 
     private void sendComment(String commentBody) {
@@ -450,7 +447,7 @@ public class PokemonDetailsFragment extends Fragment {
         BaseResponse<BaseData<Comment>> request = new BaseResponse<>(data);
 
         createCommentCall = ApiManager.getService().insertComment(pokemon.getId(), request);
-        createCommentCall.enqueue(new BaseCallback<BaseResponse<BaseData<Comment>>>() {
+            createCommentCall.enqueue(new BaseCallback<BaseResponse<BaseData<Comment>>>() {
             @Override
             public void onUnknownError(@Nullable String error) {
                 showProgressDialog(false);
@@ -464,10 +461,52 @@ public class PokemonDetailsFragment extends Fragment {
             public void onSuccess(BaseResponse<BaseData<Comment>> body, Response<BaseResponse<BaseData<Comment>>> response) {
                 showProgressDialog(false);
 
-                commentList.add(body.getData().getAttributes());
+                Comment comment = body.getData().getAttributes();
+                String username = body.getIncluded().get(COMMENT_AUTHOR).getAttributes().getUsername();
+
+                comment.setId(body.getData().getId());
+                comment.setUsername(username);
+
+                commentList.add(comment);
                 etCommentBody.setText("");
+
+                // Scroll to the bottom to focus view on the new comment
+                nsvDetailsBody.fullScroll(View.FOCUS_DOWN);
+
+                updateCommentsOverview();
             }
         });
+    }
+
+    private void setCommentData(View commentView, int position) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT, Locale.ENGLISH);
+
+        TextView tvUsername = (TextView) commentView.findViewById(R.id.tv_comment_username);
+        TextView tvBody = (TextView) commentView.findViewById(R.id.tv_comment_body);
+        TextView tvDate = (TextView) commentView.findViewById(R.id.tv_comment_date);
+
+        tvUsername.setText(commentList.get(position).getUsername());
+        tvBody.setText(commentList.get(position).getContent());
+        tvDate.setText(dateFormat.format(commentList.get(position).getDate()));
+    }
+
+    private void updateCommentsOverview() {
+        if (commentList.size() > 0) {
+            setCommentData(vFirstComment, 0);
+
+            if (commentList.size() > 1) {
+                setCommentData(vSecondComment, 1);
+            }
+        }
+
+        if (commentList.size() > 0) {
+
+            llCommentsContainer.setVisibility(View.VISIBLE);
+
+            if (commentList.size() > 2) {
+                flShowCommentsContainer.setVisibility(View.VISIBLE);
+            }
+        }
     }
 
     private void sendDownvoteRequest() {
@@ -558,6 +597,15 @@ public class PokemonDetailsFragment extends Fragment {
         }
         else {
             progressDialog.dismiss();
+        }
+    }
+
+    private void showProgressLoader(boolean showProgress) {
+        if (showProgress) {
+            pvComments.show();
+        }
+        else {
+            pvComments.hide();
         }
     }
 }

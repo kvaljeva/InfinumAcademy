@@ -77,4 +77,5 @@
     <string name="progress_dialog_hang_on">Hang on a sec...</string>
     <string name="dialog_done">Done</string>
     <string name="not_available">N/A</string>
+    <string name="no_comments_icon">No comments icon</string>
 </resources>

@@ -422,9 +422,11 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
 
         srlRecyclerContainer.setRefreshing(true);
 
-        if (!NetworkHelper.isNetworkAvailable() && pokemonList.size() == 0) {
+        if (!NetworkHelper.isNetworkAvailable()) {
 
+            Toast.makeText(getActivity(), getString(R.string.no_internet_conn), Toast.LENGTH_SHORT).show();
             loadCachedList();
+
             return;
         }
 

@@ -46,7 +46,7 @@ public class BitmapHelper {
         Uri uri;
 
         if (!location.contains(INTERNAL_CONTENT)) {
-            String url = ApiManager.API_ENDPOINT + location;
+            String url = ApiManager.BASE_URL + location;
             uri = Uri.parse(url);
         }
         else {

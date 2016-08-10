@@ -17,7 +17,7 @@ import valjevac.kresimir.homework3.network.deserializers.DateDeserializer;
 
 public class ApiManager {
 
-    public static final String API_ENDPOINT = "https://pokeapi.infinum.co";
+    public static final String BASE_URL = "https://pokeapi.infinum.co";
 
     public static final String TYPE_SESSION = "session";
 
@@ -40,7 +40,7 @@ public class ApiManager {
             .build();
 
     private static Retrofit REST_ADAPTER = new Retrofit.Builder()
-            .baseUrl(API_ENDPOINT)
+            .baseUrl(BASE_URL)
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(GsonConverterFactory.create(GSON))
             .client(client)

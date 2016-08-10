@@ -282,5 +282,5 @@
         android:visibility="gone"
         tools:visibility="gone"
         app:text="@string/saving_pokemon"
-        app:progressStyle="horizontal"/>
+        app:progressBarType="horizontal"/>
 </android.support.design.widget.CoordinatorLayout>

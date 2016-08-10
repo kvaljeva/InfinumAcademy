@@ -137,5 +137,5 @@
         android:visibility="gone"
         tools:visibility="gone"
         app:text="@string/signing_in_progress_text"
-        app:progressStyle="spinner"/>
+        app:progressBarType="spinner"/>
 </RelativeLayout>

@@ -71,6 +71,9 @@ public interface PokemonService {
     Call<BaseResponse<ArrayList<ExtendedData<Comment, AuthorData>>>> getComments(@Path("pokemon_id") int pokemonId);
 
     @GET
+    Call<BaseResponse<ArrayList<ExtendedData<Comment, AuthorData>>>> getCommentsPage(@Url String path);
+
+    @GET
     Call<BaseResponse<ArrayList<ExtendedData<Move, MoveData>>>> getMoves(@Url String path);
 
     @GET("/api/v1/types")
