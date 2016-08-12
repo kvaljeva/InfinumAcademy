@@ -80,4 +80,6 @@
     <string name="no_comments_icon">No comments icon</string>
     <string name="take_a_photo">Take a photo</string>
     <string name="choose_photo">Choose photo</string>
+    <string name="wrong_email_format">Wrong email format</string>
+    <string name="short_password_warning">Password has to be at least 8 characters long</string>
 </resources>

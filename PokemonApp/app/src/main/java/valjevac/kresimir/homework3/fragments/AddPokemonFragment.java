@@ -63,7 +63,6 @@ import valjevac.kresimir.homework3.helpers.ApiErrorHelper;
 import valjevac.kresimir.homework3.helpers.BitmapHelper;
 import valjevac.kresimir.homework3.helpers.NetworkHelper;
 import valjevac.kresimir.homework3.helpers.PokemonHelper;
-import valjevac.kresimir.homework3.interfaces.FragmentUtils;
 import valjevac.kresimir.homework3.models.BaseData;
 import valjevac.kresimir.homework3.models.BaseResponse;
 import valjevac.kresimir.homework3.models.Move;
@@ -72,7 +71,7 @@ import valjevac.kresimir.homework3.models.PokemonType;
 import valjevac.kresimir.homework3.network.ApiManager;
 import valjevac.kresimir.homework3.network.BaseCallback;
 
-public class AddPokemonFragment extends Fragment implements FragmentUtils {
+public class AddPokemonFragment extends Fragment {
     private Unbinder unbinder;
 
     private OnFragmentInteractionListener listener;

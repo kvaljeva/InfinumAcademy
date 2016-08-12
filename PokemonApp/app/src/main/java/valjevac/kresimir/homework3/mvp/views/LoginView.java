@@ -1,19 +1,12 @@
 package valjevac.kresimir.homework3.mvp.views;
 
-public class LoginView implements BaseView {
+import android.widget.EditText;
 
-    @Override
-    public void showMessage(String message) {
+public interface LoginView extends BaseView {
 
-    }
+    void onLoginSuccess();
 
-    @Override
-    public void showProgress() {
+    void onLoginFail();
 
-    }
-
-    @Override
-    public void hideProgress() {
-
-    }
+    void onEmptyField(EditText editText);
 }
