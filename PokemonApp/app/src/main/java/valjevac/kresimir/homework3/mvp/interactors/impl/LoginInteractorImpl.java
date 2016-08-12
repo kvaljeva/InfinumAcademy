@@ -25,11 +25,7 @@ public class LoginInteractorImpl implements LoginInteractor {
     }
 
     @Override
-    public void login(String email, String password, final LoginListener listener) {
-        User user = new User(email, password);
-        BaseData<User> data = new BaseData<>(ApiManager.TYPE_SESSION, user);
-        BaseResponse<BaseData<User>> request = new BaseResponse<>(data);
-
+    public void login(BaseResponse<BaseData<User>> request, final LoginListener listener) {
         loginUserCall = ApiManager.getService().loginUser(request);
 
         loginUserCall.enqueue(new BaseCallback<BaseResponse<BaseData<User>>>() {

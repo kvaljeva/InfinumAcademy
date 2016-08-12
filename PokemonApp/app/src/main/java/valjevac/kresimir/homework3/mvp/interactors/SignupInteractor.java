@@ -1,13 +1,13 @@
 package valjevac.kresimir.homework3.mvp.interactors;
 
-import valjevac.kresimir.homework3.interfaces.LoginListener;
+import valjevac.kresimir.homework3.interfaces.SignupListener;
 import valjevac.kresimir.homework3.models.BaseData;
 import valjevac.kresimir.homework3.models.BaseResponse;
 import valjevac.kresimir.homework3.models.User;
 
-public interface LoginInteractor {
+public interface SignupInteractor {
 
-    void login(BaseResponse<BaseData<User>> request, LoginListener listener);
+    void register(BaseResponse<BaseData<User>> request, SignupListener listener);
 
     void cancel();
 }

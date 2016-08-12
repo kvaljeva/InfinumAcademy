@@ -60,7 +60,7 @@
     <string name="creating_your_account">Creating your account</string>
     <string name="pokemon_saved">Successfully saved your pokemon</string>
     <string name="pokemon_save_failed">Failed to create Pokemon</string>
-    <string name="password_short_warning">Password has to be 8 characters long</string>
+    <string name="password_length_warning">Password has to be 8 characters long</string>
     <string name="loading_pokemon_list">Loading pokemon list...</string>
     <string name="like_pokemon_icon">Like pokemon icon</string>
     <string name="dislike_pokemon_icon">Dislike pokemon icon</string>
@@ -81,5 +81,6 @@
     <string name="take_a_photo">Take a photo</string>
     <string name="choose_photo">Choose photo</string>
     <string name="wrong_email_format">Wrong email format</string>
-    <string name="short_password_warning">Password has to be at least 8 characters long</string>
+    <string name="passwords_not_match_warning">Passwords do not match.</string>
+    <string name="registration_successful">Registered successfully!</string>
 </resources>

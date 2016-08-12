@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -34,11 +35,16 @@ import valjevac.kresimir.homework3.helpers.SharedPreferencesHelper;
 import valjevac.kresimir.homework3.models.BaseData;
 import valjevac.kresimir.homework3.models.BaseResponse;
 import valjevac.kresimir.homework3.models.User;
+import valjevac.kresimir.homework3.mvp.presenters.SignupPresenter;
+import valjevac.kresimir.homework3.mvp.presenters.impl.SignupPresenterImpl;
+import valjevac.kresimir.homework3.mvp.views.SignupView;
 import valjevac.kresimir.homework3.network.ApiManager;
 import valjevac.kresimir.homework3.network.BaseCallback;
 
-public class SignupFragment extends Fragment {
+public class SignupFragment extends Fragment implements SignupView {
+
     private Unbinder unbinder;
+
     public OnFragmentInteractionListener listener;
 
     @BindView(R.id.toolbar)
@@ -62,17 +68,15 @@ public class SignupFragment extends Fragment {
     @BindView(R.id.pv_signup)
     ProgressView progressView;
 
-    Call<BaseResponse<BaseData<User>>> registerUserCall;
-
     private boolean isPasswordVisible;
-
-    private final static int CURRENT_ERROR = 0;
 
     private final static int DRAWABLE_RIGHT_ICON = 2;
 
     private final static boolean SIGNUP_SUCCESSFULL = true;
 
     private final static boolean SIGNUP_FAILED = false;
+
+    private SignupPresenter presenter;
 
     public SignupFragment() {
 
@@ -87,6 +91,13 @@ public class SignupFragment extends Fragment {
 
     public static SignupFragment newInstance() {
         return new SignupFragment();
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        presenter = new SignupPresenterImpl(this);
     }
 
     @Nullable
@@ -133,9 +144,51 @@ public class SignupFragment extends Fragment {
     public void onStop() {
         super.onStop();
 
-        if (registerUserCall != null) {
-            registerUserCall.cancel();
+        if (presenter != null) {
+            presenter.cancel();
         }
+    }
+
+    @Override
+    public void onSignupSuccess() {
+        listener.onRegisterButtonPressed(SIGNUP_SUCCESSFULL);
+    }
+
+    @Override
+    public void onSignupFail() {
+        listener.onRegisterButtonPressed(SIGNUP_FAILED);
+    }
+
+    @Override
+    public void onEmptyField(EditText editText) {
+        editText.requestFocus();
+    }
+
+    @Override
+    public void showProgress() {
+        rlSignupFormContainer.setVisibility(View.GONE);
+        progressView.show();
+    }
+
+    @Override
+    public void hideProgress() {
+        rlSignupFormContainer.setVisibility(View.VISIBLE);
+        progressView.hide();
+    }
+
+    @Override
+    public void showMessage(@StringRes int message) {
+        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void showMessage(String message) {
+        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onPasswordsMissmatch() {
+        etPassword.requestFocus();
     }
 
     private void setUpToolbar() {
@@ -158,78 +211,6 @@ public class SignupFragment extends Fragment {
                 }
             });
         }
-    }
-
-    private EditText validateEditTexts(ViewGroup v) {
-
-        EditText invalidEditText = null;
-
-        for (int i = 0; i < v.getChildCount(); i++) {
-            View child = v.getChildAt(i);
-
-            if (child instanceof EditText) {
-                EditText editText = (EditText) child;
-
-                if(TextUtils.isEmpty(editText.getText())) {
-                    return editText;
-                }
-            }
-            else if(child instanceof ViewGroup) {
-                invalidEditText = validateEditTexts((ViewGroup)child);
-
-                if(invalidEditText != null) {
-                    break;
-                }
-            }
-        }
-
-        return invalidEditText;
-    }
-
-    private boolean isPasswordMatching(String password, String confirmation) {
-        return password.equals(confirmation);
-    }
-
-    private boolean checkForEmptyFields() {
-        EditText emptyEditText = validateEditTexts(rlSignupFormContainer);
-
-        if (emptyEditText != null) {
-            Toast.makeText(getActivity(), "This field cannot be empty.", Toast.LENGTH_SHORT).show();
-            emptyEditText.requestFocus();
-        }
-
-        return emptyEditText == null;
-    }
-
-    private boolean validateEmailAddress(String email) {
-        return !TextUtils.isEmpty(email) && Patterns.EMAIL_ADDRESS.matcher(email).matches();
-    }
-
-    private boolean validateInputFields() {
-
-        if (!checkForEmptyFields()) {
-            return false;
-        }
-
-        if (!validateEmailAddress(etEmail.getText().toString())) {
-            Toast.makeText(getActivity(), "Wrong email format", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-
-        if (etPassword.length() < 8) {
-            Toast.makeText(getActivity(), "Password has to be at least 8 characters long", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-
-        boolean passwordsMatch = isPasswordMatching(etPassword.getText().toString(), etPasswordConfirm.getText().toString());
-
-        if (!TextUtils.isEmpty(etPassword.getText()) && !passwordsMatch) {
-            Toast.makeText(getActivity(), "Passwords do not match.", Toast.LENGTH_SHORT).show();
-            etPassword.requestFocus();
-            return false;
-        }
-
-        return true;
     }
 
     @OnTouch(R.id.et_signup_user_password)
@@ -265,78 +246,7 @@ public class SignupFragment extends Fragment {
     @OnClick(R.id.btn_register_confirm)
     public void registerUser() {
 
-        if (!NetworkHelper.isNetworkAvailable()) {
-
-            Toast.makeText(getActivity(), R.string.no_internet_conn, Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (!validateInputFields()) {
-            return;
-        }
-
-        displayProgress(true);
-
-        String username = etNickname.getText().toString();
-        String email = etEmail.getText().toString();
-        String password = etPassword.getText().toString();
-        String confirmationPassword = etPasswordConfirm.getText().toString();
-
-        sendUserData(username, email, password, confirmationPassword);
-    }
-
-    private void sendUserData(String username, String email, String password, String confirmationPassword) {
-        User user = new User(username, email, password, confirmationPassword);
-        BaseData<User> data = new BaseData<>(ApiManager.TYPE_SESSION, user);
-        BaseResponse<BaseData<User>> request = new BaseResponse<>(data);
-
-        registerUserCall = ApiManager.getService().insertUser(request);
-
-        registerUserCall.enqueue(new BaseCallback<BaseResponse<BaseData<User>>>() {
-            @Override
-            public void onUnknownError(@Nullable String error) {
-
-                displayProgress(false);
-
-                if (!NetworkHelper.isNetworkAvailable()) {
-
-                    Toast.makeText(getActivity(), R.string.no_internet_conn, Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (ApiErrorHelper.createError(error)) {
-
-                    Toast.makeText(getActivity(), ApiErrorHelper.getFullError(CURRENT_ERROR), Toast.LENGTH_SHORT).show();
-                }
-
-                listener.onRegisterButtonPressed(SIGNUP_FAILED);
-            }
-
-            @Override
-            public void onSuccess(BaseResponse<BaseData<User>> body, Response<BaseResponse<BaseData<User>>> response) {
-                Toast.makeText(getActivity(), "Registered successfully!", Toast.LENGTH_SHORT).show();
-
-                SharedPreferencesHelper.setInt(body.getData().getId(), SharedPreferencesHelper.USER_ID);
-                SharedPreferencesHelper.setString(body.getData().getAttributes().getAuthToken(), SharedPreferencesHelper.AUTH_TOKEN);
-                SharedPreferencesHelper.setString(body.getData().getAttributes().getUsername(), SharedPreferencesHelper.USER);
-                SharedPreferencesHelper.setString(body.getData().getAttributes().getEmail(), SharedPreferencesHelper.EMAIL);
-
-                Intent intent = new Intent(getActivity(), MainActivity.class);
-                startActivity(intent);
-
-                listener.onRegisterButtonPressed(SIGNUP_SUCCESSFULL);
-            }
-        });
-    }
-
-    private void displayProgress(boolean isVisible) {
-        if (isVisible) {
-            rlSignupFormContainer.setVisibility(View.GONE);
-            progressView.show();
-        }
-        else {
-            rlSignupFormContainer.setVisibility(View.VISIBLE);
-            progressView.hide();
-        }
+        presenter.register(etNickname.getText().toString(), etEmail.getText().toString(),
+                etPassword.getText().toString(), etPasswordConfirm.getText().toString(), rlSignupFormContainer);
     }
 }

@@ -17,6 +17,7 @@ import valjevac.kresimir.homework3.models.User;
 import valjevac.kresimir.homework3.mvp.interactors.impl.LoginInteractorImpl;
 import valjevac.kresimir.homework3.mvp.presenters.LoginPresenter;
 import valjevac.kresimir.homework3.mvp.views.LoginView;
+import valjevac.kresimir.homework3.network.ApiManager;
 
 public class LoginPresenterImpl implements LoginPresenter {
 
@@ -45,7 +46,11 @@ public class LoginPresenterImpl implements LoginPresenter {
 
         view.showProgress();
 
-        interactor.login(email, password, new LoginListener() {
+        User user = new User(email, password);
+        BaseData<User> data = new BaseData<>(ApiManager.TYPE_SESSION, user);
+        BaseResponse<BaseData<User>> request = new BaseResponse<>(data);
+
+        interactor.login(request, new LoginListener() {
             @Override
             public void onLoginSuccess(BaseResponse<BaseData<User>> body) {
                 SharedPreferencesHelper.login(body.getData().getId(), body.getData().getAttributes().getAuthToken(),
@@ -86,7 +91,7 @@ public class LoginPresenterImpl implements LoginPresenter {
         }
 
         if (password.length() < 8) {
-            view.showMessage(R.string.short_password_warning);
+            view.showMessage(R.string.password_length_warning);
             return false;
         }
 
