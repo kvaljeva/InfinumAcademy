@@ -23,7 +23,7 @@
 
             <ImageView
                 android:id="@+id/iv_add_image"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="@dimen/iv_image_container_height"
                 android:layout_marginTop="@dimen/margin_xxx_high"
                 android:src="@drawable/ic_person_details"
@@ -38,6 +38,34 @@
                 android:layout_height="?attr/actionBarSize"
                 android:theme="@style/ToolbarTheme"
                 app:layout_collapseMode="pin"/>
+
+            <LinearLayout
+                android:id="@+id/ll_photo_options_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@color/colorPrimary"
+                android:animateLayoutChanges="true"
+                android:visibility="gone">
+
+                <Button
+                    android:id="@+id/btn_take_photo"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    style="@style/TransparentButton"
+                    android:visibility="gone"
+                    android:text="@string/take_a_photo"
+                    android:layout_marginBottom="@dimen/margin_small"/>
+
+                <Button
+                    android:id="@+id/btn_choose_photo"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    style="@style/TransparentButton"
+                    android:visibility="gone"
+                    android:text="@string/choose_photo"/>
+            </LinearLayout>
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
 
@@ -67,7 +95,6 @@
                 android:id="@+id/et_pokemon_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:theme="@style/EditTextTheme"
                 android:hint="@string/et_pokemon_name"
                 android:paddingTop="@dimen/padding_xx_high"
                 android:layout_marginRight="@dimen/margin_small"
@@ -77,7 +104,8 @@
                 android:layout_marginStart="@dimen/margin_xxx_high"
                 android:layout_marginLeft="@dimen/margin_xxx_high"
                 android:imeOptions="actionNext"
-                android:singleLine="true"/>
+                android:singleLine="true"
+                style="@style/EditTextTheme"/>
 
             <EditText
                 android:id="@+id/et_pokemon_height"
@@ -92,7 +120,8 @@
                 android:layout_alignRight="@id/et_pokemon_name"
                 android:paddingTop="@dimen/padding_high"
                 android:inputType="numberDecimal"
-                android:imeOptions="actionNext"/>
+                android:imeOptions="actionNext"
+                style="@style/EditTextTheme"/>
 
             <EditText
                 android:id="@+id/et_pokemon_weight"
@@ -107,7 +136,8 @@
                 android:layout_alignRight="@id/et_pokemon_name"
                 android:paddingTop="@dimen/padding_high"
                 android:inputType="numberDecimal"
-                android:imeOptions="actionNext"/>
+                android:imeOptions="actionNext"
+                style="@style/EditTextTheme"/>
 
             <LinearLayout
                 android:id="@+id/ll_types_container"
@@ -236,7 +266,8 @@
                 android:hint="@string/et_pokemon_desc_hint"
                 android:paddingTop="@dimen/padding_small"
                 android:imeOptions="actionDone"
-                android:singleLine="true"/>
+                android:singleLine="true"
+                style="@style/EditTextTheme"/>
 
             <LinearLayout
                 android:layout_width="match_parent"

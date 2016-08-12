@@ -47,19 +47,20 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
+        android:layout_marginBottom="45dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <RelativeLayout
             android:id="@+id/rl_details_body_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="@dimen/margin_small"
             android:animateLayoutChanges="true">
 
             <RelativeLayout
                 android:id="@+id/rl_name_and_desc"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_small"
                 android:layout_marginLeft="@dimen/margin_medium"
                 android:layout_marginRight="@dimen/margin_medium">
 
@@ -265,7 +266,7 @@
                 android:layout_below="@id/ll_like_dislike_container"
                 android:layout_marginLeft="@dimen/margin_xxx_high"
                 android:layout_marginRight="@dimen/margin_xxx_high"
-                android:layout_marginTop="@dimen/margin_small">
+                android:layout_marginTop="@dimen/margin_x_small">
 
                 <TextView
                     android:layout_width="0dp"
@@ -349,11 +350,6 @@
                         android:text="@string/btn_show_all_comments"
                         android:textColor="@color/white"/>
                 </FrameLayout>
-
-                <include
-                    android:layout_height="wrap_content"
-                    android:layout_width="match_parent"
-                    layout="@layout/list_item_comment"/>
             </LinearLayout>
         </RelativeLayout>
     </android.support.v4.widget.NestedScrollView>

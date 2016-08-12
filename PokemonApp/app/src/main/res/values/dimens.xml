@@ -32,4 +32,6 @@
     <dimen name="ic_name_margin_top_xlarge">44dp</dimen>
     <dimen name="horizontal_progress_bar_height">14dp</dimen>
     <dimen name="pv_signup_width">250dp</dimen>
+    <dimen name="fab_menu_padding">110dp</dimen>
+    <dimen name="transparent_button_padding">8dp</dimen>
 </resources>

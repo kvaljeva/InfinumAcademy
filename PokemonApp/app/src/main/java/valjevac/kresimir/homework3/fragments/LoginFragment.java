@@ -85,7 +85,7 @@ public class LoginFragment extends Fragment {
 
     private final static int SCALE_DURATION = 500;
 
-    private final static int ACTION_DELAY = 150;
+    private final static int ACTION_DELAY = 300;
 
     private static final String SPLASH_ANIMATION = "SplashAnimation";
 

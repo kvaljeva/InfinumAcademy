@@ -1,10 +1,12 @@
 package valjevac.kresimir.homework3.fragments;
 
 import android.Manifest;
+import android.animation.Animator;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -27,11 +29,14 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -50,6 +55,7 @@ import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Response;
+import valjevac.kresimir.homework3.PokemonApplication;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.activities.MainActivity;
 import valjevac.kresimir.homework3.custom.ProgressView;
@@ -73,7 +79,11 @@ public class AddPokemonFragment extends Fragment implements FragmentUtils {
 
     private static final int SELECT_IMAGE = 420;
 
-    private static final int REQUEST_CODE_PERMISSION = 42;
+    private static final int TAKEN_PHOTO = 24;
+
+    private static final int REQUEST_CODE_STORAGE_PERMISSION = 42;
+
+    private static final int REQUEST_CODE_CAMERA_PERMISSION = 4;
 
     private static final int DIALOG_RESULT = 4;
 
@@ -89,6 +99,8 @@ public class AddPokemonFragment extends Fragment implements FragmentUtils {
 
     private static final String IS_DEVICE_TABLET = "IsTablet";
 
+    private static final String IS_PHOTO_LAYOUT_VISIBLE = "PhotoLayoutVisibility";
+
     private static final double VERTICAL_OFFSET_CENTER = 1.55;
 
     private boolean changesMade;
@@ -98,6 +110,8 @@ public class AddPokemonFragment extends Fragment implements FragmentUtils {
     private boolean isColorChanged;
 
     private boolean isTabletView;
+
+    private boolean photoOptionsVisible;
 
     @BindView(R.id.et_pokemon_name)
     EditText etPokemonName;
@@ -151,6 +165,15 @@ public class AddPokemonFragment extends Fragment implements FragmentUtils {
     @BindView(R.id.tv_moves_list)
     TextView tvMovesList;
 
+    @BindView(R.id.ll_photo_options_container)
+    LinearLayout llPhotoOptionsContainer;
+
+    @BindView(R.id.btn_choose_photo)
+    Button btnChoosePhoto;
+
+    @BindView(R.id.btn_take_photo)
+    Button btnTakePhoto;
+
     private ArrayList<PokemonType> typesList;
 
     private ArrayList<Move> movesList;
@@ -158,6 +181,8 @@ public class AddPokemonFragment extends Fragment implements FragmentUtils {
     private boolean[] checkedMoves;
 
     private boolean[] checkedTypes;
+
+    private Animation rotateForward, rotateBackwards;
 
     Call<BaseResponse<BaseData<Pokemon>>> insertPokemonCall;
 
@@ -186,6 +211,14 @@ public class AddPokemonFragment extends Fragment implements FragmentUtils {
         return fragment;
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        rotateForward = AnimationUtils.loadAnimation(PokemonApplication.getAppContext(), R.anim.rotate_forward);
+        rotateBackwards = AnimationUtils.loadAnimation(PokemonApplication.getAppContext(), R.anim.rotate_backwards);
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -194,6 +227,7 @@ public class AddPokemonFragment extends Fragment implements FragmentUtils {
         unbinder = ButterKnife.bind(this, view);
 
         isColorChanged = false;
+        photoOptionsVisible = false;
 
         if (getArguments() != null) {
             Bundle args = getArguments();
@@ -204,10 +238,16 @@ public class AddPokemonFragment extends Fragment implements FragmentUtils {
         if (savedInstanceState != null) {
             changesMade = savedInstanceState.getBoolean(CHANGES_MADE);
             imageUri = savedInstanceState.getParcelable(IMAGE_LOCATION);
+            photoOptionsVisible = savedInstanceState.getBoolean(IS_PHOTO_LAYOUT_VISIBLE);
 
             if (imageUri != null && !imageUri.toString().isEmpty()) {
                 BitmapHelper.loadBitmap(ivPokemonImage, imageUri.toString(), false);
             }
+        }
+
+        if (photoOptionsVisible) {
+            setPhotoOptionsVisibility(true);
+            setFabState(true);
         }
 
         initializeValues();
@@ -284,8 +324,10 @@ public class AddPokemonFragment extends Fragment implements FragmentUtils {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == SELECT_IMAGE) {
+        if (requestCode == SELECT_IMAGE || requestCode == TAKEN_PHOTO) {
             if (resultCode == MainActivity.RESULT_OK) {
+                showPhotoOptions();
+
                 Uri selectedImage = data.getData();
 
                 BitmapHelper.loadBitmap(ivPokemonImage, selectedImage.toString(), false);
@@ -302,6 +344,7 @@ public class AddPokemonFragment extends Fragment implements FragmentUtils {
 
         outState.putBoolean(CHANGES_MADE, changesMade);
         outState.putParcelable(IMAGE_LOCATION, imageUri);
+        outState.putBoolean(IS_PHOTO_LAYOUT_VISIBLE, photoOptionsVisible);
     }
 
     private void setUpToolbar() {
@@ -428,8 +471,8 @@ public class AddPokemonFragment extends Fragment implements FragmentUtils {
                 return true;
             }
             else {
-                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                        REQUEST_CODE_PERMISSION);
+                ActivityCompat.requestPermissions(getActivity(), new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE },
+                        REQUEST_CODE_STORAGE_PERMISSION);
 
                 return false;
             }
@@ -439,11 +482,37 @@ public class AddPokemonFragment extends Fragment implements FragmentUtils {
         }
     }
 
+    private boolean isCameraPermissionGranted() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (getActivity().checkSelfPermission(Manifest.permission.CAMERA)
+                    == PackageManager.PERMISSION_GRANTED) {
+
+                return true;
+            }
+            else {
+                ActivityCompat.requestPermissions(getActivity(), new String[]{ Manifest.permission.CAMERA },
+                        REQUEST_CODE_CAMERA_PERMISSION);
+
+                return false;
+            }
+        }
+        else {
+            return true;
+        }
+    }
+
+
     private void startImagePicker() {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType(FORMAT_TYPE_IMAGE);
 
         startActivityForResult(intent, SELECT_IMAGE);
+    }
+
+    private void startCamera() {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        startActivityForResult(intent, TAKEN_PHOTO);
     }
 
     @Override
@@ -470,9 +539,21 @@ public class AddPokemonFragment extends Fragment implements FragmentUtils {
     }
 
     @OnClick(R.id.fab_add_image)
-    public void openImage() {
+    public void showImageOptions() {
+        showPhotoOptions();
+    }
+
+    @OnClick(R.id.btn_choose_photo)
+    public void chooseImage() {
         if (isStoragePermissionGranted()) {
             startImagePicker();
+        }
+    }
+
+    @OnClick(R.id.btn_take_photo)
+    public void takePhoto() {
+        if (isCameraPermissionGranted()) {
+            startCamera();
         }
     }
 
@@ -748,6 +829,115 @@ public class AddPokemonFragment extends Fragment implements FragmentUtils {
 
         for (int i = 0; i < checkedTypes.length; i++) {
             checkedTypes[i] = false;
+        }
+    }
+
+    private void showPhotoOptions() {
+
+        if (ctlHeaderAddPokemon != null) {
+            int x = ctlHeaderAddPokemon.getRight();
+            int y = ctlHeaderAddPokemon.getBottom();
+
+            int hypotenuse = (int) Math.hypot(ctlHeaderAddPokemon.getWidth(), ctlHeaderAddPokemon.getHeight());
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                if (!photoOptionsVisible) {
+                    setFabState(true);
+
+                    CollapsingToolbarLayout.LayoutParams params = (CollapsingToolbarLayout.LayoutParams) llPhotoOptionsContainer.getLayoutParams();
+
+                    params.height = ctlHeaderAddPokemon.getHeight();
+                    llPhotoOptionsContainer.setLayoutParams(params);
+
+                    Animator animator = ViewAnimationUtils.createCircularReveal(llPhotoOptionsContainer, x, y, 0, hypotenuse);
+                    animator.setDuration(400);
+
+                    animator.addListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animator) {
+                            btnChoosePhoto.setVisibility(View.VISIBLE);
+                            btnTakePhoto.setVisibility(View.VISIBLE);
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animator) {
+
+                        }
+                    });
+
+                    llPhotoOptionsContainer.setVisibility(View.VISIBLE);
+
+                    animator.start();
+                    photoOptionsVisible = true;
+                }
+                else {
+                    setFabState(false);
+
+                    Animator animator = ViewAnimationUtils.createCircularReveal(llPhotoOptionsContainer, x, y, hypotenuse, 0);
+                    animator.setDuration(400);
+
+                    animator.addListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animator) {
+                            setPhotoOptionsVisibility(false);
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animator) {
+
+                        }
+                    });
+
+                    animator.start();
+                    photoOptionsVisible = false;
+                }
+            }
+        }
+    }
+
+    private void setFabState(boolean isOpen) {
+        if (isOpen) {
+            fabAddImage.startAnimation(rotateForward);
+            fabAddImage.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getActivity(), R.color.white)));
+            fabAddImage.setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary));
+        }
+        else {
+            fabAddImage.startAnimation(rotateBackwards);
+            fabAddImage.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getActivity(), R.color.colorPrimary)));
+            fabAddImage.setColorFilter(ContextCompat.getColor(getActivity(), R.color.white));
+        }
+    }
+
+    private void setPhotoOptionsVisibility(boolean isVisible) {
+        if (isVisible) {
+            llPhotoOptionsContainer.setVisibility(View.VISIBLE);
+            btnChoosePhoto.setVisibility(View.VISIBLE);
+            btnTakePhoto.setVisibility(View.VISIBLE);
+        }
+        else {
+            llPhotoOptionsContainer.setVisibility(View.GONE);
+            btnChoosePhoto.setVisibility(View.GONE);
+            btnTakePhoto.setVisibility(View.GONE);
         }
     }
 }
