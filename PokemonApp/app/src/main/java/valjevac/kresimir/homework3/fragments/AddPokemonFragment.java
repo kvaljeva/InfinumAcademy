@@ -385,7 +385,7 @@ public class AddPokemonFragment extends Fragment implements FragmentUtils {
                 R.drawable.ic_arrow_back);
 
         if (isDefaultState) {
-            upArrow.setColorFilter(ContextCompat.getColor(activity, R.color.text_icons),
+            upArrow.setColorFilter(ContextCompat.getColor(activity, R.color.white),
                     PorterDuff.Mode.SRC_ATOP);
 
             isColorChanged = true;
@@ -608,6 +608,16 @@ public class AddPokemonFragment extends Fragment implements FragmentUtils {
         changesMade = !TextUtils.isEmpty(charSequence);
     }
 
+    @OnTextChanged(R.id.et_pokemon_height)
+    public void notifyHeightChange(CharSequence charSequence) {
+        changesMade = !TextUtils.isEmpty(charSequence);
+    }
+
+    @OnTextChanged(R.id.et_pokemon_weight)
+    public void notifyWeightChange(CharSequence charSequence) {
+        changesMade = !TextUtils.isEmpty(charSequence);
+    }
+
     @OnClick(R.id.tv_moves_list)
     public void selectPokemonMoves() {
 
@@ -659,21 +669,24 @@ public class AddPokemonFragment extends Fragment implements FragmentUtils {
     }
 
     private void setSelectedItems(String[] itemsArray, boolean[] checkedItems, TextView textView) {
-        String moves = "";
+        String items = "";
         textView.setText("");
 
         for (int i = 0; i < checkedItems.length; i++) {
             if (checkedItems[i]) {
-                moves = moves + itemsArray[i] + ", ";
+                items = items + itemsArray[i] + ", ";
             }
         }
 
-        if (!TextUtils.isEmpty(moves)) {
-            moves = moves.substring(0, moves.length() - 2);
-            textView.setText(moves);
+        if (!TextUtils.isEmpty(items)) {
+            items = items.substring(0, items.length() - 2);
+            textView.setText(items);
+
+            changesMade = true;
         }
         else {
             textView.setText(getString(R.string.not_assigned));
+            changesMade = false;
         }
     }
 

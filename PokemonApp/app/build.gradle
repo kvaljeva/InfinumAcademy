@@ -41,6 +41,7 @@ dependencies {
     compile 'com.squareup.retrofit2:converter-scalars:2.0.1'
     compile 'com.google.code.gson:gson:2.4'
     compile 'com.android.support:support-v4:24.1.1'
+    compile 'jp.wasabeef:recyclerview-animators:2.2.3'
 
     apt "com.github.Raizlabs.DBFlow:dbflow-processor:${dbFlow_version}"
     compile "com.github.Raizlabs.DBFlow:dbflow-core:${dbFlow_version}"

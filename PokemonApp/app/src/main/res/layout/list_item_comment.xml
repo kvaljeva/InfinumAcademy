@@ -13,6 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
+        style="@style/CommentDate"
         tools:text="Comment date"/>
 
     <TextView
@@ -23,7 +24,7 @@
         android:layout_alignParentStart="true"
         android:layout_toStartOf="@id/tv_comment_date"
         android:layout_toLeftOf="@id/tv_comment_date"
-        android:textStyle="bold"
+        style="@style/CommentTitle"
         tools:text="Username"/>
 
     <TextView
@@ -31,5 +32,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/tv_comment_username"
+        style="@style/CommentSubtitle"
         tools:text="Comment body"/>
 </RelativeLayout>

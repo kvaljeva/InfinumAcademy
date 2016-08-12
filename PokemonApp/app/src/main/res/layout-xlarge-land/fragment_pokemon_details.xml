@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/text_icons">
+    android:background="@color/white">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/abl_header_pokemon_details"
@@ -51,7 +51,7 @@
                 android:id="@+id/tv_details_pokemon_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/pokemonDetails"
+                android:textColor="@color/detailsHeadingColor"
                 android:layout_marginLeft="@dimen/margin_high"
                 android:layout_marginStart="@dimen/margin_high"
                 android:textSize="@dimen/text_size_xxx_large"
@@ -74,7 +74,7 @@
                 android:layout_width="@dimen/details_vertical_line_width"
                 android:layout_height="match_parent"
                 android:layout_alignParentTop="true"
-                android:background="@color/pokemonDetails"
+                android:background="@color/detailsHeadingColor"
                 android:layout_alignBottom="@id/tv_details_pokemon_desc"/>
 
             <LinearLayout
@@ -92,7 +92,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:textSize="@dimen/text_size_large"
-                    android:textColor="@color/pokemonDetails"
+                    android:textColor="@color/detailsHeadingColor"
                     android:text="@string/et_pokemon_height"/>
 
                 <TextView
@@ -101,7 +101,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:textSize="@dimen/text_size_large"
-                    android:textColor="@color/pokemonDetails"
+                    android:textColor="@color/detailsHeadingColor"
                     android:text="@string/et_pokemon_weight"/>
 
                 <TextView
@@ -110,7 +110,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:textSize="@dimen/text_size_large"
-                    android:textColor="@color/pokemonDetails"
+                    android:textColor="@color/detailsHeadingColor"
                     android:text="@string/et_pokemon_type"/>
             </LinearLayout>
 
@@ -162,7 +162,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:textSize="@dimen/text_size_large"
-                    android:textColor="@color/pokemonDetails"
+                    android:textColor="@color/detailsHeadingColor"
                     android:text="@string/tv_moves_heading"/>
 
                 <TextView
@@ -171,7 +171,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:textSize="@dimen/text_size_large"
-                    android:textColor="@color/pokemonDetails"
+                    android:textColor="@color/detailsHeadingColor"
                     android:text="@string/tv_gender_heading"/>
             </LinearLayout>
 

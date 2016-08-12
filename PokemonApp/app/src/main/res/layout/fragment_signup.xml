@@ -139,20 +139,12 @@
             android:orientation="vertical"
             android:layout_marginTop="@dimen/margin_xxx_high">
 
-            <FrameLayout
-                android:id="@+id/fl_btn_log_in_container"
+            <Button
+                android:id="@+id/btn_register_confirm"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/colorPrimary">
-
-                <Button
-                    android:id="@+id/btn_register_confirm"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="?android:attr/selectableItemBackground"
-                    android:text="@string/btn_sign_up"
-                    android:textColor="@color/white"/>
-            </FrameLayout>
+                android:text="@string/btn_sign_up"
+                style="@style/FlatButtonColoredTheme"/>
         </LinearLayout>
     </RelativeLayout>
 

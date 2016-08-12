@@ -5,7 +5,7 @@
     android:id="@+id/cl_add_pokemon_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/text_icons">
+    android:background="@color/white">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/abl_header_add_pokemon"
@@ -96,9 +96,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/et_pokemon_name"
-                android:paddingTop="@dimen/padding_xx_high"
-                android:layout_marginRight="@dimen/margin_small"
-                android:layout_marginEnd="@dimen/margin_small"
+                android:paddingTop="@dimen/padding_xxx_high"
+                android:layout_marginRight="@dimen/margin_high"
+                android:layout_marginEnd="@dimen/margin_high"
                 android:layout_alignLeft="@id/iv_pokemon_name"
                 android:layout_alignStart="@id/iv_pokemon_name"
                 android:layout_marginStart="@dimen/margin_xxx_high"
@@ -112,7 +112,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/et_pokemon_name"
-                android:theme="@style/EditTextTheme"
                 android:hint="@string/et_pokemon_height"
                 android:layout_alignStart="@id/et_pokemon_name"
                 android:layout_alignLeft="@id/et_pokemon_name"
@@ -128,7 +127,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/et_pokemon_height"
-                android:theme="@style/EditTextTheme"
                 android:hint="@string/et_pokemon_weight"
                 android:layout_alignStart="@id/et_pokemon_name"
                 android:layout_alignLeft="@id/et_pokemon_name"
@@ -154,11 +152,11 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/tv_pokemon_category"
+                    android:id="@+id/tv_pokemon_types"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/et_pokemon_type"
-                    android:textSize="@dimen/text_size_large"/>
+                    android:textSize="@dimen/text_size_normal"/>
 
                 <TextView
                     android:id="@+id/tv_types_list"
@@ -166,6 +164,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/margin_x_small"
                     android:background="?android:selectableItemBackground"
+                    android:textSize="@dimen/text_size_small"
                     android:text="@string/not_assigned"/>
             </LinearLayout>
 
@@ -184,11 +183,11 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/tv_pokemon_abilities"
+                    android:id="@+id/tv_pokemon_moves"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/et_pokemon_moves"
-                    android:textSize="@dimen/text_size_large"/>
+                    android:textSize="@dimen/text_size_normal"/>
 
                 <TextView
                     android:id="@+id/tv_moves_list"
@@ -196,6 +195,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/margin_x_small"
                     android:background="?android:selectableItemBackground"
+                    android:textSize="@dimen/text_size_small"
                     android:text="@string/not_assigned"/>
             </LinearLayout>
 
@@ -210,7 +210,7 @@
                 android:layout_marginLeft="@dimen/margin_x_small"
                 android:layout_marginStart="@dimen/margin_x_small"
                 android:text="@string/tv_gender_add_pokemon"
-                android:textSize="18sp" />
+                android:textSize="@dimen/text_size_normal" />
 
             <RadioGroup
                 android:id="@+id/rg_gender_selection"
@@ -228,7 +228,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/rb_male_text"
-                    android:textColor="@color/secondaryText"
+                    android:textColor="@color/black"
                     android:checked="true"
                     app:buttonTint="@color/colorPrimary"
                     android:layout_marginRight="@dimen/margin_high"
@@ -239,7 +239,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/rb_female_text"
-                    android:textColor="@color/secondaryText"
+                    android:textColor="@color/black"
                     app:buttonTint="@color/colorPrimary"/>
             </RadioGroup>
 
@@ -257,7 +257,6 @@
                 android:id="@+id/et_pokemon_desc"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:theme="@style/EditTextTheme"
                 android:layout_below="@id/rg_gender_selection"
                 android:layout_alignLeft="@id/et_pokemon_name"
                 android:layout_alignStart="@id/et_pokemon_name"
@@ -276,20 +275,13 @@
                 android:gravity="center_horizontal|bottom"
                 android:orientation="vertical">
 
-                <FrameLayout
+                <Button
+                    android:id="@+id/btn_save_pokemon"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/colorPrimary">
-
-                    <Button
-                        android:id="@+id/btn_save_pokemon"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="?android:attr/selectableItemBackground"
-                        android:layout_gravity="bottom"
-                        android:text="@string/btn_save_pokemon"
-                        android:textColor="@color/text_icons"/>
-                </FrameLayout>
+                    android:layout_gravity="bottom"
+                    android:text="@string/btn_save_pokemon"
+                    style="@style/FlatButtonColoredTheme"/>
             </LinearLayout>
         </RelativeLayout>
     </android.support.v4.widget.NestedScrollView>

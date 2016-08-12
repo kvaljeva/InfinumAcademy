@@ -177,12 +177,12 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onShowPokemonDetailsClick(Pokemon pokemon) {
+    public void onShowPokemonDetailsClick(Pokemon pokemon, ImageView imageView) {
         if (checkIfFragmentExists(POKEMON_DETAILS_FRAGMENT_TAG) && isDeviceTablet) {
             removeFragmentFromStack(POKEMON_DETAILS_FRAGMENT_TAG);
         }
 
-        loadFragment(PokemonDetailsFragment.newInstance(pokemon, isDeviceTablet), POKEMON_DETAILS_FRAGMENT_TAG);
+        loadFragment(PokemonDetailsFragment.newInstance(pokemon, isDeviceTablet), POKEMON_DETAILS_FRAGMENT_TAG, imageView);
     }
 
     @Override

@@ -1,12 +1,11 @@
 package valjevac.kresimir.homework3.adapters;
 
 import android.content.Context;
+import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -28,8 +27,6 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHold
 
     private RecyclerViewClickListener<Pokemon> clickListener;
 
-    private final static int MIN_POSITION = -1;
-
     public PokemonAdapter(Context context, List<Pokemon> pokemonList,
                           RecyclerViewClickListener<Pokemon> clickListener) {
 
@@ -46,30 +43,17 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            holder.civPokemonImage.setTransitionName(context.getString(R.string.details_transit) + position);
+        }
+
         holder.tvPokemonName.setText(pokemonList.get(position).getName());
         BitmapHelper.loadBitmap(holder.civPokemonImage, pokemonList.get(position).getImage(), true);
-
-        setAnimation(holder.llContainer, position);
-    }
-
-    @Override
-    public void onViewDetachedFromWindow(ViewHolder holder) {
-        super.onViewDetachedFromWindow(holder);
-
-        holder.clearAnimation();
     }
 
     @Override
     public int getItemCount() {
         return pokemonList.size();
-    }
-
-    private void setAnimation(View view, int position) {
-
-        if (position > MIN_POSITION) {
-            Animation animation = AnimationUtils.loadAnimation(context, R.anim.recycler_item_anim);
-            view.startAnimation(animation);
-        }
     }
 
     public void update(ArrayList<Pokemon> updateList) {
@@ -103,14 +87,12 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHold
                 view.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        clickListener.OnClick(pokemonList.get(getAdapterPosition()));
+                        ImageView imageView = (ImageView) view.findViewById(R.id.civ_pokemon_image);
+
+                        clickListener.OnClick(pokemonList.get(getAdapterPosition()), imageView);
                     }
                 });
             }
-        }
-
-        public void clearAnimation() {
-            llContainer.clearAnimation();
         }
     }
 }

@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
+import jp.wasabeef.recyclerview.adapters.SlideInBottomAnimationAdapter;
 import retrofit2.Call;
 import retrofit2.Response;
 import valjevac.kresimir.homework3.R;
@@ -125,14 +127,12 @@ public class CommentsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_comments, container, false);
         unbinder = ButterKnife.bind(this, view);
 
-        commentAdapter = new CommentAdapter(getActivity(), commentList, new RecyclerViewClickListener<Comment>() {
-            @Override
-            public void OnClick(Comment object) {
+        commentAdapter = new CommentAdapter(getActivity(), commentList, null);
 
-            }
-        });
+        AlphaInAnimationAdapter alphaAdapter = new AlphaInAnimationAdapter(commentAdapter);
+        alphaAdapter.setDuration(1000);
 
-        rvAllComments.setAdapter(commentAdapter);
+        rvAllComments.setAdapter(alphaAdapter);
         rvAllComments.setLayoutManager(new LinearLayoutManager(getActivity()));
         rvAllComments.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override

@@ -22,6 +22,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.OvershootInterpolator;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -32,6 +34,9 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
+import jp.wasabeef.recyclerview.adapters.SlideInBottomAnimationAdapter;
+import jp.wasabeef.recyclerview.animators.FadeInAnimator;
 import retrofit2.Call;
 import retrofit2.Response;
 import valjevac.kresimir.homework3.ProcessPokemonList;
@@ -114,7 +119,7 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
 
         void onAddPokemonClick();
 
-        void onShowPokemonDetailsClick(Pokemon pokemon);
+        void onShowPokemonDetailsClick(Pokemon pokemon, ImageView imageView);
 
         void onLogoutClick();
     }
@@ -186,12 +191,20 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
 
         pokemonAdapter = new PokemonAdapter(getActivity(), pokemonList, new RecyclerViewClickListener<Pokemon>() {
             @Override
-            public void OnClick(Pokemon pokemon) {
-                listener.onShowPokemonDetailsClick(pokemon);
+            public void OnClick(Pokemon pokemon, ImageView imageView) {
+                listener.onShowPokemonDetailsClick(pokemon, imageView);
             }
         });
 
-        rvPokemonList.setAdapter(pokemonAdapter);
+        AlphaInAnimationAdapter alphaAdapter = new AlphaInAnimationAdapter(pokemonAdapter);
+        alphaAdapter.setDuration(1000);
+
+        SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(alphaAdapter);
+        slideAdapter.setDuration(1000);
+        slideAdapter.setInterpolator(new OvershootInterpolator(.5f));
+
+        rvPokemonList.setItemAnimator(new FadeInAnimator());
+        rvPokemonList.setAdapter(slideAdapter);
         rvPokemonList.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         isEmptyState = pokemonList == null || pokemonList.size() == 0;
@@ -251,6 +264,8 @@ public class PokemonListFragment extends Fragment implements ProcessPokemonList.
         if (pokemonListProcessor != null) {
             pokemonListProcessor.cancel();
         }
+
+        isListLoading = false;
     }
 
     @Override

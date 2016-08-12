@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -122,8 +123,8 @@ public class PokemonDetailsFragment extends Fragment {
     @BindView(R.id.second_comment_container)
     View vSecondComment;
 
-    @BindView(R.id.fl_show_comments_container)
-    FrameLayout flShowCommentsContainer;
+    @BindView(R.id.btn_show_comments)
+    Button btnShowComments;
 
     @BindView(R.id.sv_details_body_container)
     NestedScrollView nsvDetailsBody;
@@ -210,6 +211,9 @@ public class PokemonDetailsFragment extends Fragment {
 
                 setButtonState(pokemon.getVote());
             }
+
+            String transitionName = arguments.getString("TRANSITION");
+            ivImage.setTransitionName(transitionName);
         }
 
         fetchCommentList();
@@ -504,7 +508,7 @@ public class PokemonDetailsFragment extends Fragment {
             llCommentsContainer.setVisibility(View.VISIBLE);
 
             if (commentList.size() > 2) {
-                flShowCommentsContainer.setVisibility(View.VISIBLE);
+                btnShowComments.setVisibility(View.VISIBLE);
             }
         }
     }
