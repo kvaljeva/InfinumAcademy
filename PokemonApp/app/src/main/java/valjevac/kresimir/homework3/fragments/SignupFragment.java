@@ -1,15 +1,12 @@
 package valjevac.kresimir.homework3.fragments;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.text.method.PasswordTransformationMethod;
-import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -23,23 +20,12 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTouch;
 import butterknife.Unbinder;
-import retrofit2.Call;
-import retrofit2.Response;
 import valjevac.kresimir.homework3.R;
-import valjevac.kresimir.homework3.activities.MainActivity;
 import valjevac.kresimir.homework3.activities.StarterActivity;
 import valjevac.kresimir.homework3.custom.ProgressView;
-import valjevac.kresimir.homework3.helpers.ApiErrorHelper;
-import valjevac.kresimir.homework3.helpers.NetworkHelper;
-import valjevac.kresimir.homework3.helpers.SharedPreferencesHelper;
-import valjevac.kresimir.homework3.models.BaseData;
-import valjevac.kresimir.homework3.models.BaseResponse;
-import valjevac.kresimir.homework3.models.User;
 import valjevac.kresimir.homework3.mvp.presenters.SignupPresenter;
 import valjevac.kresimir.homework3.mvp.presenters.impl.SignupPresenterImpl;
 import valjevac.kresimir.homework3.mvp.views.SignupView;
-import valjevac.kresimir.homework3.network.ApiManager;
-import valjevac.kresimir.homework3.network.BaseCallback;
 
 public class SignupFragment extends Fragment implements SignupView {
 

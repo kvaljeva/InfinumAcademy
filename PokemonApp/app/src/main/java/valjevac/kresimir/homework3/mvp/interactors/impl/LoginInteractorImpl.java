@@ -1,14 +1,9 @@
 package valjevac.kresimir.homework3.mvp.interactors.impl;
 
 import android.support.annotation.Nullable;
-import android.widget.Toast;
 
 import retrofit2.Call;
 import retrofit2.Response;
-import valjevac.kresimir.homework3.R;
-import valjevac.kresimir.homework3.helpers.ApiErrorHelper;
-import valjevac.kresimir.homework3.helpers.NetworkHelper;
-import valjevac.kresimir.homework3.helpers.SharedPreferencesHelper;
 import valjevac.kresimir.homework3.interfaces.LoginListener;
 import valjevac.kresimir.homework3.models.BaseData;
 import valjevac.kresimir.homework3.models.BaseResponse;

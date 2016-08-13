@@ -3,12 +3,12 @@ package valjevac.kresimir.homework3.fragments;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,24 +23,16 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
-import jp.wasabeef.recyclerview.adapters.SlideInBottomAnimationAdapter;
-import retrofit2.Call;
-import retrofit2.Response;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.activities.MainActivity;
 import valjevac.kresimir.homework3.adapters.CommentAdapter;
-import valjevac.kresimir.homework3.helpers.NetworkHelper;
-import valjevac.kresimir.homework3.interfaces.RecyclerViewClickListener;
-import valjevac.kresimir.homework3.models.AuthorData;
-import valjevac.kresimir.homework3.models.BaseData;
-import valjevac.kresimir.homework3.models.BaseResponse;
 import valjevac.kresimir.homework3.models.Comment;
-import valjevac.kresimir.homework3.models.ExtendedData;
-import valjevac.kresimir.homework3.models.User;
-import valjevac.kresimir.homework3.network.ApiManager;
-import valjevac.kresimir.homework3.network.BaseCallback;
+import valjevac.kresimir.homework3.mvp.presenters.CommentsPresenter;
+import valjevac.kresimir.homework3.mvp.presenters.impl.CommentsPresenterImpl;
+import valjevac.kresimir.homework3.mvp.views.CommentsView;
 
-public class CommentsFragment extends Fragment {
+public class CommentsFragment extends Fragment implements CommentsView {
+
     private Unbinder unbinder;
 
     private OnFragmentInteractionListener listener;
@@ -73,9 +65,9 @@ public class CommentsFragment extends Fragment {
 
     private String title;
 
-    CommentAdapter commentAdapter;
+    private CommentAdapter commentAdapter;
 
-    Call<BaseResponse<ArrayList<ExtendedData<Comment, AuthorData>>>> getCommentsPageCall;
+    private CommentsPresenter presenter;
 
     public CommentsFragment() {
 
@@ -111,6 +103,8 @@ public class CommentsFragment extends Fragment {
         else if (savedInstanceState != null) {
             commentList = savedInstanceState.getParcelableArrayList(COMMENT_LIST);
         }
+
+        presenter = new CommentsPresenterImpl(this, nextPage);
     }
 
     @Override
@@ -140,7 +134,7 @@ public class CommentsFragment extends Fragment {
                 super.onScrolled(recyclerView, dx, dy);
 
                 if (!recyclerView.canScrollVertically(1)) {
-                    loadNextCommentsPage(nextPage);
+                    presenter.loadComments();
                 }
             }
         });
@@ -177,8 +171,8 @@ public class CommentsFragment extends Fragment {
     public void onStop() {
         super.onStop();
 
-        if (getCommentsPageCall != null) {
-            getCommentsPageCall.cancel();
+        if (presenter != null) {
+            presenter.cancel();
         }
     }
 
@@ -195,6 +189,33 @@ public class CommentsFragment extends Fragment {
         else {
             return AnimationUtils.loadAnimation(getActivity(), R.anim.exit_left);
         }
+    }
+
+    @Override
+    public void onCommentsLoadSuccess(ArrayList<Comment> comments) {
+        commentList.addAll(comments);
+        commentAdapter.update(commentList);
+        comments.clear();
+    }
+
+    @Override
+    public void showProgress() {
+        llProgressContainer.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideProgress() {
+        llProgressContainer.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showMessage(@StringRes int message) {
+        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void showMessage(String message) {
+        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
     }
 
     private void setUpToolbar(String title) {
@@ -216,67 +237,6 @@ public class CommentsFragment extends Fragment {
                     listener.onCommentsHomePressed();
                 }
             });
-        }
-    }
-
-    private void loadNextCommentsPage(String page) {
-
-        if (TextUtils.isEmpty(page)) {
-            return;
-        }
-
-        if (!NetworkHelper.isNetworkAvailable()) {
-            Toast.makeText(getActivity(), R.string.no_internet_conn, Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        showProgress(true);
-
-        getCommentsPageCall = ApiManager.getService().getCommentsPage(page);
-        getCommentsPageCall.enqueue(new BaseCallback<BaseResponse<ArrayList<ExtendedData<Comment, AuthorData>>>>() {
-            @Override
-            public void onUnknownError(@Nullable String error) {
-
-            }
-
-            @Override
-            public void onSuccess(BaseResponse<ArrayList<ExtendedData<Comment, AuthorData>>> body,
-                                  Response<BaseResponse<ArrayList<ExtendedData<Comment, AuthorData>>>> response) {
-
-                ArrayList<BaseData<User>> includedList = body.getIncluded();
-
-                for (ExtendedData data : body.getData()) {
-                    AuthorData author = (AuthorData) data.getRelationships().getModel().getData();
-                    Comment comment = (Comment) data.getAttributes();
-
-                    String username = "";
-                    for (BaseData<User> user : includedList) {
-
-                        if (user.getId() == author.getId()) {
-                            username = user.getAttributes().getUsername();
-                        }
-                    }
-
-                    comment.setId(data.getId());
-                    comment.setUsername(username);
-                    commentList.add(comment);
-                }
-
-                commentAdapter.update(commentList);
-
-                nextPage = (!TextUtils.isEmpty(body.getLinks().getNext())) ? body.getLinks().getNext() : "";
-
-                showProgress(false);
-            }
-        });
-    }
-
-    private void showProgress(boolean showProgress) {
-        if (showProgress) {
-            llProgressContainer.setVisibility(View.VISIBLE);
-        }
-        else {
-            llProgressContainer.setVisibility(View.GONE);
         }
     }
 }
