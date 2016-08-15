@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
-import android.database.Cursor;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -16,10 +15,10 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -42,47 +41,37 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.regex.Pattern;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
 import butterknife.Unbinder;
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
-import retrofit2.Call;
-import retrofit2.Response;
+import valjevac.kresimir.homework3.enums.ItemsType;
 import valjevac.kresimir.homework3.PokemonApplication;
 import valjevac.kresimir.homework3.R;
+import valjevac.kresimir.homework3.enums.PermissionType;
+import valjevac.kresimir.homework3.enums.SetFocus;
 import valjevac.kresimir.homework3.activities.MainActivity;
 import valjevac.kresimir.homework3.custom.ProgressView;
-import valjevac.kresimir.homework3.helpers.ApiErrorHelper;
 import valjevac.kresimir.homework3.helpers.BitmapHelper;
-import valjevac.kresimir.homework3.helpers.NetworkHelper;
-import valjevac.kresimir.homework3.helpers.PokemonHelper;
-import valjevac.kresimir.homework3.models.BaseData;
-import valjevac.kresimir.homework3.models.BaseResponse;
-import valjevac.kresimir.homework3.models.Move;
 import valjevac.kresimir.homework3.models.Pokemon;
-import valjevac.kresimir.homework3.models.PokemonType;
-import valjevac.kresimir.homework3.network.ApiManager;
-import valjevac.kresimir.homework3.network.BaseCallback;
+import valjevac.kresimir.homework3.mvp.presenters.AddPokemonPresenter;
+import valjevac.kresimir.homework3.mvp.presenters.impl.AddPokemonPresenterImpl;
+import valjevac.kresimir.homework3.mvp.views.AddPokemonView;
 
-public class AddPokemonFragment extends Fragment {
+public class AddPokemonFragment extends Fragment implements AddPokemonView {
+
     private Unbinder unbinder;
 
     private OnFragmentInteractionListener listener;
+
+    private AddPokemonPresenter presenter;
 
     private static final int SELECT_IMAGE = 420;
 
     private static final int TAKEN_PHOTO = 24;
 
-    private static final int REQUEST_CODE_STORAGE_PERMISSION = 42;
-
-    private static final int REQUEST_CODE_CAMERA_PERMISSION = 4;
+    private static final int PERMISSION_REQUEST_CODE = 42;
 
     private static final int DIALOG_RESULT = 4;
 
@@ -93,8 +82,6 @@ public class AddPokemonFragment extends Fragment {
     private static final String IMAGE_LOCATION = "ImageLocation";
 
     private static final String FORMAT_TYPE_IMAGE = "image/*";
-
-    private static final String MEDIA_TYPE = "application/image";
 
     private static final String IS_DEVICE_TABLET = "IsTablet";
 
@@ -173,17 +160,9 @@ public class AddPokemonFragment extends Fragment {
     @BindView(R.id.btn_take_photo)
     Button btnTakePhoto;
 
-    private ArrayList<PokemonType> typesList;
-
-    private ArrayList<Move> movesList;
-
-    private boolean[] checkedMoves;
-
-    private boolean[] checkedTypes;
-
     private Animation rotateForward, rotateBackwards;
 
-    Call<BaseResponse<BaseData<Pokemon>>> insertPokemonCall;
+    private boolean isFabActive;
 
     public AddPokemonFragment() { }
 
@@ -214,6 +193,8 @@ public class AddPokemonFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        presenter = new AddPokemonPresenterImpl(this);
+
         rotateForward = AnimationUtils.loadAnimation(PokemonApplication.getAppContext(), R.anim.rotate_forward);
         rotateBackwards = AnimationUtils.loadAnimation(PokemonApplication.getAppContext(), R.anim.rotate_backwards);
     }
@@ -239,17 +220,15 @@ public class AddPokemonFragment extends Fragment {
             imageUri = savedInstanceState.getParcelable(IMAGE_LOCATION);
             photoOptionsVisible = savedInstanceState.getBoolean(IS_PHOTO_LAYOUT_VISIBLE);
 
-            if (imageUri != null && !imageUri.toString().isEmpty()) {
+            if (imageUri != null && !TextUtils.isEmpty(imageUri.toString())) {
                 BitmapHelper.loadBitmap(ivPokemonImage, imageUri.toString(), false);
             }
         }
 
         if (photoOptionsVisible) {
-            setPhotoOptionsVisibility(true);
-            setFabState(true);
+            showImageOptions();
+            setFabActiveState();
         }
-
-        initializeValues();
 
         return view;
     }
@@ -296,8 +275,8 @@ public class AddPokemonFragment extends Fragment {
     public void onStop() {
         super.onStop();
 
-        if (insertPokemonCall != null) {
-            insertPokemonCall.cancel();
+        if (presenter != null) {
+            presenter.cancel();
         }
     }
 
@@ -325,14 +304,13 @@ public class AddPokemonFragment extends Fragment {
 
         if (requestCode == SELECT_IMAGE || requestCode == TAKEN_PHOTO) {
             if (resultCode == MainActivity.RESULT_OK) {
-                showPhotoOptions();
-
                 Uri selectedImage = data.getData();
-
                 BitmapHelper.loadBitmap(ivPokemonImage, selectedImage.toString(), false);
-                imageUri = selectedImage;
 
+                imageUri = selectedImage;
                 changesMade = true;
+
+                showPhotoOptions();
             }
         }
     }
@@ -344,6 +322,339 @@ public class AddPokemonFragment extends Fragment {
         outState.putBoolean(CHANGES_MADE, changesMade);
         outState.putParcelable(IMAGE_LOCATION, imageUri);
         outState.putBoolean(IS_PHOTO_LAYOUT_VISIBLE, photoOptionsVisible);
+    }
+
+
+    @Override
+    public void onPokemonAddSuccess(Pokemon pokemon) {
+        listener.onPokemonAdded(pokemon);
+    }
+
+    @Override
+    public void showProgress() {
+        progressView.show();
+    }
+
+    @Override
+    public void hideProgress() {
+        progressView.hide();
+    }
+
+    @Override
+    public void showMessage(@StringRes int message) {
+        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void showMessage(String message) {
+        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void focusView(SetFocus focus) {
+        switch (focus) {
+            case PokemonName:
+                etPokemonName.requestFocus();
+                break;
+            case PokemonWeight:
+                etPokemonWeight.requestFocus();
+                break;
+            case PokemonHeight:
+                etPokemonHeight.requestFocus();
+                break;
+            case PokemonDescription:
+                etPokemonDescription.requestFocus();
+                break;
+            default: break;
+        }
+    }
+
+    @Override
+    public void getMultipleSelectionItems(String[] itemsArray, boolean[] checkedItems, String title, ItemsType itemsType) {
+        createSelectionDialog(itemsArray, checkedItems, title, itemsType);
+    }
+
+    @Override
+    public void displaySelectedItems(String items, ItemsType itemsType) {
+        items = (TextUtils.isEmpty(items)) ? getString(R.string.not_assigned) : items;
+
+        switch (itemsType) {
+            case Moves:
+                tvMovesList.setText(items);
+                break;
+            case Types:
+                tvTypeList.setText(items);
+                break;
+            default: break;
+        }
+    }
+
+    @Override
+    public void checkForPermission(String[] permissions, PermissionType permissionType) {
+        if (askForPermission(permissions) && permissionType == PermissionType.Camera) {
+            startCamera();
+        }
+        else if (askForPermission(permissions) && permissionType == PermissionType.ExternalStorage) {
+            startImagePicker();
+        }
+    }
+
+    @Override
+    public void clearInputViews() {
+        clearInputViews(rlActivityBody);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (grantResults.length == 1) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startImagePicker();
+            }
+        }
+        else if (grantResults.length > 1) {
+            boolean arePermissionGranted = true;
+
+            for (int result : grantResults) {
+                if (result == PackageManager.PERMISSION_DENIED) {
+                    arePermissionGranted = false;
+                    break;
+                }
+            }
+
+            if (arePermissionGranted) {
+                startCamera();
+            }
+        }
+    }
+
+    @Override
+    public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
+        if (enter) {
+            return AnimationUtils.loadAnimation(getActivity(), R.anim.enter_right);
+        }
+        else {
+            if (isTabletView) {
+                return AnimationUtils.loadAnimation(getActivity(), R.anim.exit_left);
+            }
+
+            return AnimationUtils.loadAnimation(getActivity(), R.anim.exit_right);
+        }
+    }
+
+    @OnClick(R.id.fab_add_image)
+    public void onShowImageOptionsClick() {
+        showPhotoOptions();
+    }
+
+    @OnClick(R.id.btn_choose_photo)
+    public void onChooseImagePick() {
+        presenter.checkForPermission(new String[] { Manifest.permission.READ_EXTERNAL_STORAGE },
+                PermissionType.ExternalStorage);
+    }
+
+    @OnClick(R.id.btn_take_photo)
+    public void onTakePhotoClick() {
+        presenter.checkForPermission(new String [] { Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE },
+                PermissionType.Camera);
+    }
+
+    @OnClick(R.id.btn_save_pokemon)
+    public void onSavePokemonClick() {
+        String name = etPokemonName.getText().toString();
+        String description = etPokemonDescription.getText().toString();
+        String height = etPokemonHeight.getText().toString();
+        String weight = etPokemonWeight.getText().toString();
+        int gender = (rbGenderMale.isChecked()) ? 1 : 2;
+
+        presenter.addPokemon(name, description, height, weight, imageUri, gender);
+    }
+
+    @OnTextChanged(R.id.et_pokemon_desc)
+    public void notifyDescChange(CharSequence charSequence) {
+        changesMade = !TextUtils.isEmpty(charSequence);
+    }
+
+    @OnTextChanged(R.id.et_pokemon_name)
+    public void notifyNameChange(CharSequence charSequence) {
+        changesMade = !TextUtils.isEmpty(charSequence);
+    }
+
+    @OnTextChanged(R.id.et_pokemon_height)
+    public void notifyHeightChange(CharSequence charSequence) {
+        changesMade = !TextUtils.isEmpty(charSequence);
+    }
+
+    @OnTextChanged(R.id.et_pokemon_weight)
+    public void notifyWeightChange(CharSequence charSequence) {
+        changesMade = !TextUtils.isEmpty(charSequence);
+    }
+
+    @OnClick(R.id.tv_moves_list)
+    public void selectPokemonMoves() {
+        presenter.getPokemonMoves();
+    }
+
+    @OnClick(R.id.tv_types_list)
+    public void selectPokemonType() {
+        presenter.getPokemonTypes();
+    }
+
+    private void createSelectionDialog(final String[] itemsArray, final boolean[] checkedItems, final String title, final ItemsType itemsType) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.DialogTheme);
+
+        builder.setMultiChoiceItems(itemsArray, checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+
+                checkedItems[which] = isChecked;
+            }
+        });
+        builder.setPositiveButton(R.string.dialog_done, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+                presenter.setSelectedItems(itemsArray, checkedItems, itemsType);
+            }
+        });
+        builder.setTitle(title);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    public boolean allowBackPressed() {
+        if (changesMade) {
+            showDialog();
+            return false;
+        }
+
+        return true;
+    }
+
+    public void clearUserData() {
+        clearInputViews(rlActivityBody);
+    }
+
+    private void showPhotoOptions() {
+
+        if (ctlHeaderAddPokemon != null) {
+            final int x = ctlHeaderAddPokemon.getRight();
+            final int y = ctlHeaderAddPokemon.getBottom();
+
+            final int hypotenuse = (int) Math.hypot(ctlHeaderAddPokemon.getWidth(), ctlHeaderAddPokemon.getHeight());
+
+            llPhotoOptionsContainer.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        if (!photoOptionsVisible) {
+                            setFabActiveState();
+
+                            CollapsingToolbarLayout.LayoutParams params = (CollapsingToolbarLayout.LayoutParams) llPhotoOptionsContainer.getLayoutParams();
+
+                            params.height = ctlHeaderAddPokemon.getHeight();
+                            llPhotoOptionsContainer.setLayoutParams(params);
+
+                            Animator animator = ViewAnimationUtils.createCircularReveal(llPhotoOptionsContainer, x, y, 0, hypotenuse);
+                            animator.setDuration(400);
+
+                            animator.addListener(new Animator.AnimatorListener() {
+                                @Override
+                                public void onAnimationStart(Animator animator) {
+
+                                }
+
+                                @Override
+                                public void onAnimationEnd(Animator animator) {
+                                    btnChoosePhoto.setVisibility(View.VISIBLE);
+                                    btnTakePhoto.setVisibility(View.VISIBLE);
+                                }
+
+                                @Override
+                                public void onAnimationCancel(Animator animator) {
+
+                                }
+
+                                @Override
+                                public void onAnimationRepeat(Animator animator) {
+
+                                }
+                            });
+
+                            llPhotoOptionsContainer.setVisibility(View.VISIBLE);
+
+                            animator.start();
+                            photoOptionsVisible = true;
+                        }
+                        else {
+                            setFabClosedState();
+
+                            Animator animator = ViewAnimationUtils.createCircularReveal(llPhotoOptionsContainer, x, y, hypotenuse, 0);
+                            animator.setDuration(400);
+
+                            animator.addListener(new Animator.AnimatorListener() {
+                                @Override
+                                public void onAnimationStart(Animator animator) {
+
+                                }
+
+                                @Override
+                                public void onAnimationEnd(Animator animator) {
+                                    hideImageOptions(false);
+                                }
+
+                                @Override
+                                public void onAnimationCancel(Animator animator) {
+
+                                }
+
+                                @Override
+                                public void onAnimationRepeat(Animator animator) {
+
+                                }
+                            });
+
+                            animator.start();
+                            photoOptionsVisible = false;
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    private void setFabActiveState() {
+        fabAddImage.startAnimation(rotateForward);
+        fabAddImage.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getActivity(), R.color.white)));
+        fabAddImage.setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary));
+
+        isFabActive = true;
+    }
+
+    private void setFabClosedState() {
+        fabAddImage.startAnimation(rotateBackwards);
+        fabAddImage.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getActivity(), R.color.colorPrimary)));
+        fabAddImage.setColorFilter(ContextCompat.getColor(getActivity(), R.color.white));
+
+        isFabActive = false;
+    }
+
+    private void showImageOptions() {
+        llPhotoOptionsContainer.setVisibility(View.VISIBLE);
+        btnChoosePhoto.setVisibility(View.VISIBLE);
+        btnTakePhoto.setVisibility(View.VISIBLE);
+    }
+
+    private void hideImageOptions(boolean hideContainerOnly) {
+        llPhotoOptionsContainer.setVisibility(View.GONE);
+
+        if (!hideContainerOnly) {
+            btnChoosePhoto.setVisibility(View.GONE);
+            btnTakePhoto.setVisibility(View.GONE);
+        }
     }
 
     private void setUpToolbar() {
@@ -388,6 +699,12 @@ public class AddPokemonFragment extends Fragment {
                     PorterDuff.Mode.SRC_ATOP);
 
             isColorChanged = true;
+
+            if (isFabActive) {
+                setFabClosedState();
+                hideImageOptions(true);
+                photoOptionsVisible = false;
+            }
         }
         else {
             upArrow.setColorFilter(ContextCompat.getColor(activity, R.color.primaryText),
@@ -413,24 +730,6 @@ public class AddPokemonFragment extends Fragment {
         dialog.show(getActivity().getSupportFragmentManager(), DIALOG_SHOW);
     }
 
-    private boolean checkForEmptyViews() {
-        int editTextCount = rlActivityBody.getChildCount();
-
-        for (int i = 0; i < editTextCount; i++) {
-            View view = rlActivityBody.getChildAt(i);
-
-            if (view instanceof EditText) {
-                EditText editText = (EditText)view;
-
-                if (TextUtils.isEmpty(editText.getText().toString())) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
     private void clearInputViews(ViewGroup group) {
 
         for (int i = 0; i < group.getChildCount(); i++) {
@@ -454,52 +753,24 @@ public class AddPokemonFragment extends Fragment {
         BitmapHelper.loadResourceBitmap(ivPokemonImage, R.drawable.ic_person_details, false);
     }
 
-    private boolean validateDecimalInput(EditText etContent) {
-        // Promijenjeno Kocu za dusu
-        Pattern pattern = Pattern.compile("^(-?0[.]\\d+)$|^(-?[1-9]+\\d*([.]\\d+)?)$|^0$");
-        String content = etContent.getText().toString();
+    private boolean askForPermission(String[] permissions) {
+        boolean permissionsGranted = true;
 
-        return pattern.matcher(content).matches();
-    }
-
-    private boolean isStoragePermissionGranted() {
         if (Build.VERSION.SDK_INT >= 23) {
-            if (getActivity().checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-                    == PackageManager.PERMISSION_GRANTED) {
+            for (String permission : permissions ) {
+                if (!(ContextCompat.checkSelfPermission(getActivity(), permission) == PackageManager.PERMISSION_GRANTED)) {
 
-                return true;
-            }
-            else {
-                ActivityCompat.requestPermissions(getActivity(), new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE },
-                        REQUEST_CODE_STORAGE_PERMISSION);
-
-                return false;
+                    requestPermissions(permissions, PERMISSION_REQUEST_CODE);
+                    permissionsGranted = false;
+                }
             }
         }
         else {
-            return true;
+            permissionsGranted = true;
         }
+
+        return permissionsGranted;
     }
-
-    private boolean isCameraPermissionGranted() {
-        if (Build.VERSION.SDK_INT >= 23) {
-            if (getActivity().checkSelfPermission(Manifest.permission.CAMERA)
-                    == PackageManager.PERMISSION_GRANTED) {
-
-                return true;
-            }
-            else {
-                ActivityCompat.requestPermissions(getActivity(), new String[]{ Manifest.permission.CAMERA },
-                        REQUEST_CODE_CAMERA_PERMISSION);
-
-                return false;
-            }
-        }
-        else {
-            return true;
-        }
-    }
-
 
     private void startImagePicker() {
         Intent intent = new Intent(Intent.ACTION_PICK);
@@ -512,444 +783,5 @@ public class AddPokemonFragment extends Fragment {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
         startActivityForResult(intent, TAKEN_PHOTO);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            startImagePicker();
-        }
-    }
-
-    @Override
-    public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
-        if (enter) {
-            return AnimationUtils.loadAnimation(getActivity(), R.anim.enter_right);
-        }
-        else {
-            if (isTabletView) {
-                return AnimationUtils.loadAnimation(getActivity(), R.anim.exit_left);
-            }
-
-            return AnimationUtils.loadAnimation(getActivity(), R.anim.exit_right);
-        }
-    }
-
-    @OnClick(R.id.fab_add_image)
-    public void showImageOptions() {
-        showPhotoOptions();
-    }
-
-    @OnClick(R.id.btn_choose_photo)
-    public void chooseImage() {
-        if (isStoragePermissionGranted()) {
-            startImagePicker();
-        }
-    }
-
-    @OnClick(R.id.btn_take_photo)
-    public void takePhoto() {
-        if (isCameraPermissionGranted()) {
-            startCamera();
-        }
-    }
-
-    @OnClick(R.id.btn_save_pokemon)
-    public void savePokemon() {
-        boolean emptyViewsExist = checkForEmptyViews();
-
-        if (!NetworkHelper.isNetworkAvailable()) {
-            Toast.makeText(getActivity(), getString(R.string.no_internet_conn),
-                    Toast.LENGTH_SHORT).show();
-
-            return;
-        }
-
-        if (emptyViewsExist || !validateDecimalInput(etPokemonWeight) || !validateDecimalInput(etPokemonHeight)) {
-            Toast toast;
-
-            if (emptyViewsExist) {
-                toast = Toast.makeText(getActivity(), R.string.empty_fields_warning, Toast.LENGTH_SHORT);
-            }
-            else {
-                toast = Toast.makeText(getActivity(), R.string.non_numeric_value_warning, Toast.LENGTH_SHORT);
-            }
-
-            toast.show();
-        }
-        else {
-
-            displayProgress(true);
-
-            String pokemonName = etPokemonName.getText().toString();
-            String pokemonDesc = etPokemonDescription.getText().toString();
-            float pokemonHeight = Float.valueOf(etPokemonHeight.getText().toString());
-            float pokemonWeight = Float.valueOf(etPokemonWeight.getText().toString());
-            Uri image = (this.imageUri == null) ? BitmapHelper.getResourceUri(R.drawable.ic_person_details) : this.imageUri;
-            int gender = (rbGenderFemale.isChecked()) ? 2 : 1;
-
-            Pokemon pokemon = new Pokemon(pokemonName, pokemonDesc, pokemonHeight,
-                    pokemonWeight, image.toString(), gender);
-
-            insertPokemon(pokemon);
-        }
-    }
-
-    @OnTextChanged(R.id.et_pokemon_desc)
-    public void notifyDescChange(CharSequence charSequence) {
-        changesMade = !TextUtils.isEmpty(charSequence);
-    }
-
-    @OnTextChanged(R.id.et_pokemon_name)
-    public void notifyNameChange(CharSequence charSequence) {
-        changesMade = !TextUtils.isEmpty(charSequence);
-    }
-
-    @OnTextChanged(R.id.et_pokemon_height)
-    public void notifyHeightChange(CharSequence charSequence) {
-        changesMade = !TextUtils.isEmpty(charSequence);
-    }
-
-    @OnTextChanged(R.id.et_pokemon_weight)
-    public void notifyWeightChange(CharSequence charSequence) {
-        changesMade = !TextUtils.isEmpty(charSequence);
-    }
-
-    @OnClick(R.id.tv_moves_list)
-    public void selectPokemonMoves() {
-
-        final String[] movesArray = new String[movesList.size()];
-
-        for (int i = 0; i < movesList.size(); i++) {
-            movesArray[i] = movesList.get(i).getName();
-        }
-
-        createSelectionDialog(movesArray, checkedMoves, tvMovesList, "Moves");
-    }
-
-    @OnClick(R.id.tv_types_list)
-    public void selectPokemonType() {
-
-        final String[] typesArray = new String[typesList.size()];
-
-        for (int i = 0; i < typesList.size(); i++) {
-            typesArray[i] = typesList.get(i).getName();
-        }
-
-        createSelectionDialog(typesArray, checkedTypes, tvTypeList, "Type");
-    }
-
-    private void createSelectionDialog(final String[] itemsArray, final boolean[] checkedItems, final TextView textView, String title) {
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.DialogTheme);
-
-        builder.setMultiChoiceItems(itemsArray, checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-
-                checkedItems[which] = isChecked;
-            }
-        });
-
-        builder.setTitle(title);
-
-        builder.setPositiveButton(R.string.dialog_done, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-
-                setSelectedItems(itemsArray, checkedItems, textView);
-            }
-        });
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
-    }
-
-    private void setSelectedItems(String[] itemsArray, boolean[] checkedItems, TextView textView) {
-        String items = "";
-        textView.setText("");
-
-        for (int i = 0; i < checkedItems.length; i++) {
-            if (checkedItems[i]) {
-                items = items + itemsArray[i] + ", ";
-            }
-        }
-
-        if (!TextUtils.isEmpty(items)) {
-            items = items.substring(0, items.length() - 2);
-            textView.setText(items);
-
-            changesMade = true;
-        }
-        else {
-            textView.setText(getString(R.string.not_assigned));
-            changesMade = false;
-        }
-    }
-
-    private int[] getSelectedItemIds (boolean[] checkedItems, boolean isMoveIds) {
-        int itemsCount = 0;
-
-        for (int k = 0; k < checkedItems.length; k++) {
-            if (checkedItems[k]) {
-                itemsCount++;
-            }
-        }
-
-        int[] itemIds = new int[itemsCount];
-
-        for (int i = 0, j = 0; i < checkedItems.length; i++) {
-            if (checkedItems[i]) {
-                if (isMoveIds) {
-                    itemIds[j] = movesList.get(i).getId();
-                    j++;
-                }
-                else {
-                    itemIds[j] = typesList.get(i).getId();
-                    j++;
-                }
-            }
-        }
-
-        return itemIds;
-    }
-
-    public boolean allowBackPressed() {
-        if (changesMade) {
-            showDialog();
-            return false;
-        }
-
-        return true;
-    }
-
-    public void clearUserData() {
-        clearInputViews(rlActivityBody);
-    }
-
-    private String getFilePath(Uri uri) {
-
-        String[] projection = { MediaStore.Images.Media.DATA };
-        Cursor cursor = getActivity().getContentResolver().query(uri, projection, null, null, null);
-
-        if (cursor == null) {
-            return null;
-        }
-
-        int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-
-        cursor.moveToFirst();
-
-        String path = cursor.getString(columnIndex);
-
-        cursor.close();
-
-        return path;
-    }
-
-    private void displayProgress(boolean isVisible) {
-
-        if (isVisible) {
-            if (ablHeaderAddPokemon != null && svBodyContainer != null && fabAddImage != null) {
-
-                ablHeaderAddPokemon.setVisibility(View.GONE);
-                svBodyContainer.setVisibility(View.GONE);
-                fabAddImage.setVisibility(View.GONE);
-            }
-
-            progressView.show();
-        }
-        else {
-            if (ablHeaderAddPokemon != null && svBodyContainer != null && fabAddImage != null) {
-
-                ablHeaderAddPokemon.setVisibility(View.VISIBLE);
-                svBodyContainer.setVisibility(View.VISIBLE);
-                fabAddImage.setVisibility(View.VISIBLE);
-            }
-
-            progressView.hide();
-        }
-    }
-
-    private void insertPokemon(Pokemon pokemon) {
-        int[] moves = getSelectedItemIds(checkedMoves, true);
-        int[] types = getSelectedItemIds(checkedTypes, false);
-
-        File imageFile;
-        RequestBody body = null;
-
-        if (imageUri != null) {
-            String filePath = getFilePath(this.imageUri);
-
-            if (filePath != null) {
-
-                imageFile = new File(filePath);
-                body = RequestBody.create(MediaType.parse(MEDIA_TYPE), imageFile);
-            }
-        }
-
-        insertPokemonCall = ApiManager.getService().insertPokemon(
-                pokemon.getName(),
-                pokemon.getHeight(),
-                pokemon.getWeight(),
-                pokemon.getGenderId(),
-                true,
-                pokemon.getDescription(),
-                types,
-                moves,
-                body
-        );
-
-        insertPokemonCall.enqueue(new BaseCallback<BaseResponse<BaseData<Pokemon>>>() {
-            @Override
-            public void onUnknownError(@Nullable String error) {
-
-                if (ApiErrorHelper.createError(error)) {
-                    Toast.makeText(getActivity(), ApiErrorHelper.getFullError(0), Toast.LENGTH_SHORT).show();
-                }
-
-                displayProgress(false);
-            }
-
-            @Override
-            public void onSuccess(BaseResponse<BaseData<Pokemon>> body, Response<BaseResponse<BaseData<Pokemon>>> response) {
-                Toast.makeText(getActivity(), R.string.pokemon_saved, Toast.LENGTH_SHORT).show();
-
-                clearInputViews(rlActivityBody);
-
-                Pokemon newPokemon = body.getData().getAttributes();
-                newPokemon.setId(body.getData().getId());
-
-                listener.onPokemonAdded(newPokemon);
-            }
-        });
-    }
-
-    private void initializeValues() {
-
-        typesList = PokemonHelper.getTypes();
-        movesList = PokemonHelper.getMoves();
-
-        checkedMoves = new boolean[movesList.size()];
-        checkedTypes = new boolean[typesList.size()];
-
-        for (int i = 0; i < checkedMoves.length; i++) {
-            checkedMoves[i] = false;
-        }
-
-        for (int i = 0; i < checkedTypes.length; i++) {
-            checkedTypes[i] = false;
-        }
-    }
-
-    private void showPhotoOptions() {
-
-        if (ctlHeaderAddPokemon != null) {
-            int x = ctlHeaderAddPokemon.getRight();
-            int y = ctlHeaderAddPokemon.getBottom();
-
-            int hypotenuse = (int) Math.hypot(ctlHeaderAddPokemon.getWidth(), ctlHeaderAddPokemon.getHeight());
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                if (!photoOptionsVisible) {
-                    setFabState(true);
-
-                    CollapsingToolbarLayout.LayoutParams params = (CollapsingToolbarLayout.LayoutParams) llPhotoOptionsContainer.getLayoutParams();
-
-                    params.height = ctlHeaderAddPokemon.getHeight();
-                    llPhotoOptionsContainer.setLayoutParams(params);
-
-                    Animator animator = ViewAnimationUtils.createCircularReveal(llPhotoOptionsContainer, x, y, 0, hypotenuse);
-                    animator.setDuration(400);
-
-                    animator.addListener(new Animator.AnimatorListener() {
-                        @Override
-                        public void onAnimationStart(Animator animator) {
-
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animator animator) {
-                            btnChoosePhoto.setVisibility(View.VISIBLE);
-                            btnTakePhoto.setVisibility(View.VISIBLE);
-                        }
-
-                        @Override
-                        public void onAnimationCancel(Animator animator) {
-
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animator animator) {
-
-                        }
-                    });
-
-                    llPhotoOptionsContainer.setVisibility(View.VISIBLE);
-
-                    animator.start();
-                    photoOptionsVisible = true;
-                }
-                else {
-                    setFabState(false);
-
-                    Animator animator = ViewAnimationUtils.createCircularReveal(llPhotoOptionsContainer, x, y, hypotenuse, 0);
-                    animator.setDuration(400);
-
-                    animator.addListener(new Animator.AnimatorListener() {
-                        @Override
-                        public void onAnimationStart(Animator animator) {
-
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animator animator) {
-                            setPhotoOptionsVisibility(false);
-                        }
-
-                        @Override
-                        public void onAnimationCancel(Animator animator) {
-
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animator animator) {
-
-                        }
-                    });
-
-                    animator.start();
-                    photoOptionsVisible = false;
-                }
-            }
-        }
-    }
-
-    private void setFabState(boolean isOpen) {
-        if (isOpen) {
-            fabAddImage.startAnimation(rotateForward);
-            fabAddImage.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getActivity(), R.color.white)));
-            fabAddImage.setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary));
-        }
-        else {
-            fabAddImage.startAnimation(rotateBackwards);
-            fabAddImage.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getActivity(), R.color.colorPrimary)));
-            fabAddImage.setColorFilter(ContextCompat.getColor(getActivity(), R.color.white));
-        }
-    }
-
-    private void setPhotoOptionsVisibility(boolean isVisible) {
-        if (isVisible) {
-            llPhotoOptionsContainer.setVisibility(View.VISIBLE);
-            btnChoosePhoto.setVisibility(View.VISIBLE);
-            btnTakePhoto.setVisibility(View.VISIBLE);
-        }
-        else {
-            llPhotoOptionsContainer.setVisibility(View.GONE);
-            btnChoosePhoto.setVisibility(View.GONE);
-            btnTakePhoto.setVisibility(View.GONE);
-        }
     }
 }

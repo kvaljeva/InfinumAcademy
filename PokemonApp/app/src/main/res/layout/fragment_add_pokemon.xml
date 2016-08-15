@@ -303,6 +303,7 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:visibility="gone"
+        android:background="@color/white"
         tools:visibility="gone"
         app:text="@string/saving_pokemon"
         app:progressBarType="horizontal"/>
