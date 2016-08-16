@@ -3,6 +3,7 @@ package valjevac.kresimir.homework3.mvp.presenters.impl;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.helpers.ApiErrorHelper;
@@ -30,12 +31,12 @@ public class CommentsPresenterImpl implements CommentsPresenter {
 
     private static final int CURRENT_ERROR = 0;
 
-    public CommentsPresenterImpl(CommentsView view, String page) {
+    public CommentsPresenterImpl(CommentsView view, String page, ArrayList<Comment> comments) {
         this.view = view;
         this.nextPage = page;
 
         interactor = new CommentsInteractorImpl();
-        commentList = new ArrayList<>();
+        commentList = comments;
     }
 
     @Override

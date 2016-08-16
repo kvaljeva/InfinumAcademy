@@ -3,8 +3,10 @@ package valjevac.kresimir.homework3.fragments;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
@@ -52,10 +54,11 @@ import valjevac.kresimir.homework3.models.ExtendedData;
 import valjevac.kresimir.homework3.models.Links;
 import valjevac.kresimir.homework3.models.Pokemon;
 import valjevac.kresimir.homework3.models.User;
+import valjevac.kresimir.homework3.mvp.views.PokemonDetailsView;
 import valjevac.kresimir.homework3.network.ApiManager;
 import valjevac.kresimir.homework3.network.BaseCallback;
 
-public class PokemonDetailsFragment extends Fragment {
+public class PokemonDetailsFragment extends Fragment implements PokemonDetailsView {
     private Unbinder unbinder;
 
     private OnFragmentInteractionListener listener;
@@ -65,6 +68,8 @@ public class PokemonDetailsFragment extends Fragment {
     private static final String DATE_FORMAT = "MMM dd, yyyy";
 
     private static final String GENDER_UNKNOWN = "Unknown";
+
+    private static final String SHARED_TRANSITION = "SharedTransition";
 
     private static final int COMMENT_AUTHOR = 0;
 
@@ -152,6 +157,66 @@ public class PokemonDetailsFragment extends Fragment {
 
     BaseCallback<BaseResponse<ArrayList<ExtendedData<Comment, AuthorData>>>> getCommentsCallback;
 
+    @Override
+    public void onUpvoteSuccess() {
+
+    }
+
+    @Override
+    public void onUpvoteFail() {
+
+    }
+
+    @Override
+    public void onNewCommentSuccess() {
+
+    }
+
+    @Override
+    public void onNewCommentFail() {
+
+    }
+
+    @Override
+    public void onDownvoteSuccess() {
+
+    }
+
+    @Override
+    public void onDownvoteFail() {
+
+    }
+
+    @Override
+    public void onCommentsLoadSuccess() {
+
+    }
+
+    @Override
+    public void onCommentsLoadFail() {
+
+    }
+
+    @Override
+    public void showProgress() {
+
+    }
+
+    @Override
+    public void hideProgress() {
+
+    }
+
+    @Override
+    public void showMessage(@StringRes int message) {
+
+    }
+
+    @Override
+    public void showMessage(String message) {
+
+    }
+
     public PokemonDetailsFragment() { }
 
     public static PokemonDetailsFragment newInstance() {
@@ -211,8 +276,10 @@ public class PokemonDetailsFragment extends Fragment {
                 setButtonState(pokemon.getVote());
             }
 
-            String transitionName = arguments.getString("TRANSITION");
-            ivImage.setTransitionName(transitionName);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                String transitionName = arguments.getString(SHARED_TRANSITION);
+                ivImage.setTransitionName(transitionName);
+            }
         }
 
         fetchCommentList();

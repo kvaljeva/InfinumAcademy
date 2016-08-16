@@ -104,7 +104,7 @@ public class CommentsFragment extends Fragment implements CommentsView {
             commentList = savedInstanceState.getParcelableArrayList(COMMENT_LIST);
         }
 
-        presenter = new CommentsPresenterImpl(this, nextPage);
+        presenter = new CommentsPresenterImpl(this, nextPage, commentList);
     }
 
     @Override
@@ -193,9 +193,7 @@ public class CommentsFragment extends Fragment implements CommentsView {
 
     @Override
     public void onCommentsLoadSuccess(ArrayList<Comment> comments) {
-        commentList.addAll(comments);
-        commentAdapter.update(commentList);
-        comments.clear();
+        commentAdapter.update(comments);
     }
 
     @Override

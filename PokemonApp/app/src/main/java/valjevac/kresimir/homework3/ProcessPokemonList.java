@@ -15,17 +15,17 @@ import valjevac.kresimir.homework3.models.PokemonType;
 
 public class ProcessPokemonList implements Runnable {
 
-    ArrayList<Pokemon> pokemons;
+    private ArrayList<Pokemon> pokemons;
 
-    PokemonList pokemonListDatabase;
+    private PokemonList pokemonListDatabase;
 
-    BaseResponse<ArrayList<ExtendedData<Pokemon, ArrayList<PokemonType>>>> body;
+    private BaseResponse<ArrayList<ExtendedData<Pokemon, ArrayList<PokemonType>>>> body;
 
-    Handler handler;
+    private Handler handler;
 
     public OnProcessingFinishedListener listener;
 
-    public boolean isCanceled = false;
+    private boolean isCanceled = false;
 
     public interface OnProcessingFinishedListener {
 
