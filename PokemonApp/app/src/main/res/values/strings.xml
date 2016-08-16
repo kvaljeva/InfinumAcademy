@@ -69,7 +69,7 @@
     <string name="enter_comment_hint">Enter your comment</string>
     <string name="comments_label">Comments</string>
     <string name="btn_create_comment_desc">Button create comment icon</string>
-    <string name="empty_coment_error">Cannot send empty comment</string>
+    <string name="empty_coment_error">Cannot send an empty comment</string>
     <string name="btn_show_all_comments">Show all</string>
     <string name="comments_fragment_default_title">Pokemon comments</string>
     <string name="comments">comments</string>

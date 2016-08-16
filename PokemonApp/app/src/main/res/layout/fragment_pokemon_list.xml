@@ -1,6 +1,7 @@
 <android.support.v4.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -22,41 +23,6 @@
             android:theme="@style/ToolbarTheme"/>
 
         <android.support.v4.widget.SwipeRefreshLayout
-            android:id="@+id/srl_empty_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="?attr/actionBarSize">
-
-            <LinearLayout
-                android:id="@+id/ll_empty_state_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/pokeball_placeholder"
-                    android:contentDescription="@string/empty_list_state_image"
-                    android:layout_gravity="center"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/tv_no_pokemons"
-                    android:layout_gravity="center"
-                    style="@style/EmptyStateTitle"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/tv_no_pokemons_desc"
-                    style="@style/EmptyStateSubtitle"/>
-            </LinearLayout>
-        </android.support.v4.widget.SwipeRefreshLayout>
-
-        <android.support.v4.widget.SwipeRefreshLayout
             android:id="@+id/srl_recycler_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -67,8 +33,39 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="?attr/actionBarSize"
-                android:visibility="gone"/>
+                android:clickable="true"
+                tools:visibility="gone"/>
         </android.support.v4.widget.SwipeRefreshLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_empty_state_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:paddingTop="?attr/actionBarSize"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/pokeball_placeholder"
+                android:contentDescription="@string/empty_list_state_image"
+                android:layout_gravity="center"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tv_no_pokemons"
+                android:layout_gravity="center"
+                style="@style/EmptyStateTitle"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tv_no_pokemons_desc"
+                style="@style/EmptyStateSubtitle"/>
+        </LinearLayout>
     </RelativeLayout>
 
     <android.support.design.widget.NavigationView

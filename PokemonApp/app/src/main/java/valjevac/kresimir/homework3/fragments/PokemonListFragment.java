@@ -159,19 +159,19 @@ public class PokemonListFragment extends Fragment implements PokemonListView, Pr
             arguments.clear();
         }
 
-        if (pokemonList.size() == 0) {
-            fetchPokemonList(true, getActivity().getString(R.string.loading_pokemon_list));
-        }
-        else {
-            presenter.updatePokemonList(pokemon);
-        }
-
         pokemonAdapter = new PokemonAdapter(getActivity(), pokemonList, new RecyclerViewClickListener<Pokemon>() {
             @Override
             public void OnClick(Pokemon pokemon, ImageView imageView) {
                 listener.onShowPokemonDetailsClick(pokemon, imageView);
             }
         });
+
+        if (pokemonList.size() == 0) {
+            presenter.getPokemonList(true);
+        }
+        else {
+            presenter.updatePokemonList(pokemon);
+        }
 
         AlphaInAnimationAdapter alphaAdapter = new AlphaInAnimationAdapter(pokemonAdapter);
         alphaAdapter.setDuration(1000);
@@ -262,15 +262,9 @@ public class PokemonListFragment extends Fragment implements PokemonListView, Pr
         }
     }
 
-
     @Override
     public void onPokemonListLoadSuccess(ArrayList<Pokemon> pokemonList) {
         isEmptyState = (pokemonList.size() == 0);
-
-        if (listener != null) {
-            showProgress(false, null);
-        }
-
         updatePokemonListOverview(pokemonList);
     }
 
@@ -298,7 +292,9 @@ public class PokemonListFragment extends Fragment implements PokemonListView, Pr
 
     @Override
     public void hideProgress() {
-        srlRecyclerContainer.setRefreshing(false);
+        if (srlRecyclerContainer.isRefreshing()) {
+            srlRecyclerContainer.setRefreshing(false);
+        }
     }
 
     @Override
@@ -309,6 +305,29 @@ public class PokemonListFragment extends Fragment implements PokemonListView, Pr
     @Override
     public void showMessage(String message) {
         Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void showProgressMessage(@StringRes final int message) {
+        rlMainContainer.post(new Runnable() {
+            @Override
+            public void run() {
+                snackbarProgress = Snackbar.make(rlMainContainer, message, Snackbar.LENGTH_INDEFINITE);
+                snackbarProgress.show();
+            }
+        });
+    }
+
+    @Override
+    public void hideProgressMessage() {
+        rlMainContainer.post(new Runnable() {
+            @Override
+            public void run() {
+                if (snackbarProgress != null && snackbarProgress.isShown()) {
+                    snackbarProgress.dismiss();
+                }
+            }
+        });
     }
 
     @Override
@@ -392,7 +411,7 @@ public class PokemonListFragment extends Fragment implements PokemonListView, Pr
         srlRecyclerContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                fetchPokemonList(false, null);
+                presenter.getPokemonList(false);
             }
         });
 
@@ -404,46 +423,19 @@ public class PokemonListFragment extends Fragment implements PokemonListView, Pr
         );
     }
 
-    private void fetchPokemonList(boolean showProgress, String message) {
-        if (showProgress) {
-            showProgress(true, message);
-        }
-
-        presenter.getPokemonList(true);
-    }
-
     private void updatePokemonListOverview(ArrayList<Pokemon> updatedList) {
         if (isEmptyState) {
 
             llEmptyStateContainer.setVisibility(View.VISIBLE);
-            rvPokemonList.setVisibility(View.INVISIBLE);
         }
         else {
             if (llEmptyStateContainer != null && llEmptyStateContainer.getVisibility() == View.VISIBLE) {
 
                 llEmptyStateContainer.setVisibility(View.GONE);
-                rvPokemonList.setVisibility(View.VISIBLE);
             }
 
             pokemonAdapter.update(updatedList);
         }
-    }
-
-    private void showProgress(final boolean isVisible, final String message) {
-        rlMainContainer.post(new Runnable() {
-            @Override
-            public void run() {
-                if (isVisible) {
-                    snackbarProgress = Snackbar.make(rlMainContainer, message, Snackbar.LENGTH_INDEFINITE);
-                    snackbarProgress.show();
-                }
-                else {
-                    if (snackbarProgress != null) {
-                        snackbarProgress.dismiss();
-                    }
-                }
-            }
-        });
     }
 
     @Override

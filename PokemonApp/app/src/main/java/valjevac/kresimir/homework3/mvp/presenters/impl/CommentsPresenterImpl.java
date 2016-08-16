@@ -76,9 +76,9 @@ public class CommentsPresenterImpl implements CommentsPresenter {
                     commentList.add(comment);
                 }
 
-                view.onCommentsLoadSuccess(commentList);
-
                 nextPage = (!TextUtils.isEmpty(body.getLinks().getNext())) ? body.getLinks().getNext() : "";
+
+                view.onCommentsLoadSuccess(commentList, nextPage);
 
                 view.hideProgress();
             }

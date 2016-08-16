@@ -102,6 +102,7 @@ public class CommentsFragment extends Fragment implements CommentsView {
         }
         else if (savedInstanceState != null) {
             commentList = savedInstanceState.getParcelableArrayList(COMMENT_LIST);
+            nextPage = savedInstanceState.getString(NEXT_PAGE);
         }
 
         presenter = new CommentsPresenterImpl(this, nextPage, commentList);
@@ -112,6 +113,7 @@ public class CommentsFragment extends Fragment implements CommentsView {
         super.onSaveInstanceState(outState);
 
         outState.putParcelableArrayList(COMMENT_LIST, commentList);
+        outState.putString(NEXT_PAGE, nextPage);
     }
 
     @Nullable
@@ -192,8 +194,9 @@ public class CommentsFragment extends Fragment implements CommentsView {
     }
 
     @Override
-    public void onCommentsLoadSuccess(ArrayList<Comment> comments) {
+    public void onCommentsLoadSuccess(ArrayList<Comment> comments, String currentPage) {
         commentAdapter.update(comments);
+        nextPage = currentPage;
     }
 
     @Override

@@ -16,6 +16,8 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import valjevac.kresimir.homework3.R;
+import valjevac.kresimir.homework3.activities.MainActivity;
+import valjevac.kresimir.homework3.fragments.PokemonDetailsFragment;
 import valjevac.kresimir.homework3.helpers.BitmapHelper;
 import valjevac.kresimir.homework3.interfaces.RecyclerViewClickListener;
 import valjevac.kresimir.homework3.models.Pokemon;
@@ -44,11 +46,15 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHold
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            holder.civPokemonImage.setTransitionName(context.getString(R.string.details_transit) + position);
+            holder.civPokemonImage.setTransitionName(getImageTransitionName(position));
         }
 
         holder.tvPokemonName.setText(pokemonList.get(position).getName());
         BitmapHelper.loadBitmap(holder.civPokemonImage, pokemonList.get(position).getImage(), true);
+    }
+
+    public String getImageTransitionName(int position) {
+        return context.getString(R.string.details_transit) + position;
     }
 
     @Override

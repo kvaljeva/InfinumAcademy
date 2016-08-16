@@ -46,14 +46,14 @@ public class PokemonListPresenterImpl implements PokemonListPresenter {
     @Override
     public void getPokemonList(boolean showProgress) {
 
-        if (showProgress) {
-            view.showProgress();
-        }
-
         if (!NetworkHelper.isNetworkAvailable()) {
             view.showMessage(R.string.no_internet_conn);
             loadCachedList();
             return;
+        }
+
+        if (showProgress) {
+            view.showProgressMessage(R.string.loading_pokemon_list);
         }
 
         interactor.getPokemonList(new PokemonListLoadListener() {
@@ -98,6 +98,8 @@ public class PokemonListPresenterImpl implements PokemonListPresenter {
         if (interactor != null) {
             interactor.cancel();
         }
+
+        view.hideProgressMessage();
     }
 
     private void loadCachedList() {
@@ -128,6 +130,7 @@ public class PokemonListPresenterImpl implements PokemonListPresenter {
         pokemons.addAll(pokemonList);
 
         view.hideProgress();
+        view.hideProgressMessage();
         view.onPokemonListLoadSuccess(pokemons);
     }
 

@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
 import android.widget.FrameLayout;
@@ -136,9 +137,12 @@ public class MainActivity extends AppCompatActivity implements
             fragment.setSharedElementEnterTransition(changeTransform);
             fragment.setEnterTransition(changeTransform);
 
-            ImageView ivPokemonImage = (imageView.length > 0) ? imageView[0] : null;
+            ImageView ivPokemonImage = imageView[0];
+            String transitionName = ivPokemonImage.getTransitionName();
 
-            transaction.addSharedElement(ivPokemonImage, getString(R.string.details_transit));
+            if (!TextUtils.isEmpty(transitionName)) {
+                transaction.addSharedElement(ivPokemonImage, ivPokemonImage.getTransitionName());
+            }
         }
 
         if (tag.equals(POKEMON_LIST_FRAGMENT_TAG) || !isDeviceTablet) {
@@ -182,7 +186,12 @@ public class MainActivity extends AppCompatActivity implements
             removeFragmentFromStack(POKEMON_DETAILS_FRAGMENT_TAG);
         }
 
-        loadFragment(PokemonDetailsFragment.newInstance(pokemon, isDeviceTablet), POKEMON_DETAILS_FRAGMENT_TAG, imageView);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            loadFragment(PokemonDetailsFragment.newInstance(pokemon, imageView.getTransitionName()), POKEMON_DETAILS_FRAGMENT_TAG, imageView);
+        }
+        else {
+            loadFragment(PokemonDetailsFragment.newInstance(pokemon), POKEMON_DETAILS_FRAGMENT_TAG);
+        }
     }
 
     @Override
