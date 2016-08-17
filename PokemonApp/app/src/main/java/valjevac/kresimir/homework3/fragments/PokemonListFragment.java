@@ -29,6 +29,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bignerdranch.android.multiselector.MultiSelector;
+
 import java.util.ArrayList;
 
 import butterknife.BindView;
@@ -161,8 +163,13 @@ public class PokemonListFragment extends Fragment implements PokemonListView, Pr
 
         pokemonAdapter = new PokemonAdapter(getActivity(), pokemonList, new RecyclerViewClickListener<Pokemon>() {
             @Override
-            public void OnClick(Pokemon pokemon, ImageView imageView) {
-                listener.onShowPokemonDetailsClick(pokemon, imageView);
+            public void onClick(final Pokemon object, ImageView imageView) {
+                listener.onShowPokemonDetailsClick(object, imageView);
+            }
+
+            @Override
+            public void onDeleteItem(int itemId, int position) {
+                presenter.deletePokemon(itemId, position);
             }
         });
 
@@ -319,6 +326,34 @@ public class PokemonListFragment extends Fragment implements PokemonListView, Pr
     }
 
     @Override
+    public void showProgressMessage(@StringRes final int message, final int length) {
+        rlMainContainer.post(new Runnable() {
+            @Override
+            public void run() {
+                Snackbar.make(rlMainContainer, message, length).show();
+            }
+        });
+    }
+
+    @Override
+    public void showActionProgressMessage(@StringRes final int message, final int length) {
+        rlMainContainer.post(new Runnable() {
+            @Override
+            public void run() {
+                 Snackbar.make(rlMainContainer, message, length)
+                         .setAction(getActivity().getString(R.string.retry), new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+
+                            }
+                         })
+                 .show();
+
+            }
+        });
+    }
+
+    @Override
     public void hideProgressMessage() {
         rlMainContainer.post(new Runnable() {
             @Override
@@ -339,6 +374,11 @@ public class PokemonListFragment extends Fragment implements PokemonListView, Pr
 
         tvStudentName.setText(username);
         tvStudentMail.setText(email);
+    }
+
+    @Override
+    public void onPokemonDeleted(int position) {
+        pokemonAdapter.deleteItem(position);
     }
 
     private void setUpToolbar() {

@@ -8,10 +8,12 @@ import java.util.Collections;
 import valjevac.kresimir.homework3.ProcessPokemonList;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.database.SQLitePokemonList;
+import valjevac.kresimir.homework3.enums.MessageLength;
 import valjevac.kresimir.homework3.fragments.PokemonListFragment;
 import valjevac.kresimir.homework3.helpers.ApiErrorHelper;
 import valjevac.kresimir.homework3.helpers.NetworkHelper;
 import valjevac.kresimir.homework3.helpers.SharedPreferencesHelper;
+import valjevac.kresimir.homework3.interfaces.DeletePokemonListener;
 import valjevac.kresimir.homework3.interfaces.LogoutListener;
 import valjevac.kresimir.homework3.interfaces.PokemonList;
 import valjevac.kresimir.homework3.interfaces.PokemonListLoadListener;
@@ -73,6 +75,35 @@ public class PokemonListPresenterImpl implements PokemonListPresenter {
                 }
 
                 loadCachedList();
+            }
+        });
+    }
+
+    @Override
+    public void deletePokemon(int pokemonId, final int position) {
+
+        if (!NetworkHelper.isNetworkAvailable()) {
+            view.showMessage(R.string.no_internet_conn);
+            return;
+        }
+
+        interactor.deletePokemon(pokemonId, new DeletePokemonListener() {
+            @Override
+            public void onDeletePokemonSuccess() {
+                view.onPokemonDeleted(position);
+
+                pokemons.remove(position);
+
+                view.showProgressMessage(R.string.deleting_pokemon_success, MessageLength.LONG);
+            }
+
+            @Override
+            public void onDeletePokemonFail(String error) {
+                view.showActionProgressMessage(R.string.deleting_pokemon_fail, MessageLength.LONG);
+
+                if (ApiErrorHelper.createError(error)) {
+                    view.showMessage(ApiErrorHelper.getFullError(0));
+                }
             }
         });
     }

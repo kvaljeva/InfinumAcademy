@@ -83,4 +83,7 @@
     <string name="wrong_email_format">Wrong email format</string>
     <string name="passwords_not_match_warning">Passwords do not match</string>
     <string name="registration_successful">Registered successfully!</string>
+    <string name="deleting_pokemon_fail">Failed to delete pokemon</string>
+    <string name="retry">Retry</string>
+    <string name="deleting_pokemon_success">Pokemon deleted</string>
 </resources>

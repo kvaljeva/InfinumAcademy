@@ -9,6 +9,7 @@ import retrofit2.Call;
 import retrofit2.Response;
 import valjevac.kresimir.homework3.ProcessPokemonList;
 import valjevac.kresimir.homework3.helpers.ApiErrorHelper;
+import valjevac.kresimir.homework3.interfaces.DeletePokemonListener;
 import valjevac.kresimir.homework3.interfaces.LogoutListener;
 import valjevac.kresimir.homework3.interfaces.PokemonListLoadListener;
 import valjevac.kresimir.homework3.models.BaseResponse;
@@ -24,6 +25,8 @@ public class PokemonListInteractorImpl implements PokemonListInteractor {
     Call<Void> logoutUserCall;
 
     Call<BaseResponse<ArrayList<ExtendedData<Pokemon, ArrayList<PokemonType>>>>> pokemonListCall;
+
+    Call<Void> deletePokemonCall;
 
     BaseCallback<BaseResponse<ArrayList<ExtendedData<Pokemon, ArrayList<PokemonType>>>>> pokemonListCallback;
 
@@ -50,6 +53,23 @@ public class PokemonListInteractorImpl implements PokemonListInteractor {
         };
 
         pokemonListCall.enqueue(pokemonListCallback);
+    }
+
+    @Override
+    public void deletePokemon(int pokemonId, final DeletePokemonListener listener) {
+        deletePokemonCall = ApiManager.getService().deletePokemon(pokemonId);
+
+        deletePokemonCall.enqueue(new BaseCallback<Void>() {
+            @Override
+            public void onUnknownError(@Nullable String error) {
+                listener.onDeletePokemonFail(error);
+            }
+
+            @Override
+            public void onSuccess(Void body, Response<Void> response) {
+                listener.onDeletePokemonSuccess();
+            }
+        });
     }
 
     @Override

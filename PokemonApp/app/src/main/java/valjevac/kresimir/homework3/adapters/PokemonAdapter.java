@@ -2,13 +2,21 @@ package valjevac.kresimir.homework3.adapters;
 
 import android.content.Context;
 import android.os.Build;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.bignerdranch.android.multiselector.ModalMultiSelectorCallback;
+import com.bignerdranch.android.multiselector.MultiSelector;
+import com.bignerdranch.android.multiselector.SwappingHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +25,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.activities.MainActivity;
-import valjevac.kresimir.homework3.fragments.PokemonDetailsFragment;
 import valjevac.kresimir.homework3.helpers.BitmapHelper;
 import valjevac.kresimir.homework3.interfaces.RecyclerViewClickListener;
 import valjevac.kresimir.homework3.models.Pokemon;
@@ -29,12 +36,49 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHold
 
     private RecyclerViewClickListener<Pokemon> clickListener;
 
+    private MultiSelector multiSelector = new MultiSelector();
+
+    private ActionMode actionMode;
+
+    private ModalMultiSelectorCallback multiSelectorCallback = new ModalMultiSelectorCallback(multiSelector) {
+
+        @Override
+        public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+            super.onCreateActionMode(actionMode, menu);
+
+            if (context instanceof MainActivity) {
+                ((MainActivity) context).getMenuInflater().inflate(R.menu.menu_item_delete, menu);
+            }
+
+            return true;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            if (item.getItemId() == R.id.action_delete) {
+                mode.finish();
+
+                for (int i = pokemonList.size(); i >= 0; i--) {
+                    if (multiSelector.isSelected(i, 0)) {
+                        clickListener.onDeleteItem(pokemonList.get(i).getId(), i);
+                    }
+                }
+
+                multiSelector.clearSelections();
+                return true;
+            }
+
+            return false;
+        }
+    };
+
     public PokemonAdapter(Context context, List<Pokemon> pokemonList,
                           RecyclerViewClickListener<Pokemon> clickListener) {
 
         this.context = context;
-        this.pokemonList = new ArrayList<>(pokemonList);
         this.clickListener = clickListener;
+
+        this.pokemonList = new ArrayList<>(pokemonList);
     }
 
     @Override
@@ -49,17 +93,24 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHold
             holder.civPokemonImage.setTransitionName(getImageTransitionName(position));
         }
 
+        if (multiSelector.isSelected(position, getItemId(position))) {
+            holder.tvPokemonName.setTextColor(ContextCompat.getColor(context, R.color.white));
+        }
+        else {
+            holder.tvPokemonName.setTextColor(ContextCompat.getColor(context, R.color.listItemTextColor));
+        }
+
         holder.tvPokemonName.setText(pokemonList.get(position).getName());
         BitmapHelper.loadBitmap(holder.civPokemonImage, pokemonList.get(position).getImage(), true);
-    }
-
-    public String getImageTransitionName(int position) {
-        return context.getString(R.string.details_transit) + position;
     }
 
     @Override
     public int getItemCount() {
         return pokemonList.size();
+    }
+
+    public String getImageTransitionName(int position) {
+        return context.getString(R.string.details_transit) + position;
     }
 
     public void update(ArrayList<Pokemon> updateList) {
@@ -74,7 +125,12 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHold
         notifyDataSetChanged();
     }
 
-    protected class ViewHolder extends RecyclerView.ViewHolder {
+    public void deleteItem(int position) {
+        pokemonList.remove(position);
+        notifyItemRemoved(position);
+    }
+
+    protected class ViewHolder extends SwappingHolder {
         @BindView(R.id.tv_pokemon_name)
         TextView tvPokemonName;
 
@@ -85,7 +141,7 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHold
         LinearLayout llContainer;
 
         public ViewHolder(View view) {
-            super(view);
+            super(view, multiSelector);
 
             ButterKnife.bind(this, view);
 
@@ -93,9 +149,49 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHold
                 view.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        ImageView imageView = (ImageView) view.findViewById(R.id.civ_pokemon_image);
 
-                        clickListener.OnClick(pokemonList.get(getAdapterPosition()), imageView);
+                        if (!multiSelector.tapSelection(ViewHolder.this)) {
+                            ImageView imageView = (ImageView) view.findViewById(R.id.civ_pokemon_image);
+                            clickListener.onClick(pokemonList.get(getAdapterPosition()), imageView);
+                        }
+                        else {
+                            if (multiSelector.isSelected(getAdapterPosition(), getItemId())) {
+                                tvPokemonName.setTextColor(ContextCompat.getColor(context, R.color.white));
+                            }
+                            else {
+                                tvPokemonName.setTextColor(ContextCompat.getColor(context, R.color.listItemTextColor));
+                            }
+
+                            if (multiSelector.getSelectedPositions().size() == 0) {
+                                multiSelector.setSelectable(false);
+
+                                if (actionMode != null) {
+                                    actionMode.finish();
+                                }
+                            }
+                            else {
+                                actionMode.setTitle(String.valueOf(multiSelector.getSelectedPositions().size()));
+                            }
+                        }
+                    }
+                });
+
+                view.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+                        if (!multiSelector.isSelectable()) {
+                            actionMode = ((MainActivity) context).startSupportActionMode(multiSelectorCallback);
+
+                            multiSelector.setSelectable(true);
+                            multiSelector.setSelected(ViewHolder.this, true);
+
+                            tvPokemonName.setTextColor(ContextCompat.getColor(context, R.color.white));
+                            actionMode.setTitle(String.valueOf(multiSelector.getSelectedPositions().size()));
+
+                            return true;
+                        }
+
+                        return false;
                     }
                 });
             }

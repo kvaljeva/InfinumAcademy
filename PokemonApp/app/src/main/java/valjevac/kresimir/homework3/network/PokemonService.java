@@ -55,6 +55,9 @@ public interface PokemonService {
             @Part("data[attributes][image]\"; filename=\"pokemon.jpg") RequestBody image
     );
 
+    @DELETE("/api/v1/pokemons/{id}")
+    Call<Void> deletePokemon(@Path("id") int pokemonId);
+
     @POST("/api/v1/pokemons/{id}/upvote")
     Call<BaseResponse<BaseData<Pokemon>>> votePokemon(@Path("id") int pokemonId);
 

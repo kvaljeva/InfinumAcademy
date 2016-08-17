@@ -14,6 +14,8 @@ public interface PokemonListPresenter {
 
     void updatePokemonList(Pokemon pokemon);
 
+    void deletePokemon(int pokemonId, int position);
+
     void logout();
 
     void cancel();

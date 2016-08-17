@@ -83,7 +83,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
                 view.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        listener.OnClick(commentList.get(getAdapterPosition()), null);
+                        listener.onClick(commentList.get(getAdapterPosition()), null);
                     }
                 });
             }

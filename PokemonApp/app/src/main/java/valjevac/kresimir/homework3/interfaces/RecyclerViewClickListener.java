@@ -4,5 +4,7 @@ import android.widget.ImageView;
 
 public interface RecyclerViewClickListener<T> {
 
-    void OnClick(T object, ImageView imageView);
+    void onClick(T object, ImageView imageView);
+
+    void onDeleteItem(int itemId, int position);
 }
