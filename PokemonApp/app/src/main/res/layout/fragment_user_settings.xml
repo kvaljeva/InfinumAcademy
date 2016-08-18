@@ -133,6 +133,7 @@
                 android:layout_below="@id/user_settings_delete_account_container"
                 android:gravity="center_horizontal|bottom"
                 android:orientation="vertical"
+                android:layout_marginTop="@dimen/margin_high"
                 android:animateLayoutChanges="true">
 
                 <Button

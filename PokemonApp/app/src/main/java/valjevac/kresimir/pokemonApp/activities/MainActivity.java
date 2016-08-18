@@ -108,15 +108,22 @@ public class MainActivity extends AppCompatActivity implements
             finish();
         }
         else {
-            for (Fragment fragment : fragments) {
+            for (int i = fragments.size() - 1; i >= 0; i--) {
+                Fragment fragment = fragments.get(i);
 
-                if (!fragment.getTag().equals(POKEMON_LIST_FRAGMENT_TAG) && !fragment.getTag().equals(GLIDE_MANAGER_TAG)) {
+                if (fragment != null && !fragment.getTag().equals(POKEMON_LIST_FRAGMENT_TAG)
+                        && !fragment.getTag().equals(GLIDE_MANAGER_TAG)) {
+
                     if (fragment instanceof AddPokemonFragment) {
                         AddPokemonFragment addPokemonFragment = (AddPokemonFragment) fragment;
 
                         if (addPokemonFragment.allowBackPressed()) {
                             removeFragmentFromStack(fragment.getTag());
                         }
+                    }
+                    else if (fragment instanceof CommentsFragment) {
+                        removeFragmentFromStack(fragment.getTag());
+                        break;
                     }
                     else {
                         removeFragmentFromStack(fragment.getTag());
