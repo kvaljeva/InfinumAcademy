@@ -113,7 +113,7 @@
         </LinearLayout>
     </RelativeLayout>
 
-    <valjevac.kresimir.homework3.custom.ProgressView
+    <valjevac.kresimir.pokemonApp.custom.ProgressView
         android:id="@+id/pv_login"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -3,7 +3,7 @@
     <string name="tv_no_pokemons">No Pokemons</string>
     <string name="tv_no_pokemons_desc">To add some pokemons,\npress + icon</string>
     <string name="et_pokemon_desc_hint">Description</string>
-    <string name="btn_save_pokemon">Save</string>
+    <string name="btn_save">Save</string>
     <string name="et_pokemon_name">Name</string>
     <string name="iv_pokemon_name_icon">Pokemon name icon</string>
     <string name="iv_pokemon_description_icon">Pokemon description icon</string>
@@ -89,4 +89,9 @@
     <string name="comment_not_owner">You\'re not the comment owner</string>
     <string name="delete_success">Successfully deleted</string>
     <string name="delete_fail">Delete failed</string>
+    <string name="accounts_settings">Accounts settings</string>
+    <string name="email_address">Email address</string>
+    <string name="username">Username</string>
+    <string name="user_not_found">User not found</string>
+    <string name="email_updated">Email succesfully updated</string>
 </resources>

@@ -280,7 +280,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom"
-                    android:text="@string/btn_save_pokemon"
+                    android:text="@string/btn_save"
                     style="@style/FlatButtonColoredTheme"/>
             </LinearLayout>
         </RelativeLayout>
@@ -297,7 +297,7 @@
         app:layout_anchorGravity="bottom|right|end"
         app:backgroundTint="@color/colorPrimary"/>
 
-    <valjevac.kresimir.homework3.custom.ProgressView
+    <valjevac.kresimir.pokemonApp.custom.ProgressView
         android:id="@+id/pv_add_pokemon"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

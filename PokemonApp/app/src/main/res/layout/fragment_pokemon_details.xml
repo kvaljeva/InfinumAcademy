@@ -270,7 +270,7 @@
                     android:gravity="center"/>
             </LinearLayout>
 
-            <valjevac.kresimir.homework3.custom.ProgressView
+            <valjevac.kresimir.pokemonApp.custom.ProgressView
                 android:id="@+id/pv_comments"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

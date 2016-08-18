@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="valjevac.kresimir.homework3">
+    package="valjevac.kresimir.pokemonApp">
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -14,10 +14,10 @@
         android:icon="@mipmap/ic_launcher_pokeball"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:name=".PokemonApplication"
+        android:name="valjevac.kresimir.pokemonApp.PokemonApplication"
         android:theme="@style/AppTheme.NoActionBar">
 
-        <activity android:name=".activities.StarterActivity"
+        <activity android:name="valjevac.kresimir.pokemonApp.activities.StarterActivity"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,7 +26,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activities.MainActivity"
+        <activity android:name="valjevac.kresimir.pokemonApp.activities.MainActivity"
             android:windowSoftInputMode="adjustResize">
 
         </activity>
