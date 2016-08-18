@@ -17,6 +17,8 @@ public class UserSettingsInteractorImpl implements UserSettingsInteractor {
 
     Call<BaseResponse<BaseData<User>>> updateEmailCall;
 
+    Call<Void> deleteAccountCall;
+
     public UserSettingsInteractorImpl() {
     }
 
@@ -39,7 +41,19 @@ public class UserSettingsInteractorImpl implements UserSettingsInteractor {
 
     @Override
     public void deleteAccount(int id, DeleteAccountListener listener) {
+        deleteAccountCall = ApiManager.getService().deleteUser(id);
 
+        deleteAccountCall.enqueue(new BaseCallback<Void>() {
+            @Override
+            public void onUnknownError(@Nullable String error) {
+
+            }
+
+            @Override
+            public void onSuccess(Void body, Response<Void> response) {
+
+            }
+        });
     }
 
     @Override

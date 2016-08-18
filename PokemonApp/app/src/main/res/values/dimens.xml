@@ -35,4 +35,5 @@
     <dimen name="pv_signup_width">250dp</dimen>
     <dimen name="fab_menu_padding">110dp</dimen>
     <dimen name="transparent_button_padding">8dp</dimen>
+    <dimen name="user_settings_email_container_height">100dp</dimen>
 </resources>

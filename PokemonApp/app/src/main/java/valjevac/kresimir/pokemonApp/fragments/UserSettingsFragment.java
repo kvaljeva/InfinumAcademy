@@ -7,18 +7,22 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
+import butterknife.OnTextChanged;
 import butterknife.Unbinder;
 import valjevac.kresimir.pokemonApp.R;
 import valjevac.kresimir.pokemonApp.activities.MainActivity;
@@ -37,6 +41,10 @@ public class UserSettingsFragment extends Fragment implements UserSettingsView {
 
     private ProgressDialog progressDialog;
 
+    private boolean changesMade;
+
+    private static final String CHANGES_MADE = "ChangesMade";
+
     @BindView(R.id.tv_account_username)
     TextView tvUsername;
 
@@ -46,9 +54,17 @@ public class UserSettingsFragment extends Fragment implements UserSettingsView {
     @BindView(R.id.tb_user_settings)
     Toolbar toolbar;
 
+    @BindView(R.id.btn_save_user_settings)
+    Button btnSaveSettings;
+
+    @BindView(R.id.btn_delete_account)
+    Button btnDeleteAccount;
+
     public interface OnFragmentInteractionListener {
 
         void onSettingsHomePressed();
+
+        void onAccountDeleted();
     }
 
     public UserSettingsFragment() {
@@ -75,6 +91,10 @@ public class UserSettingsFragment extends Fragment implements UserSettingsView {
         etEmailAddress.setText(SharedPreferencesHelper.getString(SharedPreferencesHelper.EMAIL));
 
         setUpToolbar();
+
+        if (savedInstanceState != null) {
+            changesMade = savedInstanceState.getBoolean(CHANGES_MADE);
+        }
 
         return view;
     }
@@ -158,8 +178,40 @@ public class UserSettingsFragment extends Fragment implements UserSettingsView {
     }
 
     @OnClick(R.id.btn_save_user_settings)
-    public void onSaveSaveSettingsClick() {
-        presenter.updateEmail(etEmailAddress.getText().toString());
+    public void onSaveSettingsClick() {
+        presenter.updateEmail(etEmailAddress.getText().toString(), changesMade);
+    }
+
+    @OnClick(R.id.btn_delete_account)
+    public void onDeleteAccountClick() {
+        presenter.deleteAccount(SharedPreferencesHelper.getInt(SharedPreferencesHelper.USER_ID));
+    }
+
+    @OnCheckedChanged(R.id.cb_delete_account)
+    public void onDeleteAccountChecked(boolean isChecked) {
+        if (isChecked) {
+            showDeleteButton();
+        }
+        else {
+            hideDeleteButton();
+        }
+    }
+
+    @Override
+    public void onAccountDeletedSuccess() {
+        listener.onAccountDeleted();
+    }
+
+    @OnTextChanged(R.id.et_settings_email_address)
+    public void onEmailAddressTextChanged(CharSequence charSequence) {
+        changesMade = !TextUtils.isEmpty(charSequence);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putBoolean(CHANGES_MADE, changesMade);
     }
 
     private void setUpToolbar() {
@@ -182,5 +234,15 @@ public class UserSettingsFragment extends Fragment implements UserSettingsView {
                 }
             });
         }
+    }
+
+    private void showDeleteButton() {
+        btnDeleteAccount.setVisibility(View.VISIBLE);
+        btnSaveSettings.setVisibility(View.GONE);
+    }
+
+    private void hideDeleteButton() {
+        btnSaveSettings.setVisibility(View.VISIBLE);
+        btnDeleteAccount.setVisibility(View.GONE);
     }
 }

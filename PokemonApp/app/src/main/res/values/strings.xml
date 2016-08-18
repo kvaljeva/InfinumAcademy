@@ -94,4 +94,7 @@
     <string name="username">Username</string>
     <string name="user_not_found">User not found</string>
     <string name="email_updated">Email succesfully updated</string>
+    <string name="account_delete_desc">Upon ticking the checkbox and confirming the changes, your user account will be deleted.</string>
+    <string name="delete_my_account">Delete my account</string>
+    <string name="delete_account">Delete account</string>
 </resources>

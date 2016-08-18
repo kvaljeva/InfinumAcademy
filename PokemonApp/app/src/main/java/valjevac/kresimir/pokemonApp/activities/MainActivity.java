@@ -187,6 +187,14 @@ public class MainActivity extends AppCompatActivity implements
         manager.popBackStack();
     }
 
+    private void openStarterActivity() {
+        Intent intent = new Intent(MainActivity.this, StarterActivity.class);
+        intent.putExtra(StarterActivity.SPLASH_ANIMATION, false);
+        startActivity(intent);
+
+        finish();
+    }
+
     private int getCurrentOrientation() {
         return getResources().getConfiguration().orientation;
     }
@@ -261,14 +269,9 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onLogoutClick() {
-
         SharedPreferencesHelper.logout();
 
-        Intent intent = new Intent(MainActivity.this, StarterActivity.class);
-        intent.putExtra(StarterActivity.SPLASH_ANIMATION, false);
-        startActivity(intent);
-
-        finish();
+        openStarterActivity();
     }
 
     @Override
@@ -284,5 +287,10 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onSettingsHomePressed() {
         removeFragmentFromStack(USER_SETTINGS_FRAGMENT_TAG);
+    }
+
+    @Override
+    public void onAccountDeleted() {
+        openStarterActivity();
     }
 }

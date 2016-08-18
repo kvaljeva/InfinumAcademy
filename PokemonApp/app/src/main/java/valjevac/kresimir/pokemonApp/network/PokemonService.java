@@ -46,7 +46,7 @@ public interface PokemonService {
     Call<Void> logoutUser();
 
     @DELETE("/api/v1/users/{id}")
-    Call<BaseResponse<Void>> deleteUser(@Path("id") int userId);
+    Call<Void> deleteUser(@Path("id") int userId);
 
     @GET("/api/v1/pokemons")
     Call<BaseResponse<ArrayList<ExtendedData<Pokemon, ArrayList<PokemonType>>>>> getPokemons();

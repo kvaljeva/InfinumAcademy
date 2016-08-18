@@ -13,4 +13,6 @@
     <color name="hintColor">#777777</color>
     <color name="listItemTextColor">#353535</color>
     <color name="mediumGray">#555555</color>
+    <color name="darkRed">#D32F2F</color>
+    <color name="red">#F44336</color>
 </resources>

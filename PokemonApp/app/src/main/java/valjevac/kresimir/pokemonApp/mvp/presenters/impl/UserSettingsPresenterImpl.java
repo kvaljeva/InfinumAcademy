@@ -32,7 +32,11 @@ public class UserSettingsPresenterImpl implements UserSettingsPresenter {
     }
 
     @Override
-    public void updateEmail(String email) {
+    public void updateEmail(String email, boolean changesMade) {
+        if (!changesMade) {
+            return;
+        }
+
         if (!NetworkHelper.isNetworkAvailable()) {
             view.showMessage(R.string.no_internet_conn);
             return;
@@ -89,17 +93,25 @@ public class UserSettingsPresenterImpl implements UserSettingsPresenter {
             return;
         }
 
-        view.hideProgress();
+        view.showProgress();
 
         interactor.deleteAccount(id, new DeleteAccountListener() {
             @Override
             public void onDeleteAccountSuccess() {
                 view.hideProgress();
+
+                SharedPreferencesHelper.logout();
+
+                view.onAccountDeletedSuccess();
             }
 
             @Override
             public void onDeleteAccountFail(String error) {
                 view.hideProgress();
+
+                if (ApiErrorHelper.createError(error)) {
+                    view.showMessage(ApiErrorHelper.getFullError(0));
+                }
             }
         });
     }
