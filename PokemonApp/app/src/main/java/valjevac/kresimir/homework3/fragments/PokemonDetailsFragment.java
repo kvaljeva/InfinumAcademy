@@ -3,6 +3,7 @@ package valjevac.kresimir.homework3.fragments;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -13,8 +14,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,8 +29,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -166,7 +165,7 @@ public class PokemonDetailsFragment extends Fragment implements PokemonDetailsVi
 
         void onDetailsHomePressed();
 
-        void onShowAllCommentsPressed(String title, ArrayList<Comment> comments, String nextPage);
+        void onShowAllCommentsPressed(String title, ArrayList<Comment> comments, String nextPage, int pokemonId);
     }
 
     @Override
@@ -342,7 +341,7 @@ public class PokemonDetailsFragment extends Fragment implements PokemonDetailsVi
 
     @Override
     public void onShowAllComments(Pokemon pokemon, ArrayList<Comment> comments, Links links) {
-        listener.onShowAllCommentsPressed(pokemon.getName(), comments, links.getNext());
+        listener.onShowAllCommentsPressed(pokemon.getName(), comments, links.getNext(), pokemon.getId());
     }
 
     @OnClick(R.id.btn_like)
@@ -370,7 +369,19 @@ public class PokemonDetailsFragment extends Fragment implements PokemonDetailsVi
         presenter.showAllComments();
     }
 
-    private void setCommentData(View commentView, ArrayList<Comment> comments, int position) {
+    @Override
+    public void onCommentDeleted(ArrayList<Comment> comments) {
+        if (comments.size() == 0) {
+            vFirstComment.setVisibility(View.GONE);
+        }
+        else if (comments.size() == 1) {
+            vSecondComment.setVisibility(View.GONE);
+        }
+
+        updateCommentsOverview(comments);
+    }
+
+    private void setCommentData(View commentView, final ArrayList<Comment> comments, final int position) {
         SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT, Locale.ENGLISH);
 
         TextView tvUsername = (TextView) commentView.findViewById(R.id.tv_comment_username);
@@ -380,20 +391,55 @@ public class PokemonDetailsFragment extends Fragment implements PokemonDetailsVi
         tvUsername.setText(comments.get(position).getUsername());
         tvBody.setText(comments.get(position).getContent());
         tvDate.setText(dateFormat.format(comments.get(position).getDate()));
+
+        commentView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                int fixedPosition = (comments.size() == 1) ? 0 : position;
+
+                showDialog(comments.get(fixedPosition).getId(), fixedPosition);
+
+                return true;
+            }
+        });
+    }
+
+    private void showDialog(final int commentId, final int position) {
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which){
+                    case DialogInterface.BUTTON_POSITIVE:
+                        presenter.deleteComment(commentId, position);
+                        break;
+
+                    default: break;
+                }
+            }
+        };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(R.string.delete_comment);
+        builder.setMessage(R.string.delete_comment_desc)
+                .setPositiveButton(R.string.dialog_button_positive, dialogClickListener)
+                .setNegativeButton(R.string.dialog_button_negative, dialogClickListener)
+                .show();
     }
 
     private void updateCommentsOverview(ArrayList<Comment> comments) {
-        if (comments.size() > 0) {
+        if (comments.size() == 0 ) {
+            llCommentsContainer.setVisibility(View.GONE);
+        }
+        else {
+            llCommentsContainer.setVisibility(View.VISIBLE);
+
             setCommentData(vFirstComment, comments, 0);
+            vFirstComment.setVisibility(View.VISIBLE);
 
             if (comments.size() > 1) {
                 setCommentData(vSecondComment, comments, 1);
+                vSecondComment.setVisibility(View.VISIBLE);
             }
-        }
-
-        if (comments.size() > 0) {
-
-            llCommentsContainer.setVisibility(View.VISIBLE);
 
             if (comments.size() > 2) {
                 btnShowComments.setVisibility(View.VISIBLE);

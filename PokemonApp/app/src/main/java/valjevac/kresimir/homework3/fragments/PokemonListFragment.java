@@ -1,5 +1,6 @@
 package valjevac.kresimir.homework3.fragments;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -29,9 +30,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bignerdranch.android.multiselector.MultiSelector;
-
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -69,6 +69,8 @@ public class PokemonListFragment extends Fragment implements PokemonListView, Pr
     private Snackbar snackbarProgress;
 
     private PokemonListPresenterImpl presenter;
+
+    private ProgressDialog progressDialog;
 
     boolean animate;
 
@@ -336,7 +338,7 @@ public class PokemonListFragment extends Fragment implements PokemonListView, Pr
     }
 
     @Override
-    public void showActionProgressMessage(@StringRes final int message, final int length) {
+    public void showActionProgressMessage(@StringRes final int message, final int length, final HashMap<String, Integer> data) {
         rlMainContainer.post(new Runnable() {
             @Override
             public void run() {
@@ -344,7 +346,10 @@ public class PokemonListFragment extends Fragment implements PokemonListView, Pr
                          .setAction(getActivity().getString(R.string.retry), new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
+                                int pokemonId = data.get(presenter.POKEMON_ID);
+                                int position = data.get(presenter.LIST_POSITION);
 
+                                presenter.deletePokemon(pokemonId, position);
                             }
                          })
                  .show();
@@ -363,6 +368,20 @@ public class PokemonListFragment extends Fragment implements PokemonListView, Pr
                 }
             }
         });
+    }
+
+    @Override
+    public void showProgressDialog() {
+        progressDialog = new ProgressDialog(getActivity());
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage(getActivity().getString(R.string.progress_dialog_hang_on));
+
+        progressDialog.show();
+    }
+
+    @Override
+    public void hideProgressDialog() {
+        progressDialog.dismiss();
     }
 
     @Override

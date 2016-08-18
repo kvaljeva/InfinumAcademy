@@ -1,7 +1,6 @@
 package valjevac.kresimir.homework3.mvp.presenters.impl;
 
 import android.text.TextUtils;
-import android.widget.Toast;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -12,6 +11,7 @@ import valjevac.kresimir.homework3.helpers.ApiErrorHelper;
 import valjevac.kresimir.homework3.helpers.NetworkHelper;
 import valjevac.kresimir.homework3.interfaces.AddCommentListener;
 import valjevac.kresimir.homework3.interfaces.CommentLoadListener;
+import valjevac.kresimir.homework3.interfaces.DeleteCommentListener;
 import valjevac.kresimir.homework3.interfaces.DownvoteListener;
 import valjevac.kresimir.homework3.interfaces.UpvoteListener;
 import valjevac.kresimir.homework3.models.AuthorData;
@@ -42,6 +42,8 @@ public class PokemonDetailsPresenterImpl implements PokemonDetailsPresenter {
 
     private static final String GENDER_UNKNOWN = "Unknown";
 
+    private static final String DELETE_FORBIDDEN = "forbidden";
+
     public PokemonDetailsPresenterImpl(PokemonDetailsView view, ArrayList<Comment> comments, Pokemon pokemon) {
         this.view = view;
         this.comments = comments;
@@ -68,6 +70,8 @@ public class PokemonDetailsPresenterImpl implements PokemonDetailsPresenter {
         if (!checkIfNetworkAvailable()) {
             return;
         }
+
+        comments.clear();
 
         view.showProgress();
 
@@ -202,6 +206,44 @@ public class PokemonDetailsPresenterImpl implements PokemonDetailsPresenter {
 
                 if (ApiErrorHelper.createError(error)) {
                     view.showMessage(ApiErrorHelper.getFullError(0));
+                }
+            }
+        });
+    }
+
+    @Override
+    public void deleteComment(int commentId, final int position) {
+
+        if (!NetworkHelper.isNetworkAvailable()) {
+            view.showMessage(R.string.no_internet_conn);
+            return;
+        }
+
+        view.showProgressDialog();
+
+        interactor.deleteComment(pokemon.getId(), commentId, new DeleteCommentListener() {
+            @Override
+            public void onDeleteCommentSuccess() {
+                view.hideProgressDialog();
+
+                comments.remove(position);
+
+                view.onCommentDeleted(comments);
+                view.showMessage(R.string.delete_success);
+            }
+
+            @Override
+            public void onDeleteCommentFail(String error) {
+                view.hideProgressDialog();
+
+                if (ApiErrorHelper.createError(error)) {
+
+                    if (ApiErrorHelper.getErrorAt(0).getDetail().equals(DELETE_FORBIDDEN)) {
+                        view.showMessage(R.string.comment_not_owner);
+                    }
+                    else {
+                        view.showMessage(R.string.delete_fail);
+                    }
                 }
             }
         });

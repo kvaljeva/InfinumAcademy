@@ -8,6 +8,7 @@ import retrofit2.Call;
 import retrofit2.Response;
 import valjevac.kresimir.homework3.interfaces.AddCommentListener;
 import valjevac.kresimir.homework3.interfaces.CommentLoadListener;
+import valjevac.kresimir.homework3.interfaces.DeleteCommentListener;
 import valjevac.kresimir.homework3.interfaces.DownvoteListener;
 import valjevac.kresimir.homework3.interfaces.UpvoteListener;
 import valjevac.kresimir.homework3.models.AuthorData;
@@ -31,6 +32,8 @@ public class PokemonDetailsInteractorImpl implements PokemonDetailsInteractor {
     Call<BaseResponse<ArrayList<ExtendedData<Comment, AuthorData>>>> getCommentsCall;
 
     BaseCallback<BaseResponse<ArrayList<ExtendedData<Comment, AuthorData>>>> getCommentsCallback;
+
+    Call<Void> deleteCommentCall;
 
     public PokemonDetailsInteractorImpl() {
     }
@@ -104,6 +107,25 @@ public class PokemonDetailsInteractorImpl implements PokemonDetailsInteractor {
         getCommentsCall.enqueue(getCommentsCallback);
     }
 
+
+
+    @Override
+    public void deleteComment(int pokemonId, int commentId, final DeleteCommentListener listener) {
+        deleteCommentCall = ApiManager.getService().deleteComment(pokemonId, commentId);
+
+        deleteCommentCall.enqueue(new BaseCallback<Void>() {
+            @Override
+            public void onUnknownError(@Nullable String error) {
+                listener.onDeleteCommentFail(error);
+            }
+
+            @Override
+            public void onSuccess(Void body, Response<Void> response) {
+                listener.onDeleteCommentSuccess();
+            }
+        });
+    }
+
     @Override
     public void cancel() {
 
@@ -125,6 +147,10 @@ public class PokemonDetailsInteractorImpl implements PokemonDetailsInteractor {
 
         if (getCommentsCall != null) {
             getCommentsCall.cancel();
+        }
+
+        if (deleteCommentCall != null) {
+            deleteCommentCall.cancel();
         }
     }
 }

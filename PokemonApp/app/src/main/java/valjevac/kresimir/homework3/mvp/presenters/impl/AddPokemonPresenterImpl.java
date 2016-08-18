@@ -11,9 +11,9 @@ import java.util.regex.Pattern;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
-import valjevac.kresimir.homework3.enums.ItemsType;
 import valjevac.kresimir.homework3.PokemonApplication;
 import valjevac.kresimir.homework3.R;
+import valjevac.kresimir.homework3.enums.ItemsType;
 import valjevac.kresimir.homework3.enums.PermissionType;
 import valjevac.kresimir.homework3.enums.SetFocus;
 import valjevac.kresimir.homework3.helpers.ApiErrorHelper;

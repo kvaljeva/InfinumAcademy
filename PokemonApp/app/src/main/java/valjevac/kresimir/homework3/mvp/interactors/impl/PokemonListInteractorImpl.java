@@ -1,14 +1,11 @@
 package valjevac.kresimir.homework3.mvp.interactors.impl;
 
 import android.support.annotation.Nullable;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
 import retrofit2.Call;
 import retrofit2.Response;
-import valjevac.kresimir.homework3.ProcessPokemonList;
-import valjevac.kresimir.homework3.helpers.ApiErrorHelper;
 import valjevac.kresimir.homework3.interfaces.DeletePokemonListener;
 import valjevac.kresimir.homework3.interfaces.LogoutListener;
 import valjevac.kresimir.homework3.interfaces.PokemonListLoadListener;

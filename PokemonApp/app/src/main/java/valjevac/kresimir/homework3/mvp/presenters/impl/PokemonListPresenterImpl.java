@@ -4,6 +4,7 @@ import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 
 import valjevac.kresimir.homework3.ProcessPokemonList;
 import valjevac.kresimir.homework3.R;
@@ -36,6 +37,10 @@ public class PokemonListPresenterImpl implements PokemonListPresenter {
     private ProcessPokemonList pokemonListProcessor;
 
     private PokemonListInteractorImpl interactor;
+
+    public final String POKEMON_ID = "PokemonId";
+
+    public final String LIST_POSITION = "Position";
 
     public PokemonListPresenterImpl(PokemonListView view, ArrayList<Pokemon> pokemons) {
         this.view = view;
@@ -80,30 +85,33 @@ public class PokemonListPresenterImpl implements PokemonListPresenter {
     }
 
     @Override
-    public void deletePokemon(int pokemonId, final int position) {
+    public void deletePokemon(final int pokemonId, final int position) {
 
         if (!NetworkHelper.isNetworkAvailable()) {
             view.showMessage(R.string.no_internet_conn);
             return;
         }
 
+        view.showProgressDialog();
+
         interactor.deletePokemon(pokemonId, new DeletePokemonListener() {
             @Override
             public void onDeletePokemonSuccess() {
-                view.onPokemonDeleted(position);
-
                 pokemons.remove(position);
 
-                view.showProgressMessage(R.string.deleting_pokemon_success, MessageLength.LONG);
+                view.hideProgressDialog();
+                view.onPokemonDeleted(position);
+                view.showProgressMessage(R.string.delete_success, MessageLength.LONG);
             }
 
             @Override
             public void onDeletePokemonFail(String error) {
-                view.showActionProgressMessage(R.string.deleting_pokemon_fail, MessageLength.LONG);
+                HashMap<String, Integer> data = new HashMap<>();
+                data.put(POKEMON_ID, pokemonId);
+                data.put(LIST_POSITION, position);
 
-                if (ApiErrorHelper.createError(error)) {
-                    view.showMessage(ApiErrorHelper.getFullError(0));
-                }
+                view.hideProgressDialog();
+                view.showActionProgressMessage(R.string.delete_fail, MessageLength.LONG, data);
             }
         });
     }

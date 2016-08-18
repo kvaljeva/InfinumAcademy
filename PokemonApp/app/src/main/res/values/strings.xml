@@ -83,7 +83,10 @@
     <string name="wrong_email_format">Wrong email format</string>
     <string name="passwords_not_match_warning">Passwords do not match</string>
     <string name="registration_successful">Registered successfully!</string>
-    <string name="deleting_pokemon_fail">Failed to delete pokemon</string>
     <string name="retry">Retry</string>
-    <string name="deleting_pokemon_success">Pokemon deleted</string>
+    <string name="delete_comment">Delete comment</string>
+    <string name="delete_comment_desc">Do you want to delete the selected comment?</string>
+    <string name="comment_not_owner">You\'re not the comment owner</string>
+    <string name="delete_success">Successfully deleted</string>
+    <string name="delete_fail">Delete failed</string>
 </resources>

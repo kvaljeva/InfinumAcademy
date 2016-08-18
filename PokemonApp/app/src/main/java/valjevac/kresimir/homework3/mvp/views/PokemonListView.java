@@ -3,6 +3,7 @@ package valjevac.kresimir.homework3.mvp.views;
 import android.support.annotation.StringRes;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import valjevac.kresimir.homework3.models.Pokemon;
 
@@ -22,9 +23,13 @@ public interface PokemonListView extends BaseView {
 
     void showProgressMessage(@StringRes final int message, int length);
 
-    void showActionProgressMessage(@StringRes final int message, int length);
+    void showActionProgressMessage(@StringRes final int message, int length, HashMap<String, Integer> data);
 
     void hideProgressMessage();
+
+    void showProgressDialog();
+
+    void hideProgressDialog();
 
     void onLogout();
 }

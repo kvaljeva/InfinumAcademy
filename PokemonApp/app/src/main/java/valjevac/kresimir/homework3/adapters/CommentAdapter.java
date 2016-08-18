@@ -1,11 +1,19 @@
 package valjevac.kresimir.homework3.adapters;
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.bignerdranch.android.multiselector.ModalMultiSelectorCallback;
+import com.bignerdranch.android.multiselector.MultiSelector;
+import com.bignerdranch.android.multiselector.SwappingHolder;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -15,6 +23,7 @@ import java.util.Locale;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import valjevac.kresimir.homework3.R;
+import valjevac.kresimir.homework3.activities.MainActivity;
 import valjevac.kresimir.homework3.interfaces.RecyclerViewClickListener;
 import valjevac.kresimir.homework3.models.Comment;
 
@@ -24,6 +33,44 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
     private Context context;
 
     private RecyclerViewClickListener<Comment> listener;
+
+    private ActionMode actionMode;
+
+    private static final String DATE_FORMAT = "MMM dd, yyyy";
+
+    private MultiSelector multiSelector = new MultiSelector();
+
+    private ModalMultiSelectorCallback multiSelectorCallback = new ModalMultiSelectorCallback(multiSelector) {
+
+        @Override
+        public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+            super.onCreateActionMode(actionMode, menu);
+
+            if (context instanceof MainActivity) {
+                ((MainActivity) context).getMenuInflater().inflate(R.menu.menu_item_delete, menu);
+            }
+
+            return true;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            if (item.getItemId() == R.id.action_delete) {
+                mode.finish();
+
+                for (int i = commentList.size(); i >= 0; i--) {
+                    if (multiSelector.isSelected(i, 0)) {
+                        listener.onDeleteItem(commentList.get(i).getId(), i);
+                    }
+                }
+
+                multiSelector.clearSelections();
+                return true;
+            }
+
+            return false;
+        }
+    };
 
     public CommentAdapter(Context context, List<Comment> comments, RecyclerViewClickListener<Comment> listener) {
         this.context = context;
@@ -40,7 +87,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.ENGLISH);
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT, Locale.ENGLISH);
 
         holder.tvCommentUsername.setText(commentList.get(position).getUsername());
         holder.tvCommentBody.setText(commentList.get(position).getContent());
@@ -64,7 +111,12 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
         notifyDataSetChanged();
     }
 
-    protected class ViewHolder extends RecyclerView.ViewHolder {
+    public void update(int position) {
+        commentList.remove(position);
+        notifyItemRemoved(position);
+    }
+
+    protected class ViewHolder extends SwappingHolder {
         @BindView(R.id.tv_comment_username)
         TextView tvCommentUsername;
 
@@ -75,15 +127,51 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
         TextView tvCommentBody;
 
         public ViewHolder(View view) {
-            super(view);
+            super(view, multiSelector);
 
             ButterKnife.bind(this, view);
+
+            setSelectionModeBackgroundDrawable(ContextCompat.getDrawable(context, R.drawable.selected_list_item_selector));
+            setSelectionModeStateListAnimator(null);
 
             if (listener != null) {
                 view.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        listener.onClick(commentList.get(getAdapterPosition()), null);
+
+                        if (!multiSelector.tapSelection(ViewHolder.this)) {
+                            listener.onClick(commentList.get(getAdapterPosition()), null);
+                        }
+                        else {
+                            if (multiSelector.getSelectedPositions().size() == 0) {
+                                multiSelector.setSelectable(false);
+
+                                if (actionMode != null) {
+                                    actionMode.finish();
+                                }
+                            }
+                            else {
+                                actionMode.setTitle(String.valueOf(multiSelector.getSelectedPositions().size()));
+                            }
+                        }
+                    }
+                });
+
+                view.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+                        if (!multiSelector.isSelectable()) {
+                            actionMode = ((MainActivity) context).startSupportActionMode(multiSelectorCallback);
+
+                            multiSelector.setSelectable(true);
+                            multiSelector.setSelected(ViewHolder.this, true);
+
+                            actionMode.setTitle(String.valueOf(multiSelector.getSelectedPositions().size()));
+
+                            return true;
+                        }
+
+                        return false;
                     }
                 });
             }

@@ -1,5 +1,6 @@
 package valjevac.kresimir.homework3.fragments;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -14,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -26,8 +28,8 @@ import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
 import valjevac.kresimir.homework3.R;
 import valjevac.kresimir.homework3.activities.MainActivity;
 import valjevac.kresimir.homework3.adapters.CommentAdapter;
+import valjevac.kresimir.homework3.interfaces.RecyclerViewClickListener;
 import valjevac.kresimir.homework3.models.Comment;
-import valjevac.kresimir.homework3.mvp.presenters.CommentsPresenter;
 import valjevac.kresimir.homework3.mvp.presenters.impl.CommentsPresenterImpl;
 import valjevac.kresimir.homework3.mvp.views.CommentsView;
 
@@ -37,13 +39,29 @@ public class CommentsFragment extends Fragment implements CommentsView {
 
     private OnFragmentInteractionListener listener;
 
+    private ArrayList<Comment> commentList;
+
+    private String nextPage;
+
+    private String title;
+
+    private int pokemonId;
+
+    private CommentAdapter commentAdapter;
+
+    private CommentsPresenterImpl presenter;
+
     private static final String TITLE = "Title";
 
     private static final String COMMENT_LIST = "CommentList";
 
     private static final String NEXT_PAGE = "CommentsNextPage";
 
+    private static final String POKEMON_ID = "PokemonId";
+
     private static final int ELEVATION = 14;
+
+    private ProgressDialog progressDialog;
 
     public interface OnFragmentInteractionListener {
 
@@ -59,27 +77,18 @@ public class CommentsFragment extends Fragment implements CommentsView {
     @BindView(R.id.ll_all_comments_progress_container)
     LinearLayout llProgressContainer;
 
-    private ArrayList<Comment> commentList;
-
-    private String nextPage;
-
-    private String title;
-
-    private CommentAdapter commentAdapter;
-
-    private CommentsPresenter presenter;
-
     public CommentsFragment() {
 
     }
 
-    public static CommentsFragment newInstance(String title, ArrayList<Comment> commentList, String nextPage) {
+    public static CommentsFragment newInstance(String title, ArrayList<Comment> commentList, String nextPage, int pokemonId) {
         CommentsFragment fragment = new CommentsFragment();
 
         Bundle args = new Bundle();
         args.putString(TITLE, title);
         args.putParcelableArrayList(COMMENT_LIST, commentList);
         args.putString(NEXT_PAGE, nextPage);
+        args.putInt(POKEMON_ID, pokemonId);
         fragment.setArguments(args);
 
         return fragment;
@@ -97,6 +106,7 @@ public class CommentsFragment extends Fragment implements CommentsView {
             title = arguments.getString(TITLE) + " " + getActivity().getString(R.string.comments);
             commentList = arguments.getParcelableArrayList(COMMENT_LIST);
             nextPage = arguments.getString(NEXT_PAGE);
+            pokemonId = arguments.getInt(POKEMON_ID);
 
             arguments.clear();
         }
@@ -105,7 +115,7 @@ public class CommentsFragment extends Fragment implements CommentsView {
             nextPage = savedInstanceState.getString(NEXT_PAGE);
         }
 
-        presenter = new CommentsPresenterImpl(this, nextPage, commentList);
+        presenter = new CommentsPresenterImpl(this, nextPage, commentList, pokemonId);
     }
 
     @Override
@@ -123,7 +133,17 @@ public class CommentsFragment extends Fragment implements CommentsView {
         View view = inflater.inflate(R.layout.fragment_comments, container, false);
         unbinder = ButterKnife.bind(this, view);
 
-        commentAdapter = new CommentAdapter(getActivity(), commentList, null);
+        commentAdapter = new CommentAdapter(getActivity(), commentList, new RecyclerViewClickListener<Comment>() {
+            @Override
+            public void onClick(Comment object, ImageView imageView) {
+
+            }
+
+            @Override
+            public void onDeleteItem(int itemId, int position) {
+                presenter.deleteComment(itemId, position);
+            }
+        });
 
         AlphaInAnimationAdapter alphaAdapter = new AlphaInAnimationAdapter(commentAdapter);
         alphaAdapter.setDuration(1000);
@@ -200,6 +220,11 @@ public class CommentsFragment extends Fragment implements CommentsView {
     }
 
     @Override
+    public void onCommentDeleted(int position) {
+        commentAdapter.update(position);
+    }
+
+    @Override
     public void showProgress() {
         llProgressContainer.setVisibility(View.VISIBLE);
     }
@@ -217,6 +242,20 @@ public class CommentsFragment extends Fragment implements CommentsView {
     @Override
     public void showMessage(String message) {
         Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void showProgressDialog() {
+        progressDialog = new ProgressDialog(getActivity());
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage(getActivity().getString(R.string.progress_dialog_hang_on));
+
+        progressDialog.show();
+    }
+
+    @Override
+    public void hideProgressDialog() {
+        progressDialog.dismiss();
     }
 
     private void setUpToolbar(String title) {

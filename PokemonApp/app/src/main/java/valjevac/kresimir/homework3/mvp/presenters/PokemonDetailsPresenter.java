@@ -6,6 +6,8 @@ public interface PokemonDetailsPresenter {
 
     void getComments();
 
+    void deleteComment(int commentId, final int position);
+
     void upvote();
 
     void downvote();

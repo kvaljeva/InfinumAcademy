@@ -68,6 +68,7 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHold
                 return true;
             }
 
+            multiSelector.clearSelections();
             return false;
         }
     };
@@ -77,7 +78,6 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHold
 
         this.context = context;
         this.clickListener = clickListener;
-
         this.pokemonList = new ArrayList<>(pokemonList);
     }
 
@@ -91,13 +91,6 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHold
     public void onBindViewHolder(ViewHolder holder, int position) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             holder.civPokemonImage.setTransitionName(getImageTransitionName(position));
-        }
-
-        if (multiSelector.isSelected(position, getItemId(position))) {
-            holder.tvPokemonName.setTextColor(ContextCompat.getColor(context, R.color.white));
-        }
-        else {
-            holder.tvPokemonName.setTextColor(ContextCompat.getColor(context, R.color.listItemTextColor));
         }
 
         holder.tvPokemonName.setText(pokemonList.get(position).getName());
@@ -145,6 +138,9 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHold
 
             ButterKnife.bind(this, view);
 
+            setSelectionModeBackgroundDrawable(ContextCompat.getDrawable(context, R.drawable.selected_list_item_selector));
+            setSelectionModeStateListAnimator(null);
+
             if (clickListener != null) {
                 view.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -155,12 +151,6 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHold
                             clickListener.onClick(pokemonList.get(getAdapterPosition()), imageView);
                         }
                         else {
-                            if (multiSelector.isSelected(getAdapterPosition(), getItemId())) {
-                                tvPokemonName.setTextColor(ContextCompat.getColor(context, R.color.white));
-                            }
-                            else {
-                                tvPokemonName.setTextColor(ContextCompat.getColor(context, R.color.listItemTextColor));
-                            }
 
                             if (multiSelector.getSelectedPositions().size() == 0) {
                                 multiSelector.setSelectable(false);
@@ -185,7 +175,6 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHold
                             multiSelector.setSelectable(true);
                             multiSelector.setSelected(ViewHolder.this, true);
 
-                            tvPokemonName.setTextColor(ContextCompat.getColor(context, R.color.white));
                             actionMode.setTitle(String.valueOf(multiSelector.getSelectedPositions().size()));
 
                             return true;

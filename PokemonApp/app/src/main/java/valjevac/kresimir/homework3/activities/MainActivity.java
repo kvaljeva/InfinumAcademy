@@ -244,8 +244,8 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onShowAllCommentsPressed(String pokemonName, ArrayList<Comment> comments, String nextPage) {
-        loadFragment(CommentsFragment.newInstance(pokemonName, comments, nextPage), COMMENTS_FRAGMENT_TAG);
+    public void onShowAllCommentsPressed(String pokemonName, ArrayList<Comment> comments, String nextPage, int pokemonId) {
+        loadFragment(CommentsFragment.newInstance(pokemonName, comments, nextPage, pokemonId), COMMENTS_FRAGMENT_TAG);
     }
 
     @Override

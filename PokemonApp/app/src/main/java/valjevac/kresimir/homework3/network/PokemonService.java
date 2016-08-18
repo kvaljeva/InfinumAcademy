@@ -76,6 +76,9 @@ public interface PokemonService {
     @GET
     Call<BaseResponse<ArrayList<ExtendedData<Comment, AuthorData>>>> getCommentsPage(@Url String path);
 
+    @DELETE("/api/v1/pokemons/{pokemon_id}/comments/{id}")
+    Call<Void> deleteComment(@Path("pokemon_id") int pokemonId, @Path("id") int commentId);
+
     @GET
     Call<BaseResponse<ArrayList<ExtendedData<Move, MoveData>>>> getMoves(@Url String path);
 

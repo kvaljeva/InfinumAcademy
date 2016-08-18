@@ -27,4 +27,6 @@ public interface PokemonDetailsView extends BaseView {
     void onShowAllComments(Pokemon pokemon, ArrayList<Comment> comments, Links links);
 
     void onPokemonDataHandled(String height, String weight, String gender, String moves, String types);
+
+    void onCommentDeleted(ArrayList<Comment> comments);
 }
