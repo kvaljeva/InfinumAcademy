@@ -40,18 +40,18 @@ public class UserSettingsInteractorImpl implements UserSettingsInteractor {
     }
 
     @Override
-    public void deleteAccount(int id, DeleteAccountListener listener) {
+    public void deleteAccount(int id, final DeleteAccountListener listener) {
         deleteAccountCall = ApiManager.getService().deleteUser(id);
 
         deleteAccountCall.enqueue(new BaseCallback<Void>() {
             @Override
             public void onUnknownError(@Nullable String error) {
-
+                listener.onDeleteAccountFail(error);
             }
 
             @Override
             public void onSuccess(Void body, Response<Void> response) {
-
+                listener.onDeleteAccountSuccess();
             }
         });
     }
