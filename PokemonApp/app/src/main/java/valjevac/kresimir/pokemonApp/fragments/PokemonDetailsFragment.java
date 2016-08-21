@@ -19,8 +19,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -44,6 +42,7 @@ import valjevac.kresimir.pokemonApp.helpers.BitmapHelper;
 import valjevac.kresimir.pokemonApp.models.Comment;
 import valjevac.kresimir.pokemonApp.models.Links;
 import valjevac.kresimir.pokemonApp.models.Pokemon;
+import valjevac.kresimir.pokemonApp.mvp.presenters.PokemonDetailsPresenter;
 import valjevac.kresimir.pokemonApp.mvp.presenters.impl.PokemonDetailsPresenterImpl;
 import valjevac.kresimir.pokemonApp.mvp.views.PokemonDetailsView;
 
@@ -52,7 +51,7 @@ public class PokemonDetailsFragment extends Fragment implements PokemonDetailsVi
 
     private OnFragmentInteractionListener listener;
 
-    private PokemonDetailsPresenterImpl presenter;
+    private PokemonDetailsPresenter presenter;
 
     private static final String POKEMON_DETAILS = "PokemonDetails";
 
@@ -244,16 +243,6 @@ public class PokemonDetailsFragment extends Fragment implements PokemonDetailsVi
 
         if (unbinder != null) {
             unbinder.unbind();
-        }
-    }
-
-    @Override
-    public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
-        if (enter) {
-            return AnimationUtils.loadAnimation(getActivity(), R.anim.enter_right);
-        }
-        else {
-            return AnimationUtils.loadAnimation(getActivity(), R.anim.exit_right);
         }
     }
 
@@ -474,12 +463,12 @@ public class PokemonDetailsFragment extends Fragment implements PokemonDetailsVi
     }
 
     private void setUpToolbar() {
-        final MainActivity mainActivity = (MainActivity) getActivity();
-
         if (toolbar != null) {
-            mainActivity.setSupportActionBar(toolbar);
+            final MainActivity mainActivity = (MainActivity) getActivity();
 
             toolbar.setTitle(R.string.add_pokemon_toolbar_title);
+
+            mainActivity.setSupportActionBar(toolbar);
 
             if (mainActivity.getSupportActionBar() != null) {
                 mainActivity.getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);

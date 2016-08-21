@@ -11,8 +11,6 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -90,13 +88,20 @@ public class UserSettingsFragment extends Fragment implements UserSettingsView {
         tvUsername.setText(SharedPreferencesHelper.getString(SharedPreferencesHelper.USER));
         etEmailAddress.setText(SharedPreferencesHelper.getString(SharedPreferencesHelper.EMAIL));
 
-        setUpToolbar();
+        changesMade = false;
 
         if (savedInstanceState != null) {
             changesMade = savedInstanceState.getBoolean(CHANGES_MADE);
         }
 
         return view;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        setUpToolbar();
     }
 
     @Override
@@ -139,18 +144,9 @@ public class UserSettingsFragment extends Fragment implements UserSettingsView {
     }
 
     @Override
-    public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
-        if (enter) {
-            return AnimationUtils.loadAnimation(getActivity(), R.anim.enter_right);
-        }
-        else {
-            return AnimationUtils.loadAnimation(getActivity(), R.anim.exit_right);
-        }
-    }
-
-    @Override
     public void onEmailUpdateSuccess(String email) {
         etEmailAddress.setText(email);
+        changesMade = false;
     }
 
     @Override
@@ -215,12 +211,12 @@ public class UserSettingsFragment extends Fragment implements UserSettingsView {
     }
 
     private void setUpToolbar() {
-        MainActivity mainActivity = (MainActivity) getActivity();
-
         if (toolbar != null) {
-            mainActivity.setSupportActionBar(toolbar);
+            MainActivity mainActivity = (MainActivity) getActivity();
 
-            toolbar.setTitle(R.string.add_pokemon_toolbar_title);
+            toolbar.setTitle(R.string.user_settings);
+
+            mainActivity.setSupportActionBar(toolbar);
 
             if (mainActivity.getSupportActionBar() != null) {
                 mainActivity.getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);

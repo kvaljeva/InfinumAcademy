@@ -13,20 +13,27 @@
         android:background="@color/white"
         android:animateLayoutChanges="true">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/tb_pokemon_list"
+        <android.support.design.widget.AppBarLayout
+            android:id="@+id/abl_pokemon_list"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:minHeight="?attr/actionBarSize"
-            android:title="@string/toolbar_pokemon_list_title"
-            android:background="?attr/colorPrimary"
-            android:theme="@style/ToolbarTheme"/>
+            android:layout_height="wrap_content">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/tb_pokemon_list"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:minHeight="?attr/actionBarSize"
+                android:title="@string/toolbar_pokemon_list_title"
+                android:background="?attr/colorPrimary"
+                android:theme="@style/ToolbarTheme"/>
+
+        </android.support.design.widget.AppBarLayout>
 
         <android.support.v4.widget.SwipeRefreshLayout
             android:id="@+id/srl_recycler_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="?attr/actionBarSize">
+            android:layout_below="@id/abl_pokemon_list">
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recycler_view_pokemon_list"

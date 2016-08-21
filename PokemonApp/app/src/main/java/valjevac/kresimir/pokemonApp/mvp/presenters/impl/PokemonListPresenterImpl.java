@@ -54,13 +54,13 @@ public class PokemonListPresenterImpl implements PokemonListPresenter {
     public void getPokemonList(boolean showProgress) {
 
         if (!NetworkHelper.isNetworkAvailable()) {
-            view.showMessage(R.string.no_internet_conn);
+            view.showMessage(R.string.no_internet_conn, MessageLength.LONG);
             loadCachedList();
             return;
         }
 
         if (showProgress) {
-            view.showProgressMessage(R.string.loading_pokemon_list);
+            view.showMessage(R.string.loading_pokemon_list);
         }
 
         interactor.getPokemonList(new PokemonListLoadListener() {
@@ -88,7 +88,7 @@ public class PokemonListPresenterImpl implements PokemonListPresenter {
     public void deletePokemon(final int pokemonId, final int position) {
 
         if (!NetworkHelper.isNetworkAvailable()) {
-            view.showMessage(R.string.no_internet_conn);
+            view.showMessage(R.string.no_internet_conn, MessageLength.LONG);
             return;
         }
 
@@ -101,7 +101,7 @@ public class PokemonListPresenterImpl implements PokemonListPresenter {
 
                 view.hideProgressDialog();
                 view.onPokemonDeleted(position);
-                view.showProgressMessage(R.string.delete_success, MessageLength.LONG);
+                view.showMessage(R.string.delete_success, MessageLength.LONG);
             }
 
             @Override
@@ -111,7 +111,7 @@ public class PokemonListPresenterImpl implements PokemonListPresenter {
                 data.put(LIST_POSITION, position);
 
                 view.hideProgressDialog();
-                view.showActionProgressMessage(R.string.delete_fail, MessageLength.LONG, data);
+                view.showActionMessage(R.string.delete_fail, MessageLength.LONG, data);
             }
         });
     }
@@ -138,7 +138,7 @@ public class PokemonListPresenterImpl implements PokemonListPresenter {
             interactor.cancel();
         }
 
-        view.hideProgressMessage();
+        view.hideMessage();
     }
 
     private void loadCachedList() {
@@ -169,7 +169,7 @@ public class PokemonListPresenterImpl implements PokemonListPresenter {
         pokemons.addAll(pokemonList);
 
         view.hideProgress();
-        view.hideProgressMessage();
+        view.hideMessage();
         view.onPokemonListLoadSuccess(pokemons);
     }
 

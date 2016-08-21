@@ -97,4 +97,5 @@
     <string name="account_delete_desc">Upon ticking the checkbox and confirming the changes, your user account will be deleted.</string>
     <string name="delete_my_account">Delete my account</string>
     <string name="delete_account">Delete account</string>
+    <string name="user_settings">User settings</string>
 </resources>

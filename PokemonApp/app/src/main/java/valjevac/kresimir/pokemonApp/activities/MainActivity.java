@@ -9,7 +9,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
 import android.widget.FrameLayout;
@@ -45,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements
 
     public static final String ADD_POKEMON_FRAGMENT_TAG = "AddPokemonFragment";
 
-    private static final String POKEMON_DETAILS_FRAGMENT_TAG = "PokemonDetailsFragment";
+    public static final String POKEMON_DETAILS_FRAGMENT_TAG = "PokemonDetailsFragment";
 
     private static final String COMMENTS_FRAGMENT_TAG = "CommentsFragment";
 
@@ -118,15 +117,15 @@ public class MainActivity extends AppCompatActivity implements
                         AddPokemonFragment addPokemonFragment = (AddPokemonFragment) fragment;
 
                         if (addPokemonFragment.allowBackPressed()) {
-                            removeFragmentFromStack(fragment.getTag());
+                            removeFragmentFromStack();
                         }
                     }
                     else if (fragment instanceof CommentsFragment) {
-                        removeFragmentFromStack(fragment.getTag());
+                        removeFragmentFromStack();
                         break;
                     }
                     else {
-                        removeFragmentFromStack(fragment.getTag());
+                        removeFragmentFromStack();
                     }
                 }
             }
@@ -139,29 +138,11 @@ public class MainActivity extends AppCompatActivity implements
         return !(manager.findFragmentByTag(tag) == null);
     }
 
-    private void loadFragment(Fragment fragment, String tag, ImageView... imageView) {
+    private void loadFragment(Fragment fragment, String tag, ImageView... imageViews) {
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
 
-        if (tag.equals(POKEMON_DETAILS_FRAGMENT_TAG) && checkIfFragmentExists(POKEMON_LIST_FRAGMENT_TAG)
-                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && imageView.length > 0) {
-
-            Fragment listFragment = manager.findFragmentByTag(POKEMON_LIST_FRAGMENT_TAG);
-            Transition changeTransform = TransitionInflater.from(this).inflateTransition(R.transition.change_image_transform);
-
-            listFragment.setSharedElementReturnTransition(changeTransform);
-            listFragment.setExitTransition(changeTransform);
-
-            fragment.setSharedElementEnterTransition(changeTransform);
-            fragment.setEnterTransition(changeTransform);
-
-            ImageView ivPokemonImage = imageView[0];
-            String transitionName = ivPokemonImage.getTransitionName();
-
-            if (!TextUtils.isEmpty(transitionName)) {
-                transaction.addSharedElement(ivPokemonImage, ivPokemonImage.getTransitionName());
-            }
-        }
+        setFragmentTransition(tag, transaction);
 
         if (tag.equals(POKEMON_LIST_FRAGMENT_TAG) || !isDeviceTablet) {
             transaction.replace(R.id.fl_container_main, fragment, tag);
@@ -175,20 +156,54 @@ public class MainActivity extends AppCompatActivity implements
             }
         }
 
-        if (manager.findFragmentByTag(tag) == null || (isDeviceTablet
-                && currentOrientation == ORIENTATION_PORTRAIT)) {
-
+        if (isAddableToBackstack(manager, tag)) {
             transaction.addToBackStack(tag);
         }
 
         transaction.commit();
     }
 
-    private void removeFragmentFromStack(String tag) {
+    private void setFragmentTransition(String tag, FragmentTransaction transaction) {
+
+        switch (tag) {
+            case ADD_POKEMON_FRAGMENT_TAG:
+                transaction.setCustomAnimations(R.anim.enter_right, R.anim.exit_left, R.anim.enter_left, R.anim.exit_right);
+                break;
+            case POKEMON_LIST_FRAGMENT_TAG:
+                transaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out);
+                break;
+            case POKEMON_DETAILS_FRAGMENT_TAG:
+                transaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out);
+                break;
+            case COMMENTS_FRAGMENT_TAG:
+                transaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out);
+                break;
+            case USER_SETTINGS_FRAGMENT_TAG:
+                transaction.setCustomAnimations(R.anim.enter_right, R.anim.exit_left, R.anim.enter_left, R.anim.exit_right);
+                break;
+            default:
+                transaction.setCustomAnimations(R.anim.enter_right, R.anim.exit_right);
+                break;
+        }
+    }
+
+    private void setSharedElementTransition(Fragment fragment, FragmentTransaction transaction, ImageView... imageViews) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Transition changeTransform = TransitionInflater.from(this).inflateTransition(R.transition.change_image_transform);
+
+            fragment.setSharedElementEnterTransition(changeTransform);
+            transaction.addSharedElement(imageViews[0], imageViews[0].getTransitionName());
+        }
+    }
+
+    private boolean isAddableToBackstack(FragmentManager manager, String tag) {
+        return manager.findFragmentByTag(tag) == null || (isDeviceTablet && currentOrientation == ORIENTATION_PORTRAIT);
+    }
+
+    private void removeFragmentFromStack() {
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
 
-        transaction.remove(manager.findFragmentByTag(tag));
         transaction.commit();
 
         manager.popBackStack();
@@ -209,7 +224,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onShowPokemonDetailsClick(Pokemon pokemon, ImageView imageView) {
         if (checkIfFragmentExists(POKEMON_DETAILS_FRAGMENT_TAG) && isDeviceTablet) {
-            removeFragmentFromStack(POKEMON_DETAILS_FRAGMENT_TAG);
+            removeFragmentFromStack();
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -223,7 +238,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onPokemonAdded(Pokemon pokemon) {
         if (!isDeviceTablet) {
-            removeFragmentFromStack(ADD_POKEMON_FRAGMENT_TAG);
+            removeFragmentFromStack();
         }
 
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(POKEMON_LIST_FRAGMENT_TAG);
@@ -237,7 +252,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onDetailsHomePressed() {
-        removeFragmentFromStack(POKEMON_DETAILS_FRAGMENT_TAG);
+        removeFragmentFromStack();
     }
 
     @Override
@@ -255,7 +270,7 @@ public class MainActivity extends AppCompatActivity implements
 
                 ((AddPokemonFragment) fragment).clearUserData();
 
-                removeFragmentFromStack(ADD_POKEMON_FRAGMENT_TAG);
+                removeFragmentFromStack();
             }
         }
     }
@@ -263,7 +278,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onAddPokemonClick() {
         if (checkIfFragmentExists(POKEMON_DETAILS_FRAGMENT_TAG)) {
-            removeFragmentFromStack(POKEMON_DETAILS_FRAGMENT_TAG);
+            removeFragmentFromStack();
         }
 
         loadFragment(AddPokemonFragment.newInstance(isDeviceTablet), ADD_POKEMON_FRAGMENT_TAG);
@@ -288,12 +303,12 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onCommentsHomePressed() {
-        removeFragmentFromStack(COMMENTS_FRAGMENT_TAG);
+        removeFragmentFromStack();
     }
 
     @Override
     public void onSettingsHomePressed() {
-        removeFragmentFromStack(USER_SETTINGS_FRAGMENT_TAG);
+        removeFragmentFromStack();
     }
 
     @Override

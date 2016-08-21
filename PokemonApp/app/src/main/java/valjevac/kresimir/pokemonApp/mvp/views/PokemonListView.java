@@ -19,13 +19,11 @@ public interface PokemonListView extends BaseView {
 
     void onDrawerContentReady(String username, String email);
 
-    void showProgressMessage(@StringRes final int message);
+    void showMessage(@StringRes final int message, int length);
 
-    void showProgressMessage(@StringRes final int message, int length);
+    void showActionMessage(@StringRes final int message, int length, HashMap<String, Integer> data);
 
-    void showActionProgressMessage(@StringRes final int message, int length, HashMap<String, Integer> data);
-
-    void hideProgressMessage();
+    void hideMessage();
 
     void showProgressDialog();
 

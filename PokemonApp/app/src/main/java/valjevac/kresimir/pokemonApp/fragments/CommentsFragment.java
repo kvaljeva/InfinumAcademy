@@ -13,8 +13,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -116,6 +114,7 @@ public class CommentsFragment extends Fragment implements CommentsView {
         }
 
         presenter = new CommentsPresenterImpl(this, nextPage, commentList, pokemonId);
+        progressDialog = new ProgressDialog(getActivity());
     }
 
     @Override
@@ -204,16 +203,6 @@ public class CommentsFragment extends Fragment implements CommentsView {
     }
 
     @Override
-    public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
-        if (enter) {
-            return AnimationUtils.loadAnimation(getActivity(), R.anim.enter_left);
-        }
-        else {
-            return AnimationUtils.loadAnimation(getActivity(), R.anim.exit_left);
-        }
-    }
-
-    @Override
     public void onCommentsLoadSuccess(ArrayList<Comment> comments, String currentPage) {
         commentAdapter.update(comments);
         nextPage = currentPage;
@@ -246,7 +235,6 @@ public class CommentsFragment extends Fragment implements CommentsView {
 
     @Override
     public void showProgressDialog() {
-        progressDialog = new ProgressDialog(getActivity());
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage(getActivity().getString(R.string.progress_dialog_hang_on));
 
@@ -259,12 +247,12 @@ public class CommentsFragment extends Fragment implements CommentsView {
     }
 
     private void setUpToolbar(String title) {
-        final MainActivity mainActivity = (MainActivity) getActivity();
-
         if (toolbar != null) {
-            mainActivity.setSupportActionBar(toolbar);
+            final MainActivity mainActivity = (MainActivity) getActivity();
 
             toolbar.setTitle(title);
+
+            mainActivity.setSupportActionBar(toolbar);
 
             if (mainActivity.getSupportActionBar() != null) {
                 mainActivity.getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);

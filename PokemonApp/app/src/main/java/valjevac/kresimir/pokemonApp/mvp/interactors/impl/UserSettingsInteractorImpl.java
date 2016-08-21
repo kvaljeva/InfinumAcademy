@@ -62,5 +62,9 @@ public class UserSettingsInteractorImpl implements UserSettingsInteractor {
         if (updateEmailCall != null) {
             updateEmailCall.cancel();
         }
+
+        if (deleteAccountCall != null) {
+            deleteAccountCall.cancel();
+        }
     }
 }

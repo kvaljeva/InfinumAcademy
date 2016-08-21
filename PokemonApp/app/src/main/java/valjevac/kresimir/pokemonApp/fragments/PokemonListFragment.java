@@ -2,6 +2,7 @@ package valjevac.kresimir.pokemonApp.fragments;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
@@ -15,21 +16,19 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.Gravity;
+import android.transition.Transition;
+import android.transition.TransitionInflater;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.animation.OvershootInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,6 +45,7 @@ import valjevac.kresimir.pokemonApp.activities.MainActivity;
 import valjevac.kresimir.pokemonApp.adapters.PokemonAdapter;
 import valjevac.kresimir.pokemonApp.interfaces.RecyclerViewClickListener;
 import valjevac.kresimir.pokemonApp.models.Pokemon;
+import valjevac.kresimir.pokemonApp.mvp.presenters.PokemonListPresenter;
 import valjevac.kresimir.pokemonApp.mvp.presenters.impl.PokemonListPresenterImpl;
 import valjevac.kresimir.pokemonApp.mvp.views.PokemonListView;
 
@@ -61,6 +61,10 @@ public class PokemonListFragment extends Fragment implements PokemonListView, Pr
 
     public static final String POKEMON = "Pokemon";
 
+    public final String POKEMON_ID = "PokemonId";
+
+    public final String LIST_POSITION = "Position";
+
     private ArrayList<Pokemon> pokemonList;
 
     private PokemonAdapter pokemonAdapter;
@@ -69,7 +73,7 @@ public class PokemonListFragment extends Fragment implements PokemonListView, Pr
 
     private Snackbar snackbarProgress;
 
-    private PokemonListPresenterImpl presenter;
+    private PokemonListPresenter presenter;
 
     private ProgressDialog progressDialog;
 
@@ -135,6 +139,7 @@ public class PokemonListFragment extends Fragment implements PokemonListView, Pr
         }
 
         presenter = new PokemonListPresenterImpl(this, pokemonList);
+        progressDialog = new ProgressDialog(getActivity());
     }
 
     @Nullable
@@ -265,16 +270,6 @@ public class PokemonListFragment extends Fragment implements PokemonListView, Pr
     }
 
     @Override
-    public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
-        if (enter) {
-            return AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in);
-        }
-        else {
-            return AnimationUtils.loadAnimation(getActivity(), R.anim.fade_out);
-        }
-    }
-
-    @Override
     public void onPokemonListLoadSuccess(ArrayList<Pokemon> pokemonList) {
         isEmptyState = (pokemonList.size() == 0);
         updatePokemonListOverview(pokemonList);
@@ -310,28 +305,27 @@ public class PokemonListFragment extends Fragment implements PokemonListView, Pr
     }
 
     @Override
-    public void showMessage(@StringRes int message) {
-        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void showMessage(String message) {
-        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void showProgressMessage(@StringRes final int message) {
+    public void showMessage(@StringRes final int message) {
         rlMainContainer.post(new Runnable() {
             @Override
             public void run() {
                 snackbarProgress = Snackbar.make(rlMainContainer, message, Snackbar.LENGTH_INDEFINITE);
                 snackbarProgress.show();
             }
-        });
-    }
+        });    }
 
     @Override
-    public void showProgressMessage(@StringRes final int message, final int length) {
+    public void showMessage(final String message) {
+        rlMainContainer.post(new Runnable() {
+            @Override
+            public void run() {
+                snackbarProgress = Snackbar.make(rlMainContainer, message, Snackbar.LENGTH_INDEFINITE);
+                snackbarProgress.show();
+            }
+        });    }
+
+    @Override
+    public void showMessage(@StringRes final int message, final int length) {
         rlMainContainer.post(new Runnable() {
             @Override
             public void run() {
@@ -341,7 +335,7 @@ public class PokemonListFragment extends Fragment implements PokemonListView, Pr
     }
 
     @Override
-    public void showActionProgressMessage(@StringRes final int message, final int length, final HashMap<String, Integer> data) {
+    public void showActionMessage(@StringRes final int message, final int length, final HashMap<String, Integer> data) {
         rlMainContainer.post(new Runnable() {
             @Override
             public void run() {
@@ -349,8 +343,8 @@ public class PokemonListFragment extends Fragment implements PokemonListView, Pr
                          .setAction(getActivity().getString(R.string.retry), new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                int pokemonId = data.get(presenter.POKEMON_ID);
-                                int position = data.get(presenter.LIST_POSITION);
+                                int pokemonId = data.get(POKEMON_ID);
+                                int position = data.get(LIST_POSITION);
 
                                 presenter.deletePokemon(pokemonId, position);
                             }
@@ -362,7 +356,7 @@ public class PokemonListFragment extends Fragment implements PokemonListView, Pr
     }
 
     @Override
-    public void hideProgressMessage() {
+    public void hideMessage() {
         rlMainContainer.post(new Runnable() {
             @Override
             public void run() {
@@ -375,7 +369,6 @@ public class PokemonListFragment extends Fragment implements PokemonListView, Pr
 
     @Override
     public void showProgressDialog() {
-        progressDialog = new ProgressDialog(getActivity());
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage(getActivity().getString(R.string.progress_dialog_hang_on));
 
@@ -503,6 +496,13 @@ public class PokemonListFragment extends Fragment implements PokemonListView, Pr
             }
 
             pokemonAdapter.update(updatedList);
+        }
+    }
+
+    private void setSharedElementTransition() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Transition changeTransform = TransitionInflater.from(getContext()).inflateTransition(R.transition.change_image_transform);
+            setSharedElementReturnTransition(changeTransform);
         }
     }
 
